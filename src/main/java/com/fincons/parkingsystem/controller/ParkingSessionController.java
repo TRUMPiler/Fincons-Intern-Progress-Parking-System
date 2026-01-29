@@ -1,29 +1,52 @@
 package com.fincons.parkingsystem.controller;
 
-import com.fincons.parkingsystem.entity.ParkingSession;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import com.fincons.parkingsystem.dto.ParkingSessionDto;
 
+import com.fincons.parkingsystem.service.ParkingSessionService;
+import com.fincons.parkingsystem.utils.Response;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * REST controller for retrieving information about parking sessions.
+ */
 @RestController
 @RequestMapping("/api/sessions")
 @RequiredArgsConstructor
 public class ParkingSessionController {
 
-    @GetMapping("/active")
-    public ResponseEntity<List<ParkingSession>> getActiveSessions() {
+    private final ParkingSessionService parkingSessionService;
 
-        // service call will be added later
-        return ResponseEntity.ok(List.of());
+    /**
+     * Retrieves a list of all currently active parking sessions.
+     *
+     * @return A ResponseEntity containing a list of active parking sessions.
+     *         Returns 200 OK on success.
+     */
+    @GetMapping("/active")
+    public ResponseEntity<Response<List<ParkingSessionDto>>> getActiveSessions() {
+        List<ParkingSessionDto> activeSessions = parkingSessionService.getActiveSessions();
+        Response<List<ParkingSessionDto>> response = new Response<>(LocalDateTime.now(), activeSessions, "Successfully retrieved all active sessions.", true, HttpStatus.OK.value());
+        return ResponseEntity.ok(response);
     }
 
+    /**
+     * Retrieves a list of all completed parking sessions (session history).
+     *
+     * @return A ResponseEntity containing a list of completed parking sessions.
+     *         Returns 200 OK on success.
+     */
     @GetMapping("/history")
-    public ResponseEntity<List<ParkingSession>> getSessionHistory() {
-
-        // service call will be added later
-        return ResponseEntity.ok(List.of());
+    public ResponseEntity<Response<List<ParkingSessionDto>>> getSessionHistory() {
+        List<ParkingSessionDto> sessionHistory = parkingSessionService.getSessionHistory();
+        Response<List<ParkingSessionDto>> response = new Response<>(LocalDateTime.now(), sessionHistory, "Successfully retrieved session history.", true, HttpStatus.OK.value());
+        return ResponseEntity.ok(response);
     }
 }
-
