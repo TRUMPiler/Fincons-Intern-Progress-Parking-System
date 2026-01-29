@@ -10,8 +10,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 /**
- * Data Transfer Object for ParkingSession.
- * Used to transfer parking session details between layers.
+ * Represents a parking session.
  */
 @Data
 @Builder
@@ -20,50 +19,50 @@ import java.time.LocalDateTime;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ParkingSessionDto {
     /**
-     * The unique identifier of the parking session.
+     * Unique ID.
      */
     private Long id;
     /**
-     * The registration number of the vehicle involved in the session.
+     * Vehicle's registration number.
      */
     private String vehicleNumber;
     /**
-     * The ID of the parking slot occupied during the session.
+     * ID of the occupied parking slot.
      */
     private Long parkingSlotId;
     /**
-     * The timestamp when the vehicle entered the parking slot.
+     * Entry timestamp.
      */
     private LocalDateTime entryTime;
     /**
-     * The timestamp when the vehicle exited the parking slot.
+     * Exit timestamp.
      */
     private LocalDateTime exitTime;
     /**
-     * The total amount charged for the parking session.
+     * Total charge for the session.
      */
     private Double totalAmount;
 
     /**
-     * The base hourly price for parking in this lot.
+     * Base price per hour at the time of exit.
      */
     private Double basePricePerHour;
 
     /**
-     * The number of hours the vehicle was charged for.
+     * Total number of billable hours.
      */
     private Long hoursCharged;
 
     /**
-     * Percentage of Occupancy that the user exited.
+     * Occupancy percentage at the time of exit.
      */
     private Double occupancyPercentage;
     /**
-     * based on Occupancy amount was multiplied
+     * Pricing multiplier applied based on occupancy.
      */
     private Double multiplier;
     /**
-     * The current status of the parking session (e.g., ACTIVE, COMPLETED).
+     * Current status (e.g., ACTIVE, COMPLETED).
      */
     private ParkingSessionStatus status;
 }

@@ -8,8 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Data Transfer Object for ParkingSlot.
- * Used to transfer parking slot details between layers.
+ * Represents a parking slot.
  */
 @Data
 @Builder
@@ -18,23 +17,19 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ParkingSlotDto {
     /**
-     * The unique identifier of the parking slot.
+     * Unique ID.
      */
-
     private Long id;
     /**
-     * The unique number or identifier of the slot within its parking lot.
+     * Unique number within the parking lot.
      */
     private String slotNumber;
     /**
-     * The current status of the parking slot (e.g., AVAILABLE, OCCUPIED).
+     * Current status (e.g., AVAILABLE, OCCUPIED).
      */
     private SlotStatus status;
     /**
-     * The ID of the parking lot to which this slot belongs.
+     * ID of the parking lot this slot belongs to.
      */
     private Long parkingLotId;
-    /**
-     * The name of the parking lot to which this slot belongs.
-     */
 }

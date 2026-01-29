@@ -5,11 +5,12 @@ import com.fincons.parkingsystem.entity.Vehicle;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+/**
+ * Maps between Vehicle entity and VehicleDto.
+ */
 @Mapper(componentModel = "spring")
 public interface VehicleMapper {
 
-    @Mapping(target = "vehicleNumber", source = "vehicleNumber")
-    @Mapping(target = "vehicleType", source = "vehicleType")
     Vehicle toEntity(VehicleDto vehicleDto);
 
     VehicleDto toDto(Vehicle vehicle);

@@ -9,34 +9,27 @@ import com.fincons.parkingsystem.mapper.ParkingSlotMapper;
 import com.fincons.parkingsystem.repository.ParkingLotRepository;
 import com.fincons.parkingsystem.repository.ParkingSlotRepository;
 import com.fincons.parkingsystem.service.ParkingSlotService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Implements the services for managing parking slots.
- * This class provides the business logic for creating and retrieving parking slots associated with a parking lot.
+ * Implements the service for managing parking slots.
  */
 @Service
+@RequiredArgsConstructor
 public class ParkingSlotServiceImpl implements ParkingSlotService {
 
     private final ParkingSlotRepository parkingSlotRepository;
     private final ParkingLotRepository parkingLotRepository;
     private final ParkingSlotMapper parkingSlotMapper;
 
-    public ParkingSlotServiceImpl(ParkingSlotRepository parkingSlotRepository, ParkingLotRepository parkingLotRepository, ParkingSlotMapper parkingSlotMapper)
-    {
-        this.parkingSlotRepository=parkingSlotRepository;
-        this.parkingLotRepository=parkingLotRepository;
-        this.parkingSlotMapper=parkingSlotMapper;
-    }
-
     /**
-     * Creates a specified number of parking slots for a given parking lot.
-     * All created slots are initialized with an 'AVAILABLE' status.
+     * Creates parking slots for a new parking lot.
      *
-     * @param parkingLot the parking lot for which to create the slots.
-     * @param totalSlots the total number of slots to create.
+     * @param parkingLot The new parking lot.
+     * @param totalSlots The number of slots to create.
      */
     @Override
     public void createParkingSlotsForLot(ParkingLot parkingLot,int totalSlots) {
@@ -53,13 +46,13 @@ public class ParkingSlotServiceImpl implements ParkingSlotService {
     }
 
     /**
-     * Retrieves all parking slots for a specific parking lot.
+     * Retrieves the availability of slots for a parking lot.
      *
-     * @param parkingLotId the ID of the parking lot.
-     * @return a list of DTOs for the parking slots in the specified lot.
+     * @param parkingLotId The ID of the parking lot.
+     * @return A DTO with the list of slots and the count of available slots.
      */
     @Override
-    public ParkingSlotAvailability GetParkingSlot(Long parkingLotId) {
+    public ParkingSlotAvailability getParkingSlotAvailability(Long parkingLotId) {
 
         ParkingLot parkingLot = parkingLotRepository.getReferenceById(parkingLotId);
 
@@ -67,6 +60,4 @@ public class ParkingSlotServiceImpl implements ParkingSlotService {
         Long totalAvailableSlots=parkingSlotRepository.countByParkingLotAndStatus(parkingLot, SlotStatus.AVAILABLE);
         return new ParkingSlotAvailability(parkingSlots,totalAvailableSlots);
     }
-
-
 }

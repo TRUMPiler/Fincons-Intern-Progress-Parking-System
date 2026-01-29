@@ -13,41 +13,25 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Repository interface for {@link ParkingSlot} entities.
- * Provides standard CRUD operations and custom queries for accessing parking slot data.
+ * Repository for ParkingSlot entities.
  */
 @Repository
 public interface ParkingSlotRepository extends JpaRepository<ParkingSlot, Long> {
 
-
-
     /**
-     * Counts the number of parking slots in a given parking lot with a specific status.
-     *
-     * @param parkingLot The parking lot to search in.
-     * @param slotStatus The status of the slots to count.
-     * @return The number of slots with the given status in the specified parking lot.
+     * Counts the number of slots in a lot with a specific status.
      */
-    @Lock(LockModeType.OPTIMISTIC)
     Long countByParkingLotAndStatus(ParkingLot parkingLot, SlotStatus slotStatus);
 
     /**
-     * Finds all parking slots in a given parking lot.
-     *
-     * @param parkingLot The parking lot to search in.
-     * @return A list of all parking slots in the specified parking lot.
+     * Finds all slots in a specific parking lot.
      */
-    @Lock(LockModeType.OPTIMISTIC)
     List<ParkingSlot> findByParkingLot(ParkingLot parkingLot);
 
     /**
-     * Finds the first available parking slot in a given parking lot with a specific status, ordered by slot number.
-     * This method uses a pessimistic write lock to prevent race conditions during slot assignment.
-     *
-     * @param parkingLot The parking lot to search in.
-     * @param slotStatus The status of the slot to find.
-     * @return An {@link Optional} containing the first available slot, or an empty optional if no slot is found.
+     * Finds the first available slot in a lot, ordered by slot number.
+     * Uses a pessimistic write lock to prevent race conditions during slot assignment.
      */
-    @Lock(LockModeType.OPTIMISTIC)
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<ParkingSlot> findFirstByParkingLotAndStatusOrderBySlotNumberAsc(ParkingLot parkingLot, SlotStatus slotStatus);
 }

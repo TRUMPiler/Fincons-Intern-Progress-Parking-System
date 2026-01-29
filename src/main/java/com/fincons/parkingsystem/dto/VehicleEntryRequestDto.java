@@ -2,26 +2,34 @@ package com.fincons.parkingsystem.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fincons.parkingsystem.entity.VehicleType;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 
 /**
- * Data Transfer Object for a vehicle entry request.
- * Used to capture details required when a vehicle enters a parking lot.
+ * Represents the request data for a vehicle entering a parking lot.
  */
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@AllArgsConstructor
+@NoArgsConstructor
 public class VehicleEntryRequestDto {
     /**
-     * The registration number of the vehicle entering the parking lot.
+     * Vehicle's registration number.
      */
+    @NotBlank(message = "Vehicle number cannot be empty.")
     private String vehicleNumber;
     /**
-     * The type of the vehicle (e.g., CAR, BIKE).
+     * Type of vehicle (e.g., CAR, BIKE).
      */
+    @NotNull(message = "Vehicle type cannot be null.")
     private VehicleType vehicleType;
     /**
-     * The ID of the parking lot the vehicle is entering.
+     * ID of the parking lot being entered.
      */
+    @NotNull(message = "Parking lot ID cannot be null.")
     private Long parkingLotId;
 }

@@ -7,9 +7,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 /**
- * Represents a single parking slot within a parking lot.
- * This entity stores information about the slot's number, its current status (available or occupied),
- * and the parking lot it belongs to.
+ * Represents a single parking slot in a parking lot.
  */
 @Entity
 @Table(name = "parking_slots")
@@ -23,31 +21,35 @@ import org.hibernate.annotations.Where;
 public class ParkingSlot
 {
     /**
-     * The unique identifier for the parking slot.
+     * Unique ID.
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     /**
-     * The number or identifier of the slot within the parking lot.
+     * Number of the slot within the lot.
      */
     @Column(nullable = false)
     private String slotNumber;
     /**
-     * The current status of the parking slot (e.g., AVAILABLE, OCCUPIED).
+     * Current status (e.g., AVAILABLE, OCCUPIED).
      */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private SlotStatus status;
     /**
-     * The parking lot to which this slot belongs.
+     * The parking lot this slot belongs to.
      */
     @ManyToOne
     @JoinColumn(name = "parking_lot_id", nullable = false)
     private ParkingLot parkingLot;
-
+    /**
+     * Version number for optimistic locking.
+     */
     @Version
     private Long version;
-
+    /**
+     * Flag for soft deletion.
+     */
     private boolean deleted = Boolean.FALSE;
 }

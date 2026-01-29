@@ -5,6 +5,9 @@ import com.fincons.parkingsystem.entity.ParkingSlot;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+/**
+ * Maps between ParkingSlot entity and ParkingSlotDto.
+ */
 @Mapper(componentModel = "spring")
 public interface ParkingSlotMapper {
 

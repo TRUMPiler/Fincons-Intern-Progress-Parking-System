@@ -22,11 +22,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 
 /**
- * Implementation of the ParkingService interface.
- * This service manages the core parking operations, including vehicle entry and exit. It handles the creation
- * and completion of parking sessions, calculates charges based on dynamic pricing rules, and updates the
- * availability of parking slots. The implementation uses both pessimistic and optimistic locking to ensure
- * data consistency in a concurrent environment.
+ * Implements the service for handling vehicle entry and exit.
  */
 @Slf4j
 @Service
@@ -40,25 +36,17 @@ public class ParkingServiceImpl implements ParkingService {
     private final ParkingSessionMapper parkingSessionMapper;
 
     /**
-     * A private record to hold the results of a charge calculation.
-     * This is a temporary, immutable data carrier used to pass charge details
-     * between methods without persisting them.
+     * Holds the results of a charge calculation.
      */
     private record ChargeCalculationResult(double totalAmount, double basePricePerHour, long hoursCharged,
                                            double occupancyPercentage, double multiplier) {
     }
 
     /**
-     * Handles the entry of a vehicle into a parking lot.
-     * It finds an existing vehicle or creates a new one, assigns the lowest-numbered available parking slot,
-     * and creates a new active parking session. A pessimistic lock is used during slot assignment to prevent
-     * race conditions.
+     * Creates a new parking session when a vehicle enters.
      *
-     * @param entryRequest DTO containing vehicle number, type, and parking lot ID.
-     * @return a DTO representing the newly created and active parking session.
-     * @throws ResourceNotFoundException if the specified parking lot is not found.
-     * @throws ConflictException if the vehicle already has an active parking session or if no parking slots are available.
-     * @throws IllegalArgumentException if the entry request or its essential fields are null.
+     * @param entryRequest DTO with vehicle and parking lot details.
+     * @return The created parking session.
      */
     @Override
     @Transactional
@@ -104,15 +92,10 @@ public class ParkingServiceImpl implements ParkingService {
     }
 
     /**
-     * Handles the exit of a vehicle from the parking lot.
-     * It completes the active parking session, calculates the total charges, and frees up the parking slot.
-     * The final amount is persisted, but all intermediate calculation details (base price, hours, occupancy, multiplier)
-     * are returned in the DTO without being stored in the database.
+     * Completes a parking session when a vehicle exits.
      *
-     * @param vehicleNumber the registration number of the exiting vehicle.
-     * @return a DTO representing the completed parking session with all charge calculation details.
-     * @throws ResourceNotFoundException if the vehicle or its active parking session is not found.
-     * @throws BadRequestException if the calculated exit time is before the entry time.
+     * @param vehicleNumber The vehicle's registration number.
+     * @return The completed parking session with charge details.
      */
     @Override
     @Transactional
@@ -150,11 +133,7 @@ public class ParkingServiceImpl implements ParkingService {
     }
 
     /**
-     * Calculates the parking charges based on the duration of the stay and the current occupancy of the parking lot.
-     *
-     * @param session the parking session for which to calculate charges.
-     * @return a {@link ChargeCalculationResult} containing all charge details.
-     * @throws ResourceNotFoundException if the parking lot associated with the session is not found.
+     * Calculates parking charges based on duration and occupancy.
      */
     private ChargeCalculationResult calculateCharges(ParkingSession session) {
         ParkingLot parkingLot = session.getParkingSlot().getParkingLot();
@@ -179,10 +158,7 @@ public class ParkingServiceImpl implements ParkingService {
     }
 
     /**
-     * Calculates the current occupancy percentage of a given parking lot.
-     *
-     * @param parkingLot the parking lot for which to calculate occupancy.
-     * @return the occupancy percentage.
+     * Calculates the current occupancy percentage of a parking lot.
      */
     private double calculateOccupancy(ParkingLot parkingLot) {
         if (parkingLot.getTotalSlots() == null || parkingLot.getTotalSlots() == 0) {
@@ -193,11 +169,7 @@ public class ParkingServiceImpl implements ParkingService {
     }
 
     /**
-     * Determines the pricing multiplier based on the parking lot's occupancy percentage.
-     * A higher occupancy results in a higher price to encourage parking in less crowded lots.
-     *
-     * @param occupancy the current occupancy percentage of the parking lot.
-     * @return the pricing multiplier.
+     * Determines the pricing multiplier based on occupancy.
      */
     private double getOccupancyMultiplier(double occupancy) {
         if (occupancy <= 50) {

@@ -1,54 +1,58 @@
 package com.fincons.parkingsystem.service.impl;
 
-import com.fincons.parkingsystem.dto.ParkingLotDto;
 import com.fincons.parkingsystem.dto.ParkingLotStatsDto;
 import com.fincons.parkingsystem.entity.ParkingLot;
-import com.fincons.parkingsystem.entity.ParkingSessionStatus;
-import com.fincons.parkingsystem.entity.ParkingSlot;
 import com.fincons.parkingsystem.entity.SlotStatus;
-import com.fincons.parkingsystem.mapper.ParkingLotMapper;
+import com.fincons.parkingsystem.exception.ResourceNotFoundException;
 import com.fincons.parkingsystem.repository.ParkingLotRepository;
 import com.fincons.parkingsystem.repository.ParkingSessionRepository;
 import com.fincons.parkingsystem.repository.ParkingSlotRepository;
 import com.fincons.parkingsystem.service.ParkingLotStatsService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.Optional;
 
+/**
+ * Implements the service for retrieving parking lot statistics.
+ */
 @Service
 @RequiredArgsConstructor
-public class ParkingLotStatsServiceImpl implements ParkingLotStatsService
-{
+public class ParkingLotStatsServiceImpl implements ParkingLotStatsService {
+
     private final ParkingLotRepository parkingLotRepository;
     private final ParkingSlotRepository parkingSlotRepository;
     private final ParkingSessionRepository parkingSessionRepository;
-    private final ParkingLotMapper parkingLotMapper;
 
-
+    /**
+     * Retrieves statistics for a specific parking lot.
+     *
+     * @param id The ID of the parking lot.
+     * @return Statistics for the parking lot.
+     * @throws ResourceNotFoundException if the parking lot is not found.
+     */
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public ParkingLotStatsDto getParkingLotStats(Long id) {
 
-        ParkingLot savedParketLot=parkingLotRepository.getReferenceById(id);
-        Double parkingLotRevenue=parkingSessionRepository.sumOfTotalAmountByParkingLot(savedParketLot.getId())==null?0.0:parkingSessionRepository.sumOfTotalAmountByParkingLot(savedParketLot.getId());
-        Long occupiedSlots=parkingSlotRepository.countByParkingLotAndStatus(savedParketLot, SlotStatus.OCCUPIED);
-        Double OccupiedPercentage=(double)  occupiedSlots/ savedParketLot.getTotalSlots() * 100;
-        List<ParkingSlot> parkingSlots=parkingSlotRepository.findByParkingLot(savedParketLot);
-        Long activeSessions=0L;
-        for (ParkingSlot parkingSlot:parkingSlots)
-        {
-            activeSessions+=parkingSessionRepository.countParkingSessionByParkingSlotAndStatus(parkingSlot, ParkingSessionStatus.ACTIVE);
-        }
+        ParkingLot parkingLot = parkingLotRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Parking lot not found with id: " + id));
+
+        Double totalRevenue = Optional.ofNullable(parkingSessionRepository.sumOfTotalAmountByParkingLot(parkingLot.getId())).orElse(0.0);
+        long occupiedSlots = parkingSlotRepository.countByParkingLotAndStatus(parkingLot, SlotStatus.OCCUPIED);
+        double occupancyPercentage = (parkingLot.getTotalSlots() > 0) ? ((double) occupiedSlots / parkingLot.getTotalSlots() * 100) : 0.0;
+        long activeSessions = occupiedSlots;
+
         return ParkingLotStatsDto.builder()
-                .parkingLotId(savedParketLot.getId())
-                .parkingLotName(savedParketLot.getName())
-                .totalSlots(savedParketLot.getTotalSlots())
+                .parkingLotId(parkingLot.getId())
+                .parkingLotName(parkingLot.getName())
+                .totalSlots(parkingLot.getTotalSlots())
                 .occupiedSlots(occupiedSlots)
                 .activeSessions(activeSessions)
-                .RevenueToday(parkingLotRevenue)
-                .OccupancyPercentage(OccupiedPercentage)
+                .totalRevenue(totalRevenue)
+                .basePricePerHour(parkingLot.getBasePricePerHour())
+                .occupancyPercentage(Math.ceil(occupancyPercentage))
                 .build();
     }
 }

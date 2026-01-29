@@ -3,6 +3,7 @@ package com.fincons.parkingsystem.controller;
 import com.fincons.parkingsystem.dto.ParkingLotDto;
 import com.fincons.parkingsystem.service.ParkingLotService;
 import com.fincons.parkingsystem.utils.Response;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * REST controller for managing parking lots.
+ * Handles REST requests for managing parking lots.
  */
 @Slf4j
 @RestController
@@ -24,15 +25,13 @@ public class ParkingLotController {
     private final ParkingLotService parkingLotService;
 
     /**
-     * Creates a new parking lot along with its initial set of parking slots.
+     * Creates a new parking lot.
      *
-     * @param parkingLotDto DTO containing the details of the new parking lot.
-     * @return A ResponseEntity containing the details of the created parking lot.
-     *         Returns 201 Created on success.
-     *         Returns 409 Conflict if a parking lot with the same name already exists.
+     * @param parkingLotDto DTO with the new parking lot's details.
+     * @return The newly created parking lot.
      */
     @PostMapping
-    public ResponseEntity<Response<ParkingLotDto>> createParkingLot(@RequestBody ParkingLotDto parkingLotDto) {
+    public ResponseEntity<Response<ParkingLotDto>> createParkingLot(@Valid @RequestBody ParkingLotDto parkingLotDto) {
         log.info("Creating a new parking lot");
         ParkingLotDto createdParkingLot = parkingLotService.createParkingLot(parkingLotDto);
         Response<ParkingLotDto> response = new Response<>(LocalDateTime.now(), createdParkingLot, "Parking Lot created successfully.", true, HttpStatus.CREATED.value());
@@ -40,10 +39,9 @@ public class ParkingLotController {
     }
 
     /**
-     * Retrieves a list of all existing parking lots.
+     * Retrieves a list of all parking lots.
      *
-     * @return A ResponseEntity containing a list of all parking lots.
-     *         Returns 200 OK on success.
+     * @return A list of all parking lots.
      */
     @GetMapping
     public ResponseEntity<Response<List<ParkingLotDto>>> getAllParkingLots() {

@@ -12,8 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Implements the services for retrieving parking session information.
- * This class provides methods to get lists of active and completed parking sessions.
+ * Implements the service for retrieving parking session information.
  */
 @Service
 @RequiredArgsConstructor
@@ -23,9 +22,9 @@ public class ParkingSessionServiceImpl implements ParkingSessionService {
     private final ParkingSessionMapper parkingSessionMapper;
 
     /**
-     * Retrieves a list of all currently active parking sessions.
+     * Retrieves a list of all active parking sessions.
      *
-     * @return a list of DTOs for all active parking sessions.
+     * @return A list of active parking sessions.
      */
     @Override
     public List<ParkingSessionDto> getActiveSessions() {
@@ -35,9 +34,9 @@ public class ParkingSessionServiceImpl implements ParkingSessionService {
     }
 
     /**
-     * Retrieves a list of all completed parking sessions, serving as a history.
+     * Retrieves a list of all completed parking sessions.
      *
-     * @return a list of DTOs for all completed parking sessions.
+     * @return A list of completed parking sessions.
      */
     @Override
     public List<ParkingSessionDto> getSessionHistory() {

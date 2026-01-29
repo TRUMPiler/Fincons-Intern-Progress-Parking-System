@@ -2,7 +2,7 @@ package com.fincons.parkingsystem.controller;
 import com.fincons.parkingsystem.dto.ParkingSlotAvailability;
 import com.fincons.parkingsystem.service.ParkingSlotService;
 import com.fincons.parkingsystem.utils.Response;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,34 +10,25 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * REST controller for retrieving information about parking slots.
+ * Handles REST requests for parking slot information.
  */
 @RestController
 @RequestMapping("/api/parking-lots")
-
+@RequiredArgsConstructor
 public class ParkingSlotController {
 
-    ParkingSlotService parkingSlotService;
+    private final ParkingSlotService parkingSlotService;
 
-    @Autowired
-    ParkingSlotController(ParkingSlotService parkingSlotService)
-    {
-        this.parkingSlotService=parkingSlotService;
-    }
     /**
-     * Retrieves all parking slots for a specific parking lot.
+     * Retrieves the availability of parking slots for a specific parking lot.
      *
      * @param parkingLotId The ID of the parking lot.
-     * @return A ResponseEntity containing a list of parking slots for the given lot.
-     *         Returns 200 OK on success.
-     *         Returns 404 Not Found if the parking lot does not exist.
+     * @return A DTO containing the list of slots and the count of available slots.
      */
     @GetMapping("/{parkingLotId}/slots")
-    public ResponseEntity<Object> getSlotsByParkingLot(
-            @PathVariable Long parkingLotId) {
-
-        ParkingSlotAvailability getSlots=parkingSlotService.GetParkingSlot(parkingLotId);
-        Response<ParkingSlotAvailability> getSlotsResponse=new Response<>(LocalDateTime.now(),getSlots,"Slots fetched successfully",true,200);
-        return ResponseEntity.ok(getSlotsResponse);
+    public ResponseEntity<Response<ParkingSlotAvailability>> getSlotsByParkingLot(@PathVariable Long parkingLotId) {
+        ParkingSlotAvailability getSlots = parkingSlotService.getParkingSlotAvailability(parkingLotId);
+        Response<ParkingSlotAvailability> response = new Response<>(LocalDateTime.now(), getSlots, "Slots fetched successfully", true, 200);
+        return ResponseEntity.ok(response);
     }
 }

@@ -14,17 +14,27 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 
+/**
+ * Handles REST requests for parking lot statistics.
+ */
 @RestController
 @RequestMapping("/api/parking-lots")
 @RequiredArgsConstructor
 public class ParkingLotStatsController
 {
     private final ParkingLotStatsService parkingLotStatsService;
+
+    /**
+     * Retrieves statistics for a specific parking lot.
+     *
+     * @param id The ID of the parking lot.
+     * @return Statistics for the parking lot, such as revenue and occupancy.
+     */
     @GetMapping("/{id}/stats")
-    public ResponseEntity<Object> getStats(@PathVariable Long id)
+    public ResponseEntity<Response<ParkingLotStatsDto>> getStats(@PathVariable Long id)
     {
-        ParkingLotStatsDto parkingLotStatsDto=parkingLotStatsService.getParkingLotStats(id);
-        Response<ParkingLotStatsDto> response = new Response<>(LocalDateTime.now(),parkingLotStatsDto,"Parking Lot Details Fetched",true, HttpStatus.OK.value());
-        return new ResponseEntity<>(response, HttpStatusCode.valueOf(response.getStatucCode()));
+        ParkingLotStatsDto parkingLotStatsDto = parkingLotStatsService.getParkingLotStats(id);
+        Response<ParkingLotStatsDto> response = new Response<>(LocalDateTime.now(), parkingLotStatsDto, "Parking Lot Details Fetched", true, HttpStatus.OK.value());
+        return ResponseEntity.ok(response);
     }
 }

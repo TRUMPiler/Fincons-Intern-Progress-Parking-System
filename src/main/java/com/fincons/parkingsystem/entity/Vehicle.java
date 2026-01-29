@@ -5,8 +5,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 /**
- * Represents a vehicle in the parking system.
- * This entity stores information about a vehicle, including its registration number and type.
+ * Represents a vehicle.
  */
 @Entity
 @Table(name = "vehicles")
@@ -20,27 +19,33 @@ import org.hibernate.annotations.Where;
 public class Vehicle {
 
     /**
-     * The unique identifier for the vehicle.
+     * Unique ID.
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /**
-     * The registration number of the vehicle. This is a unique identifier for the vehicle.
+     * Vehicle's registration number (unique).
      */
     @Column(nullable = false, unique = true)
     private String vehicleNumber;
 
     /**
-     * The type of the vehicle (e.g., CAR, BIKE).
+     * Type of vehicle (e.g., CAR, BIKE).
      */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private VehicleType vehicleType;
 
+    /**
+     * Version number for optimistic locking.
+     */
     @Version
     private Long version;
 
+    /**
+     * Flag for soft deletion.
+     */
     private boolean deleted = Boolean.FALSE;
 }

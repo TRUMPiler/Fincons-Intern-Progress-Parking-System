@@ -1,99 +1,82 @@
 package com.fincons.parkingsystem.exception;
 
-import com.fincons.parkingsystem.utils.ErrorResponse;
-import lombok.extern.slf4j.Slf4j;
+import com.fincons.parkingsystem.utils.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.WebRequest;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Global exception handler for the Parking System application.
- * This class intercepts exceptions thrown by controllers and services,
- * and returns appropriate HTTP responses with a standardized error format.
+ * Catches and handles exceptions for all controllers.
  */
-@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     /**
-     * Handles ResourceNotFoundException and returns an HTTP 404 Not Found response.
+     * Handles validation errors from @Valid.
      *
-     * @param ex The ResourceNotFoundException instance.
-     * @param request The current web request.
-     * @return A ResponseEntity containing an ErrorResponse and HTTP 404 status.
+     * @param ex The validation exception.
+     * @return A response with a map of validation errors.
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Response<Map<String, String>>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getFieldErrors().forEach(error ->
+                errors.put(error.getField(), error.getDefaultMessage()));
+        Response<Map<String, String>> response = new Response<>(LocalDateTime.now(), errors, "Validation Failed", false, HttpStatus.BAD_REQUEST.value());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Handles resource not found errors.
+     *
+     * @param ex The resource not found exception.
+     * @return A response with a 404 status and error message.
      */
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse(
-                LocalDateTime.now(),
-                HttpStatus.NOT_FOUND.value(),
-                "Not Found",
-                ex.getMessage(),
-                request.getDescription(false)
-        );
-        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    public ResponseEntity<Response<String>> handleResourceNotFoundException(ResourceNotFoundException ex) {
+        Response<String> response = new Response<>(LocalDateTime.now(), null, ex.getMessage(), false, HttpStatus.NOT_FOUND.value());
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
     /**
-     * Handles BadRequestException and returns an HTTP 400 Bad Request response.
+     * Handles data conflict errors.
      *
-     * @param ex The BadRequestException instance.
-     * @param request The current web request.
-     * @return A ResponseEntity containing an ErrorResponse and HTTP 400 status.
-     */
-    @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<ErrorResponse> handleBadRequestException(BadRequestException ex, WebRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse(
-                LocalDateTime.now(),
-                HttpStatus.BAD_REQUEST.value(),
-                "Bad Request",
-                ex.getMessage(),
-                request.getDescription(false)
-        );
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
-
-    /**
-     * Handles ConflictException and returns an HTTP 409 Conflict response.
-     *
-     * @param ex The ConflictException instance.
-     * @param request The current web request.
-     * @return A ResponseEntity containing an ErrorResponse and HTTP 409 status.
+     * @param ex The conflict exception.
+     * @return A response with a 409 status and error message.
      */
     @ExceptionHandler(ConflictException.class)
-    public ResponseEntity<ErrorResponse> handleConflictException(ConflictException ex, WebRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse(
-                LocalDateTime.now(),
-                HttpStatus.CONFLICT.value(),
-                "Conflict",
-                ex.getMessage(),
-                request.getDescription(false)
-        );
-        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    public ResponseEntity<Response<String>> handleConflictException(ConflictException ex) {
+        Response<String> response = new Response<>(LocalDateTime.now(), null, ex.getMessage(), false, HttpStatus.CONFLICT.value());
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 
     /**
-     * Handles all other unhandled exceptions and returns a generic HTTP 500 Internal Server Error response.
+     * Handles bad request errors.
      *
-     * @param ex The Exception instance.
-     * @param request The current web request.
-     * @return A ResponseEntity containing an ErrorResponse and HTTP 500 status.
+     * @param ex The bad request exception.
+     * @return A response with a 400 status and error message.
+     */
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<Response<String>> handleBadRequestException(BadRequestException ex) {
+        Response<String> response = new Response<>(LocalDateTime.now(), null, ex.getMessage(), false, HttpStatus.BAD_REQUEST.value());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Handles all other uncaught exceptions.
+     *
+     * @param ex The exception.
+     * @return A response with a 500 status and generic error message.
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGlobalException(Exception ex, WebRequest request) {
-        log.error("An unexpected error occurred \n");
-        log.error(String.valueOf(ex.getCause()));
-        ErrorResponse errorResponse = new ErrorResponse(
-                LocalDateTime.now(),
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "Internal Server Error",
-                ex.getMessage(),
-                request.getDescription(false)
-        );
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<Response<String>> handleAllExceptions(Exception ex) {
+        Response<String> response = new Response<>(LocalDateTime.now(), null, "An unexpected error occurred: " + ex.getMessage(), false, HttpStatus.INTERNAL_SERVER_ERROR.value());
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

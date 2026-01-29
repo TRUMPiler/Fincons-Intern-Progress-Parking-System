@@ -2,15 +2,14 @@ package com.fincons.parkingsystem.entity;
 
 /**
  * Represents the status of a parking session.
- * A session can be either active (ongoing) or completed (finished).
  */
 public enum ParkingSessionStatus {
     /**
-     * The parking session is currently active.
+     * The session is ongoing.
      */
     ACTIVE,
     /**
-     * The parking session has been completed.
+     * The session has finished.
      */
     COMPLETED
 }

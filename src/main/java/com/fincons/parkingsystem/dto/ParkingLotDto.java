@@ -1,6 +1,9 @@
 package com.fincons.parkingsystem.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,8 +13,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * Data Transfer Object for ParkingLot.
- * Used to transfer parking lot details between layers.
+ * Represents a parking lot.
  */
 @Data
 @Builder
@@ -20,32 +22,36 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ParkingLotDto {
     /**
-     * The unique identifier of the parking lot.
+     * Unique ID.
      */
     private Long id;
     /**
-     * The name of the parking lot.
+     * Name of the parking lot.
      */
-
+    @NotBlank(message = "Parking lot name cannot be empty.")
     private String name;
     /**
-     * The physical location of the parking lot.
+     * Physical location.
      */
     private String location;
     /**
-     * The total number of parking slots available in the lot.
+     * Total number of slots.
      */
+    @NotNull(message = "Total slots cannot be null.")
+    @Min(value = 1, message = "Total slots must be at least 1.")
     private Integer totalSlots;
     /**
-     * The base hourly price for parking in this lot.
+     * Base price per hour.
      */
+    @NotNull(message = "Base price per hour cannot be null.")
+    @Min(value = 0, message = "Base price per hour must be a positive value.")
     private Double basePricePerHour;
     /**
-     * The timestamp when the parking lot record was created.
+     * Creation timestamp.
      */
     private LocalDateTime createdAt;
     /**
-     * A list of parking slots associated with this parking lot.
+     * List of parking slots.
      */
     private List<ParkingSlotDto> parkingSlots;
 }

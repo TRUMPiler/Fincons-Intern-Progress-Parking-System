@@ -5,6 +5,7 @@ import com.fincons.parkingsystem.dto.VehicleDto;
 import com.fincons.parkingsystem.dto.VehicleEntryRequestDto;
 import com.fincons.parkingsystem.service.ParkingService;
 import com.fincons.parkingsystem.utils.Response;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 
 /**
- * REST controller for handling core parking operations, such as vehicle entry and exit.
+ * Handles REST requests for vehicle entry and exit.
  */
 @RestController
 @RequestMapping("/api/parking")
@@ -23,31 +24,26 @@ public class ParkingController {
     private final ParkingService parkingService;
 
     /**
-     * Handles the entry of a vehicle into a specified parking lot.
+     * Creates a new parking session when a vehicle enters.
      *
-     * @param entryRequestDto DTO containing the vehicle number, type, and parking lot ID.
-     * @return A ResponseEntity containing the details of the newly created active parking session.
-     *         Returns 200 OK on success.
-     *         Returns 404 Not Found if the parking lot does not exist.
-     *         Returns 409 Conflict if the vehicle is already parked or the lot is full.
+     * @param entryRequestDto DTO with vehicle and parking lot details.
+     * @return The created parking session.
      */
     @PostMapping("/entry")
-    public ResponseEntity<Response<ParkingSessionDto>> vehicleEntry(@RequestBody VehicleEntryRequestDto entryRequestDto) {
+    public ResponseEntity<Response<ParkingSessionDto>> vehicleEntry(@Valid @RequestBody VehicleEntryRequestDto entryRequestDto) {
         ParkingSessionDto parkingSessionDto = parkingService.enterVehicle(entryRequestDto);
         Response<ParkingSessionDto> response = new Response<>(LocalDateTime.now(), parkingSessionDto, "Parking session initiated for this vehicle.", true, HttpStatus.OK.value());
         return ResponseEntity.ok(response);
     }
 
     /**
-     * Handles the exit of a vehicle from the parking system.
+     * Completes a parking session when a vehicle exits.
      *
-     * @param vehicleDto DTO containing the vehicle number of the exiting vehicle.
-     * @return A ResponseEntity containing the details of the completed parking session, including the total amount.
-     *         Returns 200 OK on success.
-     *         Returns 404 Not Found if the vehicle or its active session does not exist.
+     * @param vehicleDto DTO with the vehicle's registration number.
+     * @return The completed parking session with charge details.
      */
     @PostMapping("/exit")
-    public ResponseEntity<Response<ParkingSessionDto>> vehicleExit(@RequestBody VehicleDto vehicleDto) {
+    public ResponseEntity<Response<ParkingSessionDto>> vehicleExit(@Valid @RequestBody VehicleDto vehicleDto) {
         ParkingSessionDto parkingSessionDto = parkingService.exitVehicle(vehicleDto.getVehicleNumber());
         Response<ParkingSessionDto> response = new Response<>(LocalDateTime.now(), parkingSessionDto, "Parking session completed.", true, HttpStatus.OK.value());
         return ResponseEntity.ok(response);

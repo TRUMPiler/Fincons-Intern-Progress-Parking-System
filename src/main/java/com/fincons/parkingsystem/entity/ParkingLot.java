@@ -9,9 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * Represents a parking lot in the system.
- * This entity stores information about a specific parking lot, including its name, location,
- * capacity, and pricing information.
+ * Represents a parking lot.
  */
 @Entity
 @Table(name = "parking_lots")
@@ -25,54 +23,59 @@ import java.util.List;
 public class ParkingLot {
 
     /**
-     * The unique identifier for the parking lot.
+     * Unique ID.
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /**
-     * The name of the parking lot. Must not be null.
+     * Name of the parking lot.
      */
     @Column(nullable = false)
     private String name;
 
     /**
-     * The physical location or address of the parking lot.
+     * Physical location.
      */
     private String location;
 
     /**
-     * The total number of parking slots available in the lot.
+     * Total number of slots.
      */
     @Column(nullable = false)
     private Integer totalSlots;
 
     /**
-     * The base price for parking per hour.
+     * Base price per hour.
      */
     @Column(nullable = false)
     private Double basePricePerHour;
 
     /**
-     * The timestamp when the parking lot was created in the system.
-     * This is automatically set when the entity is first persisted.
+     * Creation timestamp.
      */
     private LocalDateTime createdAt;
 
     /**
-     * The list of parking slots associated with this parking lot.
+     * List of parking slots in this lot.
      */
     @OneToMany(mappedBy = "parkingLot", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ParkingSlot> parkingSlots;
 
+    /**
+     * Version number for optimistic locking.
+     */
     @Version
     private Long version;
 
+    /**
+     * Flag for soft deletion.
+     */
     private boolean deleted = Boolean.FALSE;
 
     /**
-     * Sets the creation timestamp before the entity is persisted.
+     * Sets the creation timestamp automatically before the entity is first saved.
      */
     @PrePersist
     public void onCreate() {
