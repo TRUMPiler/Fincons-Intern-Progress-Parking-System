@@ -10,6 +10,8 @@ import com.fincons.parkingsystem.repository.ParkingLotRepository;
 import com.fincons.parkingsystem.repository.ParkingSlotRepository;
 import com.fincons.parkingsystem.service.ParkingSlotService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.NonNullApi;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;

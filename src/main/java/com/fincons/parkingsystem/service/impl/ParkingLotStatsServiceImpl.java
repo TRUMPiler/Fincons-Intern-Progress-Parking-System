@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 /**
@@ -42,17 +44,18 @@ public class ParkingLotStatsServiceImpl implements ParkingLotStatsService {
         Double totalRevenue = Optional.ofNullable(parkingSessionRepository.sumOfTotalAmountByParkingLot(parkingLot.getId())).orElse(0.0);
         long occupiedSlots = parkingSlotRepository.countByParkingLotAndStatus(parkingLot, SlotStatus.OCCUPIED);
         double occupancyPercentage = (parkingLot.getTotalSlots() > 0) ? ((double) occupiedSlots / parkingLot.getTotalSlots() * 100) : 0.0;
-        long activeSessions = occupiedSlots;
 
+        Double revenueToday=parkingSessionRepository.sumOfTotalAmountByParkingLotAndExitTime(parkingLot.getId(), LocalDate.now().atStartOfDay(),LocalDateTime.now());
         return ParkingLotStatsDto.builder()
                 .parkingLotId(parkingLot.getId())
                 .parkingLotName(parkingLot.getName())
                 .totalSlots(parkingLot.getTotalSlots())
                 .occupiedSlots(occupiedSlots)
-                .activeSessions(activeSessions)
+                .activeSessions(occupiedSlots)
                 .totalRevenue(totalRevenue)
                 .basePricePerHour(parkingLot.getBasePricePerHour())
                 .occupancyPercentage(Math.ceil(occupancyPercentage))
+                .revenueToday(revenueToday)
                 .build();
     }
 }

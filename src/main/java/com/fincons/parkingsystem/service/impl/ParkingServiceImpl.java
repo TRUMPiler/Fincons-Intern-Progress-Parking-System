@@ -112,7 +112,6 @@ public class ParkingServiceImpl implements ParkingService {
         if (exitTime.isBefore(activeSession.getEntryTime())) {
             throw new BadRequestException("Exit time cannot be before entry time.");
         }
-        activeSession.setExitTime(exitTime);
 
         ChargeCalculationResult chargeResult = calculateCharges(activeSession);
         activeSession.setTotalAmount(chargeResult.totalAmount());
@@ -128,7 +127,7 @@ public class ParkingServiceImpl implements ParkingService {
         resultDto.setHoursCharged(chargeResult.hoursCharged());
         resultDto.setOccupancyPercentage(chargeResult.occupancyPercentage());
         resultDto.setMultiplier(chargeResult.multiplier());
-
+        resultDto.setExitTime(exitTime);
         return resultDto;
     }
 
@@ -141,7 +140,7 @@ public class ParkingServiceImpl implements ParkingService {
             throw new ResourceNotFoundException("Parking lot not found for the given slot.");
         }
 
-        long durationMinutes = Duration.between(session.getEntryTime(), session.getExitTime()).toMinutes();
+        long durationMinutes = Duration.between(session.getEntryTime(), LocalDateTime.now()).toMinutes();
 
         if (durationMinutes <= 30) {
             return new ChargeCalculationResult(0.0, 0.0, 0L, 0.0, 1.0);

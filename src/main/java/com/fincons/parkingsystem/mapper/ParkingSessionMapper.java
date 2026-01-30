@@ -13,6 +13,7 @@ public interface ParkingSessionMapper {
 
     @Mapping(source = "vehicle.vehicleNumber", target = "vehicleNumber")
     @Mapping(source = "parkingSlot.id", target = "parkingSlotId")
+    @Mapping(target = "parkingLotName",ignore = true)
     ParkingSessionDto toDto(ParkingSession parkingSession);
 
     @Mapping(source = "vehicleNumber", target = "vehicle.vehicleNumber")

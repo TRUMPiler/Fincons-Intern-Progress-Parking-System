@@ -1,0 +1,62 @@
+<div
+  class="fixed inset-0 bg-white bg-opacity-50 flex items-center justify-center z-50"
+>
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+
+    <h2 class="text-xl font-bold mb-4 text-center text-gray-800">
+      Parking Lot Data
+    </h2>
+   @defer(on timer(1s))
+   {
+    <div *ngFor="let lot of parkingLotInfo" class="space-y-2 text-gray-700">
+         <p><strong>Parking Lot Name:</strong> {{ lot.parkingLotName }}</p>
+      <p><strong>Parking slots Active:</strong> {{ lot.activeSessions }}</p>
+      <p><strong>Occupied Slots:</strong> {{ lot.occupiedSlots }}</p>
+      <p><strong>Total Slots:</strong> {{ lot.totalSlots }}</p>
+      <p><strong>Base Price of Lot:</strong> ₹{{ lot.basePricePerHour }}</p>
+      <p><strong>Occupancy Percentage</strong> {{lot.occupancyPercentage }}%</p>
+
+      <p class="text-lg font-bold">
+
+        Revenue:
+        @if(lot.totalRevenue<=0)
+        {
+            No collections yet
+        }
+        @else
+        {
+        ₹{{ lot.totalRevenue }}
+        }
+      </p>
+       <p class="text-lg font-bold">
+        Revenue for today:
+        @if(lot.totalRevenue<=0)
+        {
+            No collections yet
+        }
+        @else
+        {
+        ₹{{ lot.revenueToday }}
+        }
+      </p>
+    </div>
+    }
+    @loading {
+        <p>Loading...</p>
+    }
+    @placeholder {
+        <p>No Data</p>
+    }
+    <div class="flex justify-end gap-4 mt-6">
+     
+
+      <button
+        class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+        (click)="onBack()"
+      >
+        Confirm Exit
+      </button>
+    </div>
+
+  </div>
+</div>

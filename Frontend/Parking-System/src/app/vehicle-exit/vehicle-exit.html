@@ -1,0 +1,84 @@
+
+<div class="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
+
+    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Vehicle Exit Form</h2>
+    <form #form="ngForm" (ngSubmit)="onSubmit()">
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2">Vehicle Number</label>
+            <input type="text"
+            class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter Vehicle Number"
+            name="vehicleNumber"
+            [(ngModel)]="vehicleNumber"
+            required            
+            />
+        </div>
+        
+        <div class="flex gap-4">
+                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" id="submit">Submit Button</button>
+    
+                <button (click)="onBack()" type="button" class="bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-gray-500">Back Button</button> </div>
+    </form>
+</div>
+<!-- Bill Modal -->
+<div
+  *ngIf="showBillPopup"
+  class="fixed inset-0 bg-white bg-opacity-50 flex items-center justify-center z-50"
+>
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+
+    <h2 class="text-xl font-bold mb-4 text-center text-gray-800">
+      Parking Bill
+    </h2>
+    @if (billData.length>0)
+    {
+    <div *ngFor="let lot of billData" class="space-y-2 text-gray-700">
+      <p><strong>Vehicle Number:</strong> {{ lot.vehicleNumber }}</p>
+      <p><strong>Entry Time:</strong> {{ lot.entryTime|date:'medium' }}</p>
+      <p><strong>Exit Time:</strong> {{ lot.exitTime|date:'medium' }}</p>
+      <p><strong>Base Price of Lot:</strong> ₹{{ lot.basePricePerHour }}</p>
+      <p><strong>Occupancy Percentage</strong> {{lot.occupancyPercentage }}</p>
+
+        <p><strong>Hours Charged</strong> 
+          @if (lot.hoursCharged<=0)
+          {
+              under 30 minutes
+          }
+          @else
+          {
+              {{lot.hoursCharged }}
+          }
+         </p>
+        <p><strong>Amount multiplied based on occupancy</strong> {{lot.multiplier }}x</p>
+      <p class="text-lg font-bold">
+
+        @if(lot.totalAmount<=0)
+        {
+            Total Amount: Free
+        }
+        @else
+        {
+        Total Amount: ₹{{ lot.totalAmount }}
+        }
+      </p>
+    </div>
+
+    <div class="flex justify-end gap-4 mt-6">
+      <button
+        class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
+        (click)="closePopup()"
+      >
+        Close
+      </button>
+
+      <button
+        class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+        (click)="confirmExit()"
+      >
+        Confirm Exit
+      </button>
+    </div>
+}
+  </div>
+</div>
+

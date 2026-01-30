@@ -1,0 +1,33 @@
+<div class="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
+    <h1 class="text-3xl font-bold text-gray-800 mb-8">Parking System Dashboard</h1>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
+        <!-- Parking Lot Button -->
+        <button [routerLink]="['/register']" 
+                class="flex flex-col items-center justify-center p-6 bg-white rounded border border-gray-300 hover:bg-gray-50 cursor-pointer">
+            <span class="text-xl font-semibold text-gray-700">Parking Lot</span>
+            <span class="mt-2 text-gray-500 text-center">Register and manage parking lots</span>
+        </button>
+
+        <!-- Vehicle Entry Button -->
+        <button [routerLink]="['/vehicle-entry']" 
+                class="flex flex-col items-center justify-center p-6 bg-white rounded border border-gray-300 hover:bg-gray-50 cursor-pointer">
+            <span class="text-xl font-semibold text-gray-700">Vehicle Entry</span>
+            <span class="mt-2 text-gray-500 text-center">Record new vehicle entry</span>
+        </button>
+
+        <!-- Active Parking Session Button -->
+        <button [routerLink]="['/active-session']" 
+                class="flex flex-col items-center justify-center p-6 bg-white rounded border border-gray-300 hover:bg-gray-50 cursor-pointer">
+            <span class="text-xl font-semibold text-gray-700">Active Parking Session</span>
+            <span class="mt-2 text-gray-500 text-center">View currently parked vehicles</span>
+        </button>
+
+        <!-- Vehicle Exit Button -->
+        <button [routerLink]="['/vehicle-exit']" 
+                class="flex flex-col items-center justify-center p-6 bg-white rounded border border-gray-300 hover:bg-gray-50 cursor-pointer">
+            <span class="text-xl font-semibold text-gray-700">Vehicle Exit</span>
+            <span class="mt-2 text-gray-500 text-center">Process vehicle checkout</span>
+        </button>
+    </div>
+</div>

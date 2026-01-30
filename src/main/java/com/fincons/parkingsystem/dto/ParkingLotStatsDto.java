@@ -1,5 +1,6 @@
 package com.fincons.parkingsystem.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,6 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ParkingLotStatsDto {
 
     /**
@@ -46,5 +48,8 @@ public class ParkingLotStatsDto {
      * Current occupancy percentage.
      */
     private Double occupancyPercentage;
-
+    /**
+     * Revenue of the slot based on single day
+     */
+    private Double  revenueToday;
 }

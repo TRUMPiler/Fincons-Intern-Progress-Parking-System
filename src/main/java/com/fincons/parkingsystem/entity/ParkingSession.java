@@ -46,6 +46,7 @@ public class ParkingSession {
     /**
      * Exit timestamp.
      */
+
     private LocalDateTime exitTime;
     /**
      * Total charge for the session.
@@ -66,5 +67,10 @@ public class ParkingSession {
      * Flag for soft deletion.
      */
     private boolean deleted = Boolean.FALSE;
+
+    @PreUpdate
+    public void onPreUpdate() {
+        this.exitTime = LocalDateTime.now();
+    }
 
 }

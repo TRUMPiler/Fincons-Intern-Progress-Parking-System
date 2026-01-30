@@ -5,6 +5,7 @@ import com.fincons.parkingsystem.entity.ParkingLot;
 import com.fincons.parkingsystem.entity.ParkingSlot;
 import com.fincons.parkingsystem.entity.SlotStatus;
 import jakarta.persistence.LockModeType;
+import org.springframework.data.domain.Limit;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Repository;
@@ -34,4 +35,7 @@ public interface ParkingSlotRepository extends JpaRepository<ParkingSlot, Long> 
      */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<ParkingSlot> findFirstByParkingLotAndStatusOrderBySlotNumberAsc(ParkingLot parkingLot, SlotStatus slotStatus);
+
+
+    Optional<ParkingSlot> findParkingSlotById(Long parkingSlotId);
 }

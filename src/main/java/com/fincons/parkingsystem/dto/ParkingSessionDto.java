@@ -17,7 +17,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ParkingSessionDto {
+public class ParkingSessionDto
+{
     /**
      * Unique ID.
      */
@@ -30,6 +31,11 @@ public class ParkingSessionDto {
      * ID of the occupied parking slot.
      */
     private Long parkingSlotId;
+
+    /**
+     * Name of the parking Lot for the slot that belongs
+     */
+    private String parkingLotName;
     /**
      * Entry timestamp.
      */

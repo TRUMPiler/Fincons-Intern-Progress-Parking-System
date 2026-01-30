@@ -1,0 +1,97 @@
+@defer(on timer(1s))
+{
+<div class="max-w-full mx-auto mt-10 bg-white rounded-lg shadow-md overflow-hidden">
+    <h2 class="text-2xl font-bold p-6 text-gray-800 border-b">Active Sessions</h2>
+    <div class="overflow-x-auto">
+        <table class="min-w-full bg-white">
+            <thead class="bg-gray-800 text-white">
+                <tr>
+                    <th class="py-3 px-4 uppercase font-semibold text-sm text-left">ID</th>
+                    <th class="py-3 px-4 uppercase font-semibold text-sm text-left">Vehicle Number</th>
+                    <th class="py-3 px-4 uppercase font-semibold text-sm text-left">Parking Slot ID</th>
+                    <th class="py-3 px-4 uppercase font-semibold text-sm text-left">entryTime</th>
+                    <th class="py-3 px-4 uppercase font-semibold text-sm text-left">Parking Lot Name</th>
+
+                </tr>
+            </thead>
+            <tbody class="text-gray-700" *ngIf="sessionData && sessionData.length > 0; else noData">
+                <tr *ngFor="let lot of sessionData" class="border-b hover:bg-gray-100">
+                    <td class="py-3 px-4 text-left">{{ lot.id }}</td>
+                    <td class="py-3 px-4 text-left">{{ lot.vehicleNumber }}</td>
+                    <td class="py-3 px-4 text-left">{{ lot.parkingSlotId }}</td>
+                    <td class="py-3 px-4 text-left">{{ lot.entryTime|date:'medium' }}</td>
+                    <td class="py-3 px-4 text-left">{{ lot.parkingLotName }}</td>
+
+                </tr>
+            </tbody>
+            <ng-template #noData>
+                <p class="p-6 text-center">No parking lots available</p>
+            </ng-template>
+        </table>
+    </div>
+</div>
+}
+@loading {
+<p>Loading...</p>
+}
+@placeholder {
+<p>No data available</p>
+}
+
+@defer(on timer(1s))
+{
+<div class="max-w-full mx-auto mt-10 bg-white rounded-lg shadow-md overflow-hidden">
+    <h2 class="text-2xl font-bold p-6 text-gray-800 border-b">Session History</h2>
+    <div class="overflow-x-auto">
+        <table class="min-w-full bg-white">
+            <thead class="bg-gray-800 text-white">
+                <tr>
+                    <th class="py-3 px-4 uppercase font-semibold text-sm text-left">ID</th>
+                    <th class="py-3 px-4 uppercase font-semibold text-sm text-left">Vehicle Number</th>
+                    <th class="py-3 px-4 uppercase font-semibold text-sm text-left">Parking Slot ID</th>
+                    <th class="py-3 px-4 uppercase font-semibold text-sm text-left">entryTime</th>
+                              <th class="py-3 px-4 uppercase font-semibold text-sm text-left">Exit Time</th>
+                    <th class="py-3 px-4 uppercase font-semibold text-sm text-left">Parking Lot Name</th>
+                    <th class="py-3 px-4 uppercase font-semibold text-sm text-left">Amount</th>
+
+                </tr>
+            </thead>
+            <tbody class="text-gray-700" *ngIf="sessionHistroy && sessionHistroy.length > 0; else noData">
+                <tr *ngFor="let lot of sessionHistroy" class="border-b hover:bg-gray-100">
+                    <td class="py-3 px-4 text-left">{{ lot.id }}</td>
+                    <td class="py-3 px-4 text-left">{{ lot.vehicleNumber }}</td>
+                    <td class="py-3 px-4 text-left">{{ lot.parkingSlotId }}</td>
+                    <td class="py-3 px-4 text-left">{{ lot.entryTime|date:'medium' }}</td>
+                    <td class="py-3 px-4 text-left">{{ lot.exitTime|date:'medium' }}</td>
+                    <td class="py-3 px-4 text-left">{{ lot.parkingLotName }}</td>
+                    @if (lot.totalAmount<=0)
+                    {
+                        <td class="py-3 px-4 text-left">Free</td>
+                    }
+
+                    @else
+                    {
+                        <td class="py-3 px-4 text-left">₹{{ lot.totalAmount }}</td>
+                    }
+                </tr>
+            </tbody>
+            <ng-template #noData>
+                <p class="p-6 text-center">No parking lots available</p>
+            </ng-template>
+           </table>
+    </div>
+      
+</div>
+}
+@loading {
+<p>Loading...</p>
+}
+@placeholder {
+<p>No data available</p>
+}
+
+ <div class="flex gap-4 justify-center items-center pt-5">
+            
+    
+                <button (click)="onBack()" type="button" class="bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-gray-500">Back Button</button> </div>
+        
