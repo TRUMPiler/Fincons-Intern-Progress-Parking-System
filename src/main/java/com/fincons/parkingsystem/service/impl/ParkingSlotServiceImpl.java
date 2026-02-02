@@ -5,6 +5,8 @@ import com.fincons.parkingsystem.dto.ParkingSlotDto;
 import com.fincons.parkingsystem.entity.ParkingLot;
 import com.fincons.parkingsystem.entity.ParkingSlot;
 import com.fincons.parkingsystem.entity.SlotStatus;
+import com.fincons.parkingsystem.exception.BadRequestException;
+import com.fincons.parkingsystem.exception.ResourceNotFoundException;
 import com.fincons.parkingsystem.mapper.ParkingSlotMapper;
 import com.fincons.parkingsystem.repository.ParkingLotRepository;
 import com.fincons.parkingsystem.repository.ParkingSlotRepository;
@@ -58,5 +60,27 @@ public class ParkingSlotServiceImpl implements ParkingSlotService {
         List<ParkingSlotDto> parkingSlots = parkingSlotRepository.findByParkingLot(parkingLot).stream().map(parkingSlotMapper::toDto).toList();
         Long totalAvailableSlots = parkingSlotRepository.countByParkingLotAndStatus(parkingLot, SlotStatus.AVAILABLE);
         return new ParkingSlotAvailability(parkingSlots, totalAvailableSlots);
+    }
+
+    /**
+     * This method updates the information of parkingSlot
+     * @param parkingSlotDto
+     * @return it returns the updated {@link ParkingSlotDto} object
+     */
+    @Override
+    public ParkingSlotDto updateParkingSlotInformation(ParkingSlotDto parkingSlotDto) {
+
+        ParkingSlot parkingSlot = parkingSlotMapper.toEntity(parkingSlotDto);
+        ParkingSlot updateSlot=parkingSlotRepository.getReferenceById(parkingSlotDto.getId());
+        if(updateSlot == null){
+            throw new BadRequestException("Parking slot Data is Empty");
+        }
+
+        if(parkingSlot == null){
+            throw new ResourceNotFoundException("Parking slot not found");
+        }
+        updateSlot.setStatus(parkingSlot.getStatus()==null?updateSlot.getStatus():parkingSlot.getStatus());
+        parkingSlot = parkingSlotRepository.save(updateSlot);
+        return parkingSlotMapper.toDto(parkingSlot);
     }
 }

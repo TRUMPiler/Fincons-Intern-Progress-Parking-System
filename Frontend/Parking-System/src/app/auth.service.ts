@@ -38,7 +38,7 @@ export class AuthService {
     return this.http.post<any>(this.apiUrl+"/parking/exit",data);
     }
 
- getParkingSlots() {
+ getParkingLots() {
   return this.http.get<any>(this.apiUrl+'/parking-lots');
 } 
 
@@ -85,5 +85,9 @@ export class AuthService {
   ArrivalReservation(id:number)
   {
       return this.http.post<any>(this.apiUrl+'/reservations/'+id+'/arrival',null);
+  }
+  ChangeSlotStatus(data:any)
+  {
+      return this.http.patch<any>(this.apiUrl+'/parking-lots/update-slot',data);
   }
 }

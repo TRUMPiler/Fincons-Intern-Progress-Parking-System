@@ -65,7 +65,7 @@ public class ReservationServiceImpl implements ReservationService {
         ParkingLot parkingLot = parkingLotRepository.findById(reservationRequestDto.getParkingLotId())
                 .orElseThrow(() -> new ResourceNotFoundException("Parking lot not found with id: " + reservationRequestDto.getParkingLotId()));
 
-        ParkingSlot availableSlot = parkingSlotRepository.findFirstByParkingLotAndStatusOrderByIdAsc(parkingLot, SlotStatus.AVAILABLE)
+        ParkingSlot availableSlot = parkingSlotRepository.findFirstByParkingLotAndStatusOrderBySlotNumberAsc(parkingLot, SlotStatus.AVAILABLE)
                 .orElseThrow(() -> new ConflictException("No available parking slots in this lot for reservation."));
 
         availableSlot.setStatus(SlotStatus.RESERVED);
@@ -107,7 +107,7 @@ public class ReservationServiceImpl implements ReservationService {
         ParkingLot parkingLot = parkingLotRepository.findByIdWithInactive(reservation.getParkingLotId())
                 .orElseThrow(() -> new ResourceNotFoundException("Parking lot not found for this reservation."));
 
-        ParkingSlot reservedSlot = parkingSlotRepository.findFirstByParkingLotAndStatusOrderByIdAsc(parkingLot, SlotStatus.RESERVED)
+        ParkingSlot reservedSlot = parkingSlotRepository.findFirstByParkingLotAndStatusOrderBySlotNumberAsc(parkingLot, SlotStatus.RESERVED)
                 .orElseThrow(() -> new ResourceNotFoundException("No reserved slot found for this reservation."));
 
         reservedSlot.setStatus(SlotStatus.AVAILABLE);
@@ -152,7 +152,7 @@ public class ReservationServiceImpl implements ReservationService {
                 .orElseThrow(() -> new ResourceNotFoundException("Parking lot not found for this reservation."));
 
         // I find the reserved slot and mark it as occupied.
-        ParkingSlot reservedSlot = parkingSlotRepository.findFirstByParkingLotAndStatusOrderByIdAsc(parkingLot, SlotStatus.RESERVED)
+        ParkingSlot reservedSlot = parkingSlotRepository.findFirstByParkingLotAndStatusOrderBySlotNumberAsc(parkingLot, SlotStatus.RESERVED)
                 .orElseThrow(() -> new ResourceNotFoundException("No reserved slot found for this reservation."));
 
         reservedSlot.setStatus(SlotStatus.OCCUPIED);
@@ -192,7 +192,7 @@ public class ReservationServiceImpl implements ReservationService {
                     .orElse(null);
 
             if (parkingLot != null) {
-                ParkingSlot reservedSlot = parkingSlotRepository.findFirstByParkingLotAndStatusOrderByIdAsc(parkingLot, SlotStatus.RESERVED)
+                ParkingSlot reservedSlot = parkingSlotRepository.findFirstByParkingLotAndStatusOrderBySlotNumberAsc(parkingLot, SlotStatus.RESERVED)
                         .orElse(null);
 
                 if (reservedSlot != null) {

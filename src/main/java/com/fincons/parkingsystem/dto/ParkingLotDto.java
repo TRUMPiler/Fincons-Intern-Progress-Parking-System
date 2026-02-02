@@ -1,6 +1,7 @@
 package com.fincons.parkingsystem.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -35,6 +36,7 @@ public class ParkingLotDto {
      * The physical location of the parking lot.
      * This field is optional.
      */
+
     private String location;
     /**
      * The total number of parking slots in the lot.
@@ -42,6 +44,7 @@ public class ParkingLotDto {
      */
     @NotNull(message = "Total slots cannot be null.")
     @Min(value = 1, message = "Total slots must be at least 1.")
+    @Max(value=50,message = "Total slots cannot be more than 70")
     private Integer totalSlots;
     /**
      * The base price per hour for parking in this lot.
@@ -49,6 +52,7 @@ public class ParkingLotDto {
      */
     @NotNull(message = "Base price per hour cannot be null.")
     @Min(value = 0, message = "Base price per hour must be a positive value.")
+    @Max(value=1000,message = "Base price per hour cannot be more than 1000")
     private Double basePricePerHour;
     /**
      * The timestamp when the parking lot was created.

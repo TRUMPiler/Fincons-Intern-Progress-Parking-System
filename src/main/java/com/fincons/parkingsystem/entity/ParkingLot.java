@@ -7,8 +7,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * This class represents a parking lot in my system.
- * It's an entity, so it maps to the `parking_lots` table in my database.
+ * Represents a parking lot within the system.
+ * This entity is mapped to the `parking_lots` table and incorporates a soft-delete mechanism
+ * through the @SQLDelete and @Where annotations.
  */
 @Entity
 @Table(name = "parking_lots")
@@ -17,61 +18,68 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-// I'm using @SQLDelete to implement a soft-delete. When I call delete(), it will run this UPDATE statement instead.
-@SQLDelete(sql = "UPDATE parking_lots SET deleted = true WHERE id=?")
-// The @Where clause makes sure that my queries only return records that haven't been soft-deleted.
+// Overrides the default delete behavior to perform a soft delete by setting the 'deleted' flag to true.
+@SQLDelete(sql = "UPDATE parking_lots SET deleted = true, version = version + 1 WHERE id = ? AND version = ?")
+// Ensures that all standard find operations automatically filter out records marked as deleted.
 @Where(clause = "deleted=false")
 public class ParkingLot
 {
     /**
-     * This is the primary key for the parking lot.
+     * The unique identifier for the parking lot, serving as the primary key.
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /**
-     * The name of the parking lot.
+     * The name of the parking lot. This field is mandatory.
      */
     @Column(nullable = false)
     private String name;
 
     /**
-     * The location of the parking lot.
+     * The physical address or location of the parking lot.
      */
     private String location;
 
     /**
-     * The total number of slots in this lot.
+     * The total number of parking slots available in this lot.
      */
     @Column(nullable = false)
     private Integer totalSlots;
 
     /**
-     * The base price per hour for parking here.
+     * The base hourly rate for parking in this lot.
      */
     @Column(nullable = false)
     private Double basePricePerHour;
 
     /**
-     * The timestamp for when this lot was created.
+     * The timestamp recorded when the parking lot was first created.
      */
     private LocalDateTime createdAt;
 
     /**
-     * This is the list of all the parking slots that belong to this lot.
-     * I've set it to cascade all operations, so if I delete a lot, its slots are deleted too.
+     * A list of all parking slots associated with this lot.
+     * The `CascadeType.ALL` ensures that operations (e.g., delete) on the lot are propagated to its slots.
      */
     @OneToMany(mappedBy = "parkingLot", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ParkingSlot> parkingSlots;
 
     /**
-     * This flag indicates if the lot has been soft-deleted.
+     * A flag indicating whether the entity has been soft-deleted.
      */
     private boolean deleted = Boolean.FALSE;
 
     /**
-     * This method automatically sets the `createdAt` timestamp before the entity is first saved.
+     * A version field managed by JPA for optimistic locking, used to prevent concurrent update conflicts.
+     */
+    @Version
+    private int version;
+
+    /**
+     * A JPA callback method that automatically sets the `createdAt` timestamp
+     * before the entity is first persisted.
      */
     @PrePersist
     public void onCreate() {

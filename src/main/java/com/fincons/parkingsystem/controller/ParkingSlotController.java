@@ -1,5 +1,7 @@
 package com.fincons.parkingsystem.controller;
 import com.fincons.parkingsystem.dto.ParkingSlotAvailability;
+import com.fincons.parkingsystem.dto.ParkingSlotDto;
+import com.fincons.parkingsystem.entity.ParkingSlot;
 import com.fincons.parkingsystem.service.ParkingSlotService;
 import com.fincons.parkingsystem.utils.Response;
 import lombok.RequiredArgsConstructor;
@@ -31,5 +33,13 @@ public class ParkingSlotController {
         ParkingSlotAvailability getSlots = parkingSlotService.getParkingSlotAvailability(parkingLotId);
         Response<ParkingSlotAvailability> response = new Response<>(LocalDateTime.now(), getSlots, "Slots fetched successfully", true, 200);
         return ResponseEntity.ok(response);
+    }
+    @PatchMapping("/update-slot")
+    public ResponseEntity<Object> updateParkingSlot(@RequestBody ParkingSlotDto parkingSlotDto)
+    {
+        ParkingSlotDto parkingSlotDto1=parkingSlotService.updateParkingSlotInformation(parkingSlotDto);
+        Response<ParkingSlotDto> response=new Response<>(LocalDateTime.now(),parkingSlotDto1,"Parking Slot updated successfully",true,200);
+        return ResponseEntity.ok(response);
+
     }
 }

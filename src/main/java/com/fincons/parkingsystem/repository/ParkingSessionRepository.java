@@ -16,40 +16,59 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * This is the repository for my ParkingSession entities.
- * It's how I interact with the `parking_sessions` table in the database.
+ * Spring Data JPA repository for {@link ParkingSession} entities.
+ * This interface provides the mechanism for data access and manipulation of the `parking_sessions` table.
  */
 @Repository
 public interface ParkingSessionRepository extends JpaRepository<ParkingSession, Long> {
 
     /**
-     * This method checks if a vehicle already has a session with a specific status.
-     * I use it to see if a car is already parked.
+     * Checks if a session exists for a given vehicle with a specific status.
+     * This is primarily used to determine if a vehicle is already actively parked.
+     *
+     * @param vehicle The vehicle entity to check.
+     * @param parkingSessionStatus The status of the session to check for.
+     * @return {@code true} if a matching session exists, {@code false} otherwise.
      */
     boolean existsByVehicleAndStatus(Vehicle vehicle, ParkingSessionStatus parkingSessionStatus);
 
     /**
-     * This method finds a session for a vehicle with a specific status.
-     * I've added a pessimistic lock to prevent issues if two requests try to modify the same session at once.
+     * Finds a session for a given vehicle with a specific status.
+     * A pessimistic write lock is applied to prevent race conditions during concurrent exit operations.
+     *
+     * @param vehicle The vehicle entity to find the session for.
+     * @param parkingSessionStatus The status of the session to find.
+     * @return An {@link Optional} containing the found session, or empty if not found.
      */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<ParkingSession> findByVehicleAndStatus(Vehicle vehicle, ParkingSessionStatus parkingSessionStatus);
 
     /**
-     * This method finds all sessions that have a specific status (e.g., all ACTIVE sessions).
+     * Finds all sessions with a specific status (e.g., all ACTIVE sessions).
+     *
+     * @param status The status to filter the sessions by.
+     * @return A list of all {@link ParkingSession} entities with the given status.
      */
     @Query(value = "SELECT p FROM ParkingSession p WHERE p.status =:status", nativeQuery = false)
     List<ParkingSession> findByStatus(@Param("status") ParkingSessionStatus status);
 
     /**
-     * This method calculates the total revenue from completed sessions for a specific parking lot.
+     * Calculates the sum of the `totalAmount` for all completed sessions associated with a specific parking lot.
+     *
+     * @param parkingLotId The unique identifier of the parking lot.
+     * @return The total revenue as a {@link Double}.
      */
     @Query(value = "SELECT SUM(total_amount) FROM parking_sessions WHERE status = 'COMPLETED' AND parking_slot_id IN (SELECT id FROM parking_slots WHERE parking_lot_id = :parkingLotId)", nativeQuery = true)
     Double sumOfTotalAmountByParkingLot(@Param("parkingLotId") Long parkingLotId);
 
-
     /**
-     * This method calculates the total revenue for a specific parking lot for the current day.
+     * Calculates the sum of the `totalAmount` for a specific parking lot within a given time range.
+     * This is used to calculate daily revenue.
+     *
+     * @param parkingLotId The unique identifier of the parking lot.
+     * @param startDateNow The start of the time range.
+     * @param endDateNow The end of the time range.
+     * @return The total revenue for the period as a {@link Double}.
      */
     @Query(value = "SELECT SUM(total_amount) FROM parking_sessions WHERE status = 'COMPLETED' AND parking_slot_id IN (SELECT id FROM parking_slots WHERE parking_lot_id = :parkingLotId) " +
             "AND exit_time BETWEEN :startDateNow AND :endDateNow", nativeQuery = true)

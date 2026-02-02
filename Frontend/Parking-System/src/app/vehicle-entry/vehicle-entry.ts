@@ -22,7 +22,7 @@ export class VehicleEntry implements OnInit, AfterViewInit {
   vehicleTypes = ['CAR', 'BIKE'];
   parkingLots: any[] = [];
   refreshParkingLots(): void {
-    this.authService.getParkingSlots().subscribe({
+    this.authService.getParkingLots().subscribe({
       next: (response) => {
         if (response.success) {
           this.parkingLots = response.data;

@@ -15,14 +15,15 @@ import com.fincons.parkingsystem.service.ParkingLotService;
 import com.fincons.parkingsystem.service.ParkingSlotService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * This is where the business logic for managing my parking lots lives.
- * It handles creating, viewing, deactivating, and reactivating lots.
+ * Service implementation for managing parking lot resources.
+ * This class contains the business logic for creating, retrieving, and managing the state of parking lots.
  */
 @Service
 @RequiredArgsConstructor
@@ -35,11 +36,13 @@ public class ParkingLotServiceImpl implements ParkingLotService {
     private final ReservationRepository reservationRepository;
 
     /**
-     * This method creates a new parking lot and also creates all the parking slots for it.
-     * It's transactional, so either both the lot and slots are created, or nothing is.
+     * Creates a new parking lot and its associated parking slots. This operation is transactional.
+     *
+     * @param parkingLotDto DTO containing the details of the new parking lot.
+     * @return The DTO of the newly created parking lot.
      */
     @Override
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public ParkingLotDto createParkingLot(ParkingLotDto parkingLotDto) {
         ParkingLot parkingLot = parkingLotMapper.toEntity(parkingLotDto);
         if (parkingLotRepository.findByName(parkingLot.getName()).isPresent()) {
@@ -54,9 +57,13 @@ public class ParkingLotServiceImpl implements ParkingLotService {
     }
 
     /**
-     * This method gets a list of all the active parking lots.
+     * Retrieves a list of all active (not soft-deleted) parking lots.
+     * This operation is read-only.
+     *
+     * @return A list of DTOs representing all active parking lots.
      */
     @Override
+    @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
     public List<ParkingLotDto> getAllParkingLots() {
         return parkingLotRepository.findAll().stream()
                 .map(parkingLotMapper::toDto)
@@ -64,19 +71,26 @@ public class ParkingLotServiceImpl implements ParkingLotService {
     }
 
     /**
-     * This method gets a list of all parking lots, including the ones I've deactivated.
+     * Retrieves a list of all parking lots, including those that have been soft-deleted.
+     * This operation is read-only.
+     *
+     * @return A list of DTOs representing all parking lots.
      */
     @Override
+    @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
     public List<ParkingLotDto> getAllParkingLotsDeleted() {
         return parkingLotRepository.findAllWithInactive().stream()
                 .map(parkingLotMapper::toDto).collect(Collectors.toList());
     }
 
     /**
-     * This method deactivates a parking lot (soft delete).
-     * I added checks to make sure I can't delete a lot if it has cars parked in it or active reservations.
+     * Deactivates a parking lot (soft delete), preventing new entries and reservations.
+     * This operation checks for active sessions or reservations before proceeding.
+     *
+     * @param id The ID of the parking lot to be deactivated.
      */
     @Override
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public void deleteParkingLot(Long id) {
         ParkingLot parkingLot = parkingLotRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Parking lot not found with id: " + id));
@@ -91,11 +105,13 @@ public class ParkingLotServiceImpl implements ParkingLotService {
     }
 
     /**
-     * This method reactivates a parking lot that was previously deactivated.
-     * I also made sure to reactivate all of its parking slots at the same time.
+     * Reactivates a soft-deleted parking lot and all of its associated parking slots.
+     * This operation is transactional to ensure atomicity.
+     *
+     * @param id The ID of the parking lot to be reactivated.
      */
     @Override
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public void reactivateParkingLot(Long id) {
         ParkingLot parkingLot = parkingLotRepository.findByIdWithInactive(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Parking lot not found with id: " + id));
@@ -110,7 +126,7 @@ public class ParkingLotServiceImpl implements ParkingLotService {
     }
 
     /**
-     * I've left this here as a placeholder for updating parking lot details in the future.
+     * Placeholder for a future implementation of updating parking lot details.
      */
     @Override
     public void updateParkingLot(Long id, ParkingLotDto parkingLotDto) {

@@ -8,15 +8,18 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 /**
- * This is the repository for my Vehicle entities.
- * It's how I interact with the `vehicles` table in the database.
+ * Spring Data JPA repository for {@link Vehicle} entities.
+ * This interface provides the mechanism for data access and manipulation of the `vehicles` table.
  */
 @Repository
 public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
 
     /**
-     * This method finds a vehicle by its registration number.
-     * I've added a pessimistic lock to prevent issues if two requests try to create the same vehicle at once.
+     * Finds a vehicle by its unique registration number.
+     * A pessimistic write lock is applied to prevent race conditions during concurrent vehicle creation.
+     *
+     * @param vehicleNumber The registration number of the vehicle.
+     * @return An {@link Optional<Vehicle>} containing the found vehicle, or empty if not found.
      */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<Vehicle> findByVehicleNumber(String vehicleNumber);

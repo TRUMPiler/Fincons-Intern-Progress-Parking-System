@@ -6,28 +6,27 @@ import { AuthService } from '../auth.service';
 @Component({
   selector: 'app-parkinglot-registeration',
   imports: [FormsModule, CommonModule],
-  standalone:true,
+  standalone: true,
   templateUrl: './parkinglot-registeration.html',
   styleUrl: './parkinglot-registeration.css',
 })
 export class ParkinglotRegisteration implements OnInit, AfterViewInit {
-  public parkinglot={
-    name:'',
-    location:'',
-    totalSlots:'',
-    basePricePerHour:'',
-    parkingSlots:[]
+  public parkinglot = {
+    name: '',
+    location: '',
+    totalSlots: '',
+    basePricePerHour: '',
+    parkingSlots: []
   }
 
   public parkingLots: any[] = [];
-  public countlots:any[]=[];
+  public countlots: any[] = [];
   validationErrors: { [key: string]: string } = {};
-  errorMessage='';
-  constructor(public authService:AuthService)
-  {
-   
+  errorMessage = '';
+  constructor(public authService: AuthService) {
+
   }
-validateForm(): boolean {
+  validateForm(): boolean {
     this.validationErrors = {};
     let isValid = true;
 
@@ -71,7 +70,7 @@ validateForm(): boolean {
       this.validationErrors['location'] = 'Parking Location cannot be entirely numeric';
       isValid = false;
     }
-    
+
 
     // Validate total slots
     if (!this.parkinglot.totalSlots || this.parkinglot.totalSlots === '') {
@@ -97,29 +96,26 @@ validateForm(): boolean {
     return isValid;
   }
 
-ngOnInit(): void {
-}
+  ngOnInit(): void {
+  }
 
   ngAfterViewInit(): void {
     console.log("invoked")
     setTimeout(() => {
       this.authService.getDeletedParkingLot().subscribe({
         next: (response) => {
-          if (response.success) 
-          {
+          if (response.success) {
 
             this.parkingLots = response.data;
-          } 
-          else 
-          {
+          }
+          else {
             alert(response.message);
           }
         },
         error: (err) => {
-          if(err.status==0)
-          {
+          if (err.status == 0) {
             alert("Server is down. Please try again later.");
-            window.location.href="/";
+            window.location.href = "/";
             return;
           }
           console.error(err);
@@ -129,19 +125,17 @@ ngOnInit(): void {
   }
 
 
-  onSubmit()
-  {
+  onSubmit() {
     if (!this.validateForm()) {
       alert('Please fix the validation errors');
       return;
     }
-    
-      this.authService.RegisterParkingLot(this.parkinglot).subscribe(
+
+    this.authService.RegisterParkingLot(this.parkinglot).subscribe(
       {
         next: (response) => {
           console.log(response);
-          if(response.success)
-          {
+          if (response.success) {
             alert(response.message);
             this.parkinglot = {
               name: '',
@@ -152,31 +146,40 @@ ngOnInit(): void {
             };
             this.refreshParkingLots();
           }
-          else
-          {
+          else {
             alert(response.message);
           }
         },
         error: (err) => {
-          if(err.status==0)
-          {
+          if (err.status == 0) {
             alert("Server is down. Please try again later.");
             return;
           }
           alert(err.error.message);
 
+          if (err.error.message === 'Validation Failed') {
+            let errors: { [key: string]: string } = err.error.data;
+            let message = "";
+
+            Object.values(errors).forEach(errorMsg => {
+              message += errorMsg + "\n";
+            });
+
+            console.log(err);
+            alert(message);
+          }
           console.error('There was an error!', err);
         },
       }
-      )
+    )
   }
 
   refreshParkingLots(): void {
-    this.authService.getParkingSlots().subscribe({
+    this.authService.getParkingLots().subscribe({
       next: (response) => {
         if (response.success) {
           this.parkingLots = response.data;
-          
+
         } else {
           alert(response.message);
         }
@@ -186,14 +189,12 @@ ngOnInit(): void {
       }
     });
   }
-  onBack()
-  {
-    window.location.href="/";
+  onBack() {
+    window.location.href = "/";
     console.log("Back button clicked");
   }
-  event(data:any)
-  {
-    sessionStorage.setItem("ID",data);
-    window.location.href="/show-info";
+  event(data: any) {
+    sessionStorage.setItem("ID", data);
+    window.location.href = "/show-info";
   }
 }

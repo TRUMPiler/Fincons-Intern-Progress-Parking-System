@@ -16,5 +16,9 @@ public enum SlotStatus {
     /**
      * Indicates that the parking slot has been reserved.
      */
-    RESERVED
+    RESERVED,
+    /**
+     * Indicates that the parking slot has been deactivated.
+     */
+    INACTIVE
 }
