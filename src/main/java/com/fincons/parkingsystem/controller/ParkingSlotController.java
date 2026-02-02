@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * Handles REST requests for parking slot information.
+ * REST controller for retrieving information about parking slots within a specific lot.
  */
 @RestController
 @RequestMapping("/api/parking-lots")
@@ -20,10 +20,11 @@ public class ParkingSlotController {
     private final ParkingSlotService parkingSlotService;
 
     /**
-     * Retrieves the availability of parking slots for a specific parking lot.
+     * Handles the HTTP GET request to retrieve the status of all parking slots for a given parking lot.
+     * This endpoint is used to get a real-time view of slot availability (e.g., AVAILABLE, OCCUPIED, RESERVED).
      *
-     * @param parkingLotId The ID of the parking lot.
-     * @return A DTO containing the list of slots and the count of available slots.
+     * @param parkingLotId The unique identifier of the parking lot to be checked.
+     * @return A ResponseEntity containing a DTO with a list of all slots and a count of available ones.
      */
     @GetMapping("/{parkingLotId}/slots")
     public ResponseEntity<Response<ParkingSlotAvailability>> getSlotsByParkingLot(@PathVariable Long parkingLotId) {

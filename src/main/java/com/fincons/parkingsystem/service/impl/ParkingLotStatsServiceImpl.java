@@ -17,7 +17,8 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 /**
- * Implements the service for retrieving parking lot statistics.
+ * This is where the business logic for my parking lot statistics service lives.
+ * It handles calculating and retrieving performance data for a specific lot.
  */
 @Service
 @RequiredArgsConstructor
@@ -28,24 +29,29 @@ public class ParkingLotStatsServiceImpl implements ParkingLotStatsService {
     private final ParkingSessionRepository parkingSessionRepository;
 
     /**
-     * Retrieves statistics for a specific parking lot.
-     *
-     * @param id The ID of the parking lot.
-     * @return Statistics for the parking lot.
-     * @throws ResourceNotFoundException if the parking lot is not found.
+     * This method retrieves and calculates key statistics for a single parking lot.
+     * It's read-only because I'm only fetching data, not changing it.
      */
     @Override
     @Transactional(readOnly = true)
     public ParkingLotStatsDto getParkingLotStats(Long id) {
 
-        ParkingLot parkingLot = parkingLotRepository.findById(id)
+        // I use findByIdWithInactive to make sure I can get stats even for deactivated lots.
+        ParkingLot parkingLot = parkingLotRepository.findByIdWithInactive(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Parking lot not found with id: " + id));
 
+        // I calculate the total revenue, number of occupied slots, and occupancy percentage.
         Double totalRevenue = Optional.ofNullable(parkingSessionRepository.sumOfTotalAmountByParkingLot(parkingLot.getId())).orElse(0.0);
         long occupiedSlots = parkingSlotRepository.countByParkingLotAndStatus(parkingLot, SlotStatus.OCCUPIED);
         double occupancyPercentage = (parkingLot.getTotalSlots() > 0) ? ((double) occupiedSlots / parkingLot.getTotalSlots() * 100) : 0.0;
 
-        Double revenueToday=parkingSessionRepository.sumOfTotalAmountByParkingLotAndExitTime(parkingLot.getId(), LocalDate.now().atStartOfDay(),LocalDateTime.now());
+        // I also calculate how much revenue has been generated today.
+        Double revenueToday = parkingSessionRepository.sumOfTotalAmountByParkingLotAndExitTime(parkingLot.getId(), LocalDate.now().atStartOfDay(), LocalDateTime.now());
+        if (revenueToday == null) {
+            revenueToday = 0.0;
+        }
+
+        // I build the DTO with all the calculated stats to send back.
         return ParkingLotStatsDto.builder()
                 .parkingLotId(parkingLot.getId())
                 .parkingLotName(parkingLot.getName())
@@ -53,6 +59,7 @@ public class ParkingLotStatsServiceImpl implements ParkingLotStatsService {
                 .occupiedSlots(occupiedSlots)
                 .activeSessions(occupiedSlots)
                 .totalRevenue(totalRevenue)
+                .deleted(parkingLot.isDeleted())
                 .basePricePerHour(parkingLot.getBasePricePerHour())
                 .occupancyPercentage(Math.ceil(occupancyPercentage))
                 .revenueToday(revenueToday)

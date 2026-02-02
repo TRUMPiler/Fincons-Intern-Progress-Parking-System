@@ -10,7 +10,9 @@ import lombok.NoArgsConstructor;
 
 
 /**
- * Represents the request data for a vehicle entering a parking lot.
+ * Data Transfer Object for a vehicle entry request.
+ * This class encapsulates the necessary information when a vehicle attempts to enter a parking lot,
+ * including vehicle details and the target parking lot. It includes validation constraints.
  */
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -18,17 +20,20 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class VehicleEntryRequestDto {
     /**
-     * Vehicle's registration number.
+     * The registration number of the vehicle attempting to enter.
+     * This field is mandatory and cannot be blank.
      */
     @NotBlank(message = "Vehicle number cannot be empty.")
     private String vehicleNumber;
     /**
-     * Type of vehicle (e.g., CAR, BIKE).
+     * The type of the vehicle (e.g., CAR, BIKE).
+     * This field is mandatory and cannot be null.
      */
     @NotNull(message = "Vehicle type cannot be null.")
     private VehicleType vehicleType;
     /**
-     * ID of the parking lot being entered.
+     * The unique identifier of the parking lot the vehicle intends to enter.
+     * This field is mandatory and cannot be null.
      */
     @NotNull(message = "Parking lot ID cannot be null.")
     private Long parkingLotId;

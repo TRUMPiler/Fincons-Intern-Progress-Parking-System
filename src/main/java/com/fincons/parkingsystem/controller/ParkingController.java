@@ -14,7 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 
 /**
- * Handles REST requests for vehicle entry and exit.
+ * REST controller for handling core parking operations, such as vehicle entry and exit.
+ * This controller serves as the API gateway for the primary parking workflow.
  */
 @RestController
 @RequestMapping("/api/parking")
@@ -24,10 +25,12 @@ public class ParkingController {
     private final ParkingService parkingService;
 
     /**
-     * Creates a new parking session when a vehicle enters.
+     * Handles the HTTP POST request for a vehicle entering a parking lot.
+     * This endpoint expects a request body containing vehicle and parking lot details,
+     * and it initiates a new parking session via the ParkingService.
      *
-     * @param entryRequestDto DTO with vehicle and parking lot details.
-     * @return The created parking session.
+     * @param entryRequestDto A DTO containing the vehicle's details and the ID of the parking lot.
+     * @return A ResponseEntity containing the newly created ParkingSessionDto.
      */
     @PostMapping("/entry")
     public ResponseEntity<Response<ParkingSessionDto>> vehicleEntry(@Valid @RequestBody VehicleEntryRequestDto entryRequestDto) {
@@ -37,10 +40,12 @@ public class ParkingController {
     }
 
     /**
-     * Completes a parking session when a vehicle exits.
+     * Handles the HTTP POST request for a vehicle exiting a parking lot.
+     * This endpoint requires the vehicle's registration number to identify the active session.
+     * The service layer is responsible for calculating charges and completing the session.
      *
-     * @param vehicleDto DTO with the vehicle's registration number.
-     * @return The completed parking session with charge details.
+     * @param vehicleDto A DTO containing the vehicle's registration number.
+     * @return A ResponseEntity containing the completed ParkingSessionDto with charge details.
      */
     @PostMapping("/exit")
     public ResponseEntity<Response<ParkingSessionDto>> vehicleExit(@Valid @RequestBody VehicleDto vehicleDto) {

@@ -15,7 +15,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * Handles REST requests for parking session information.
+ * REST controller for retrieving information about parking sessions.
+ * This controller provides endpoints for viewing active and historical session data.
  */
 @RestController
 @RequestMapping("/api/sessions")
@@ -25,9 +26,10 @@ public class ParkingSessionController {
     private final ParkingSessionService parkingSessionService;
 
     /**
-     * Retrieves a list of all currently active parking sessions.
+     * Handles the HTTP GET request to retrieve a list of all currently active parking sessions.
+     * This is useful for real-time monitoring of parked vehicles.
      *
-     * @return A list of active parking sessions.
+     * @return A ResponseEntity containing a list of active ParkingSessionDto objects.
      */
     @GetMapping("/active")
     public ResponseEntity<Response<List<ParkingSessionDto>>> getActiveSessions() {
@@ -37,9 +39,10 @@ public class ParkingSessionController {
     }
 
     /**
-     * Retrieves a list of all completed parking sessions.
+     * Handles the HTTP GET request to retrieve a history of all completed parking sessions.
+     * This can be used for auditing, reporting, and analyzing past activity.
      *
-     * @return A list of completed parking sessions.
+     * @return A ResponseEntity containing a list of completed ParkingSessionDto objects.
      */
     @GetMapping("/history")
     public ResponseEntity<Response<List<ParkingSessionDto>>> getSessionHistory() {

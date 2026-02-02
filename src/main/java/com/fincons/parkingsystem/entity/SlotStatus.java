@@ -1,15 +1,20 @@
 package com.fincons.parkingsystem.entity;
 
 /**
- * Represents the status of a parking slot.
+ * An enumeration representing the possible statuses of a parking slot.
+ * This is used to track whether a slot is currently in use or available.
  */
 public enum SlotStatus {
     /**
-     * The slot is empty.
+     * Indicates that the parking slot is currently empty and available for a vehicle to park.
      */
     AVAILABLE,
     /**
-     * The slot is taken by a vehicle.
+     * Indicates that the parking slot is currently taken by a vehicle.
      */
-    OCCUPIED
+    OCCUPIED,
+    /**
+     * Indicates that the parking slot has been reserved.
+     */
+    RESERVED
 }

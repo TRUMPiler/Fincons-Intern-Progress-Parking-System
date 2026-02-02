@@ -1,15 +1,16 @@
 package com.fincons.parkingsystem.entity;
 
 /**
- * Represents the type of a vehicle.
+ * An enumeration representing the different types of vehicles that can use the parking system.
+ * This helps in categorizing vehicles and can be used for differential pricing or slot allocation.
  */
 public enum VehicleType {
     /**
-     * A car.
+     * Represents a standard car.
      */
     CAR,
     /**
-     * A bike or motorcycle.
+     * Represents a bike or motorcycle.
      */
     BIKE
 }

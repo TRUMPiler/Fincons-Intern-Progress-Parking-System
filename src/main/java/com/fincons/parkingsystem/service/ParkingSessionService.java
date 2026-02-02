@@ -5,21 +5,22 @@ import com.fincons.parkingsystem.dto.ParkingSessionDto;
 import java.util.List;
 
 /**
- * Service for retrieving parking session information.
+ * This is the contract for my service that retrieves information about parking sessions.
+ * It defines how I can get lists of active and completed sessions.
  */
 public interface ParkingSessionService {
 
     /**
-     * Retrieves a list of all active parking sessions.
+     * This method gets a list of all the parking sessions that are currently active.
      *
-     * @return A list of active parking sessions.
+     * @return A list of DTOs for the active sessions.
      */
     List<ParkingSessionDto> getActiveSessions();
 
     /**
-     * Retrieves a list of all completed parking sessions.
+     * This method retrieves the history of all completed parking sessions.
      *
-     * @return A list of completed parking sessions.
+     * @return A list of DTOs for the completed sessions.
      */
     List<ParkingSessionDto> getSessionHistory();
 }

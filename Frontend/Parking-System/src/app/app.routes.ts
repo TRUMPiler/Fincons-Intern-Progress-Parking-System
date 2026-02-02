@@ -6,6 +6,7 @@ import { VehicleExit } from './vehicle-exit/vehicle-exit';
 import { ActiveSession } from './active-session/active-session';
 
 import { ShowInfo } from './show-info/show-info';
+import { Reservation } from './reservation/reservation';
 
 export const routes: Routes = [
     {
@@ -38,6 +39,11 @@ export const routes: Routes = [
         component:ShowInfo,
         title:'Parking Lot Info'
     
+    },
+    {
+        path:'reservation',
+        component:Reservation,
+        title:'Parking Reservation'
     },
     {
 

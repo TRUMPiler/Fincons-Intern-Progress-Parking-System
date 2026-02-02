@@ -1,15 +1,14 @@
 package com.fincons.parkingsystem.entity;
-
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * Represents a parking lot.
+ * This class represents a parking lot in my system.
+ * It's an entity, so it maps to the `parking_lots` table in my database.
  */
 @Entity
 @Table(name = "parking_lots")
@@ -18,68 +17,64 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@SQLDelete(sql = "UPDATE parking_lots SET deleted = true WHERE id=? and version=?")
+// I'm using @SQLDelete to implement a soft-delete. When I call delete(), it will run this UPDATE statement instead.
+@SQLDelete(sql = "UPDATE parking_lots SET deleted = true WHERE id=?")
+// The @Where clause makes sure that my queries only return records that haven't been soft-deleted.
 @Where(clause = "deleted=false")
-public class ParkingLot {
-
+public class ParkingLot
+{
     /**
-     * Unique ID.
+     * This is the primary key for the parking lot.
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /**
-     * Name of the parking lot.
+     * The name of the parking lot.
      */
     @Column(nullable = false)
     private String name;
 
     /**
-     * Physical location.
+     * The location of the parking lot.
      */
     private String location;
 
     /**
-     * Total number of slots.
+     * The total number of slots in this lot.
      */
     @Column(nullable = false)
     private Integer totalSlots;
 
     /**
-     * Base price per hour.
+     * The base price per hour for parking here.
      */
     @Column(nullable = false)
     private Double basePricePerHour;
 
     /**
-     * Creation timestamp.
+     * The timestamp for when this lot was created.
      */
     private LocalDateTime createdAt;
 
     /**
-     * List of parking slots in this lot.
+     * This is the list of all the parking slots that belong to this lot.
+     * I've set it to cascade all operations, so if I delete a lot, its slots are deleted too.
      */
     @OneToMany(mappedBy = "parkingLot", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ParkingSlot> parkingSlots;
 
     /**
-     * Version number for optimistic locking.
-     */
-    @Version
-    private Long version;
-
-    /**
-     * Flag for soft deletion.
+     * This flag indicates if the lot has been soft-deleted.
      */
     private boolean deleted = Boolean.FALSE;
 
     /**
-     * Sets the creation timestamp automatically before the entity is first saved.
+     * This method automatically sets the `createdAt` timestamp before the entity is first saved.
      */
     @PrePersist
     public void onCreate() {
         this.createdAt = LocalDateTime.now();
     }
-
 }

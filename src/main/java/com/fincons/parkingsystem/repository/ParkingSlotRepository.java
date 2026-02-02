@@ -8,34 +8,53 @@ import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Limit;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
 /**
- * Repository for ParkingSlot entities.
+ * This is the repository for my ParkingSlot entities.
+ * It's how I interact with the `parking_slots` table in the database.
  */
 @Repository
 public interface ParkingSlotRepository extends JpaRepository<ParkingSlot, Long> {
 
     /**
-     * Counts the number of slots in a lot with a specific status.
+     * This method counts the number of slots in a lot that have a specific status (e.g., AVAILABLE).
      */
     Long countByParkingLotAndStatus(ParkingLot parkingLot, SlotStatus slotStatus);
 
     /**
-     * Finds all slots in a specific parking lot.
+     * This method finds all the active slots in a specific parking lot.
      */
     List<ParkingSlot> findByParkingLot(ParkingLot parkingLot);
 
     /**
-     * Finds the first available slot in a lot, ordered by slot number.
-     * Uses a pessimistic write lock to prevent race conditions during slot assignment.
+     * This method finds the first available slot in a lot.
+     * I've added a pessimistic lock to prevent two cars from being assigned the same slot at the same time.
      */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    Optional<ParkingSlot> findFirstByParkingLotAndStatusOrderBySlotNumberAsc(ParkingLot parkingLot, SlotStatus slotStatus);
+    Optional<ParkingSlot> findFirstByParkingLotAndStatusOrderByIdAsc(ParkingLot parkingLot, SlotStatus slotStatus);
 
-
+    /**
+     * This method finds a slot by its ID.
+     */
     Optional<ParkingSlot> findParkingSlotById(Long parkingSlotId);
+
+    /**
+     * This method finds all slots for a parking lot, including the ones I've deactivated.
+     * I'm using a native query here to bypass the soft-delete filter.
+     */
+    @Query(value = "SELECT * FROM parking_slots WHERE parking_lot_id = :parkingLotId", nativeQuery = true)
+    List<ParkingSlot> findAllByParkingLotIdWithInactive(@Param("parkingLotId") Long parkingLotId);
+
+    /**
+     * This method finds a slot by its ID, including inactive ones.
+     * This is useful for getting details of a slot that has been soft-deleted.
+     */
+    @Query(value = "SELECT * FROM parking_slots WHERE id = :id", nativeQuery = true)
+    Optional<ParkingSlot> findByIdWithInactive(@Param("id") Long id);
 }

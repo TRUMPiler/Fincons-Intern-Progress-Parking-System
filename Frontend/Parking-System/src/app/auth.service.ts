@@ -58,5 +58,32 @@ export class AuthService {
   {
       return this.http.get<any>(this.apiUrl+'/parking-lots/'+data+"/stats");
   }
-  
+  getDeletedParkingLot()
+  {
+      return this.http.get<any>(this.apiUrl+'/parking-lots/with-inactive');
+  }
+  ParkingLotDelete(id:number)
+  {
+      return this.http.delete<any>(this.apiUrl+'/parking-lots/'+id);
+  }
+  ParkingLotActivate(id:number)
+  {
+      return this.http.patch<any>(this.apiUrl+'/parking-lots/'+id+'/reactivate',null);
+  }
+  ParkingLotReservation(data:any)
+  {
+      return this.http.post<any>(this.apiUrl+'/reservations',data);
+  }
+  getReservations()
+  {
+      return this.http.get<any>(this.apiUrl+'/reservations');
+  }
+  CancelReservation(id:number)
+  {
+      return this.http.delete<any>(this.apiUrl+'/reservations/'+id);
+  }
+  ArrivalReservation(id:number)
+  {
+      return this.http.post<any>(this.apiUrl+'/reservations/'+id+'/arrival',null);
+  }
 }

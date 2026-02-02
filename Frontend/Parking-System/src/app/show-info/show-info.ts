@@ -35,6 +35,62 @@ export class ShowInfo implements OnInit {
     )
     this.change.detectChanges();
   }
+  onDelete(id:number)
+  {
+    
+    this.auth.ParkingLotDelete(id).subscribe(
+      {
+        next:(response)=>
+        {
+          if(response.success)
+          {
+            alert("Parking Lot Deleted Successfully");
+                window.location.href="/";
+          }
+
+        },
+        error(err) {
+          if(err.status==0)
+          {
+            alert("Server is down. Please try again later.");
+            window.location.href="/";
+            return;
+
+          }
+          alert(err.error.message);
+          console.log(err);
+        },
+      }
+    );
+
+  }
+  onReactivate(id:number)
+  {
+    this.auth.ParkingLotActivate(id).subscribe(
+      {
+        next:(response)=>
+        {
+          if(response.success)
+          {
+            alert("Parking Lot Reactivated Successfully");
+            window.location.href="/";
+          }
+        },
+        error(err) {
+          if(err.status==0)
+          {
+            alert("Server is down. Please try again later.");
+            window.location.href="/";
+            return;
+            
+          }
+          alert(err.error.message);
+          console.log(err);
+        },
+      }
+    );
+    
+  }
   onBack()
   { 
     window.location.href='/';

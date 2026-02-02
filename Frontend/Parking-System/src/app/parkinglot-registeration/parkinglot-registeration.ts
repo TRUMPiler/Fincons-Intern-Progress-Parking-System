@@ -103,7 +103,7 @@ ngOnInit(): void {
   ngAfterViewInit(): void {
     console.log("invoked")
     setTimeout(() => {
-      this.authService.getParkingSlots().subscribe({
+      this.authService.getDeletedParkingLot().subscribe({
         next: (response) => {
           if (response.success) 
           {
@@ -176,6 +176,7 @@ ngOnInit(): void {
       next: (response) => {
         if (response.success) {
           this.parkingLots = response.data;
+          
         } else {
           alert(response.message);
         }

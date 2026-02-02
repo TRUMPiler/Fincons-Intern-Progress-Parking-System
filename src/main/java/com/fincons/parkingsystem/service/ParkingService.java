@@ -4,23 +4,29 @@ import com.fincons.parkingsystem.dto.ParkingSessionDto;
 import com.fincons.parkingsystem.dto.VehicleEntryRequestDto;
 
 /**
- * Service for handling vehicle entry and exit.
+ * Service interface for core parking operations.
+ * This contract defines the primary business logic for managing the lifecycle of a parking session,
+ * from vehicle entry to exit.
  */
 public interface ParkingService {
 
     /**
-     * Creates a new parking session when a vehicle enters.
+     * Processes the entry of a vehicle into a parking lot.
+     * This method is responsible for creating a new parking session, allocating an available parking slot,
+     * and persisting the session details.
      *
-     * @param entryRequest DTO with vehicle and parking lot details.
-     * @return The created parking session.
+     * @param entryRequest A DTO containing the vehicle's details and the target parking lot ID.
+     * @return A DTO representing the newly created and active parking session.
      */
     ParkingSessionDto enterVehicle(VehicleEntryRequestDto entryRequest);
 
     /**
-     * Completes a parking session when a vehicle exits.
+     * Processes the exit of a vehicle from a parking lot.
+     * This method handles the completion of the active parking session, including calculating charges,
+     * updating the session status, and deallocating the parking slot.
      *
-     * @param vehicleNumber The vehicle's registration number.
-     * @return The completed parking session with charge details.
+     * @param vehicleNumber The registration number of the exiting vehicle.
+     * @return A DTO representing the completed parking session, including all charge details.
      */
     ParkingSessionDto exitVehicle(String vehicleNumber);
 }

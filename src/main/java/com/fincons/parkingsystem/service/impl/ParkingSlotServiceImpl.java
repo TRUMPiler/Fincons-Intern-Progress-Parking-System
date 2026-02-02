@@ -17,7 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Implements the service for managing parking slots.
+ * This is where the business logic for my parking slot service lives.
+ * It handles creating slots and checking their availability.
  */
 @Service
 @RequiredArgsConstructor
@@ -28,13 +29,11 @@ public class ParkingSlotServiceImpl implements ParkingSlotService {
     private final ParkingSlotMapper parkingSlotMapper;
 
     /**
-     * Creates parking slots for a new parking lot.
-     *
-     * @param parkingLot The new parking lot.
-     * @param totalSlots The number of slots to create.
+     * This method creates all the individual parking slots for a new parking lot.
+     * I just loop and create the specified number of slots, setting them all to 'AVAILABLE'.
      */
     @Override
-    public void createParkingSlotsForLot(ParkingLot parkingLot,int totalSlots) {
+    public void createParkingSlotsForLot(ParkingLot parkingLot, int totalSlots) {
 
         List<ParkingSlot> slots = new ArrayList<>();
         for (int i = 1; i <= totalSlots; i++) {
@@ -48,18 +47,16 @@ public class ParkingSlotServiceImpl implements ParkingSlotService {
     }
 
     /**
-     * Retrieves the availability of slots for a parking lot.
-     *
-     * @param parkingLotId The ID of the parking lot.
-     * @return A DTO with the list of slots and the count of available slots.
+     * This method gets the current availability of slots for a specific parking lot.
+     * It returns a list of all the slots and a count of how many are free.
      */
     @Override
     public ParkingSlotAvailability getParkingSlotAvailability(Long parkingLotId) {
 
         ParkingLot parkingLot = parkingLotRepository.getReferenceById(parkingLotId);
 
-        List<ParkingSlotDto> parkingSlots= parkingSlotRepository.findByParkingLot(parkingLot).stream().map(parkingSlotMapper::toDto).toList();
-        Long totalAvailableSlots=parkingSlotRepository.countByParkingLotAndStatus(parkingLot, SlotStatus.AVAILABLE);
-        return new ParkingSlotAvailability(parkingSlots,totalAvailableSlots);
+        List<ParkingSlotDto> parkingSlots = parkingSlotRepository.findByParkingLot(parkingLot).stream().map(parkingSlotMapper::toDto).toList();
+        Long totalAvailableSlots = parkingSlotRepository.countByParkingLotAndStatus(parkingLot, SlotStatus.AVAILABLE);
+        return new ParkingSlotAvailability(parkingSlots, totalAvailableSlots);
     }
 }
