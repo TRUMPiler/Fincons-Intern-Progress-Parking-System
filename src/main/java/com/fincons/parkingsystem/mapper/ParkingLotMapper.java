@@ -5,20 +5,25 @@ import com.fincons.parkingsystem.entity.ParkingLot;
 import org.mapstruct.Mapper;
 
 /**
- * This is the mapper for my ParkingLot entities.
- * It handles the conversion between the ParkingLot entity and its DTO.
- * I'm using MapStruct to make this process automatic and avoid writing boilerplate code.
+ * MapStruct mapper for converting between {@link ParkingLot} entities and {@link ParkingLotDto} objects.
+ * This interface automates the mapping process, reducing boilerplate code and ensuring consistency.
  */
 @Mapper(componentModel = "spring", uses = ParkingSlotMapper.class)
 public interface ParkingLotMapper {
 
     /**
-     * This method converts a ParkingLot entity to a ParkingLotDto.
+     * Converts a {@link ParkingLot} entity to a {@link ParkingLotDto}.
+     *
+     * @param parkingLot The entity to be converted.
+     * @return The corresponding DTO.
      */
     ParkingLotDto toDto(ParkingLot parkingLot);
 
     /**
-     * This method converts a ParkingLotDto back to a ParkingLot entity.
+     * Converts a {@link ParkingLotDto} to a {@link ParkingLot} entity.
+     *
+     * @param parkingLotDto The DTO to be converted.
+     * @return The corresponding entity.
      */
     ParkingLot toEntity(ParkingLotDto parkingLotDto);
 }

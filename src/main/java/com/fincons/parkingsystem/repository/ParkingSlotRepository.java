@@ -40,7 +40,7 @@ public interface ParkingSlotRepository extends JpaRepository<ParkingSlot, Long> 
     List<ParkingSlot> findByParkingLot(ParkingLot parkingLot);
 
     /**
-     * Finds the first available slot in a given parking lot, ordered by ID.
+     * Finds the first available slot in a given parking lot, ordered by slot number.
      * A pessimistic write lock is applied to prevent race conditions during concurrent slot assignments.
      *
      * @param parkingLot The parking lot to search within.
@@ -48,7 +48,7 @@ public interface ParkingSlotRepository extends JpaRepository<ParkingSlot, Long> 
      * @return An {@link Optional} containing the first available slot, or empty if none are found.
      */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    Optional<ParkingSlot> findFirstByParkingLotAndStatusOrderBySlotNumberAsc(ParkingLot parkingLot, SlotStatus slotStatus);
+    Optional<ParkingSlot> findFirstByParkingLotAndStatusOrderByIdAsc(ParkingLot parkingLot, SlotStatus slotStatus);
 
     /**
      * Finds a parking slot by its unique identifier.

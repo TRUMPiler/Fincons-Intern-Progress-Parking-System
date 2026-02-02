@@ -34,6 +34,7 @@ public class ParkingServiceImpl implements ParkingService {
     private final ParkingLotRepository parkingLotRepository;
     private final ParkingSessionMapper parkingSessionMapper;
     private final ReservationRepository parkingReservationRepository;
+
     /**
      * A private record to encapsulate the results of a charge calculation.
      */
@@ -60,7 +61,6 @@ public class ParkingServiceImpl implements ParkingService {
 
         log.info("Processing entry for vehicle number: {}", entryRequest.getVehicleNumber());
 
-        // Find or create the vehicle
         ParkingLot parkingLot = parkingLotRepository.findById(entryRequest.getParkingLotId())
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("Parking lot not found with id: %d", entryRequest.getParkingLotId())));
         Vehicle vehicle = vehicleRepository.findByVehicleNumber(entryRequest.getVehicleNumber())
@@ -78,12 +78,12 @@ public class ParkingServiceImpl implements ParkingService {
             throw new ConflictException("Vehicle already has an active parking session.");
         }
         // Ensure the vehicle does not have an Active Reservation
-        if(parkingReservationRepository.existsByParkingLotAndStatus(parkingLot,ReservationStatus.ACTIVE))
+        if(parkingReservationRepository.existsByVehicleAndStatus(vehicle,ReservationStatus.ACTIVE))
         {
-            throw new ConflictException("Parking lot already has an active reservation.");
+            throw new ConflictException("This vehicle already has an active reservation for this parking lot.");
         }
         // Find an available slot and mark it as occupied
-        ParkingSlot availableSlot = parkingSlotRepository.findFirstByParkingLotAndStatusOrderBySlotNumberAsc(parkingLot, SlotStatus.AVAILABLE)
+        ParkingSlot availableSlot = parkingSlotRepository.findFirstByParkingLotAndStatusOrderByIdAsc(parkingLot, SlotStatus.AVAILABLE)
                 .orElseThrow(() -> new ConflictException("No available parking slots in this lot."));
 
         availableSlot.setStatus(SlotStatus.OCCUPIED);
@@ -164,7 +164,7 @@ public class ParkingServiceImpl implements ParkingService {
 
         long billableMinutes = durationMinutes - 30;
         double basePrice = parkingLot.getBasePricePerHour();
-        long hoursParked = (billableMinutes + 59) / 60; // Round up to the nearest hour
+        long hoursParked = (billableMinutes + 59) / 60;
         double occupancy = calculateOccupancy(parkingLot);
         double multiplier = getOccupancyMultiplier(occupancy);
         double totalAmount = hoursParked * basePrice * multiplier;

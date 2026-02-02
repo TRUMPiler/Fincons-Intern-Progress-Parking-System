@@ -3,33 +3,35 @@ package com.fincons.parkingsystem.service;
 import com.fincons.parkingsystem.dto.ParkingSlotAvailability;
 import com.fincons.parkingsystem.dto.ParkingSlotDto;
 import com.fincons.parkingsystem.entity.ParkingLot;
-import com.fincons.parkingsystem.entity.ParkingSlot;
 
 /**
- * This is the contract for my service that manages parking slots.
- * It defines how I can create slots and check their availability.
+ * Service interface for managing parking slot resources.
+ * This contract defines the business logic for creating, updating, and retrieving information
+ * about parking slots.
  */
 public interface ParkingSlotService {
 
     /**
-     * This method creates all the individual parking slots for a new parking lot.
+     * Creates the individual parking slots for a newly created parking lot.
      *
-     * @param parkingLot The parking lot entity that the slots will belong to.
-     * @param slots The number of slots I want to create.
+     * @param parkingLot The parking lot entity to which the slots will be added.
+     * @param slots The total number of slots to create.
      */
     void createParkingSlotsForLot(ParkingLot parkingLot, int slots);
 
     /**
-     * This method gets the current availability of slots for a specific parking lot.
+     * Retrieves the current availability of parking slots for a specific parking lot.
      *
-     * @param parkingLotId The ID of the parking lot I want to check.
-     * @return A DTO that contains a list of all the slots and a count of how many are available.
+     * @param parkingLotId The unique identifier of the parking lot to check.
+     * @return A DTO that encapsulates the list of all parking slots and the count of available ones.
      */
     ParkingSlotAvailability getParkingSlotAvailability(Long parkingLotId);
+
     /**
-     * This method updates the information of parkingSlot
-     * @param parkingSlotDto
-     * @return it returns the updated {@link ParkingSlotDto} object
+     * Updates the information for a specific parking slot.
+     *
+     * @param parkingSlotDto A DTO containing the updated information for the parking slot.
+     * @return The updated {@link ParkingSlotDto}.
      */
     ParkingSlotDto updateParkingSlotInformation(ParkingSlotDto parkingSlotDto);
 }
