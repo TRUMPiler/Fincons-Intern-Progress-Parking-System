@@ -1,0 +1,192 @@
+import { CommonModule } from '@angular/common';
+import { ChangeDetectorRef, Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { AuthService } from '../auth.service';
+
+@Component({
+  selector: 'app-reservation',
+  imports: [FormsModule, CommonModule],
+  standalone: true,
+  templateUrl: './reservation.html',
+  styleUrl: './reservation.css',
+})
+export class Reservation {    
+vehicle = {
+    vehicleNumber: '',
+    vehicleType: '',
+    parkingLotId: ''
+  }
+
+  indianPlateRegex = /^[A-Z]{2}[ -]?[0-9]{2}[ -]?[A-Z]{1,2}[ -]?[0-9]{4}$/;
+  validationErrors: { [key: string]: string } = {};
+  constructor(private authService: AuthService, private cdr: ChangeDetectorRef) { }
+  vehicleTypes = ['CAR', 'BIKE'];
+  parkingLots: any[] = [];
+  reservation: any[] = [];
+  refreshReservation(): void {
+    this.authService.getReservations().subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.reservation = response.data;
+          console.log(this.reservation);
+        } else {
+          alert(response.message);
+        }
+      },
+      error: (err) => {
+        if(err.status==0)
+          {
+            alert("Server is down. Please try again later.");
+            window.location.href="/";
+            return;
+          }
+        console.error(err);
+        alert(err.error.message);
+      }
+    });
+  }
+  refreshParkingLots(): void {
+    this.authService.getParkingLots().subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.parkingLots = response.data;
+        } else {
+          alert(response.message);
+        }
+      },
+      error: (err) => {
+        if(err.status==0)
+          {
+            alert("Server is down. Please try again later.");
+            window.location.href="/";
+            return;
+          }
+        console.error(err);
+        alert(err.error.message);
+      }
+    });
+  }
+
+  ngOnInit(): void {
+  }
+
+  ngAfterViewInit(): void {
+    this.refreshParkingLots();
+    this.refreshReservation();
+  }
+  validateForm(): boolean {
+    this.validationErrors = {};
+    let isValid = true;
+
+    // Validate vehicle number
+    if (!this.vehicle.vehicleNumber.trim()) {
+      this.validationErrors['vehicleNumber'] = 'Vehicle Number is required';
+      isValid = false;
+    } else if (!this.indianPlateRegex.test(this.vehicle.vehicleNumber.trim().toUpperCase())) {
+      this.validationErrors['vehicleNumber'] = 'Invalid vehicle number format. Expected format: XX-12-AB-1234';
+      isValid = false;
+    }
+
+    // Validate vehicle type
+    if (!this.vehicle.vehicleType) {
+      this.validationErrors['vehicleType'] = 'Vehicle Type is required';
+      isValid = false;
+    }
+
+    // Validate parking lot
+    if (!this.vehicle.parkingLotId) {
+      this.validationErrors['parkingLotId'] = 'Parking Lot is required';
+      isValid = false;
+    }
+
+    return isValid;
+  }
+
+  onSubmit() {
+     this.vehicle.vehicleNumber = this.vehicle.vehicleNumber.trimStart().toUpperCase().trimEnd();
+    if (!this.validateForm()) {
+      alert('Please fix the validation errors');
+      return;
+    }
+
+   
+    
+    this.authService.ParkingLotReservation(this.vehicle).subscribe(
+      {
+        next: (response) => {
+          console.log(response);
+          if (response.success) {
+            alert(response.message);
+            
+            this.refreshParkingLots();
+            this.cdr.detectChanges();
+          }
+          else {
+            alert(response.message);
+          }
+        },
+        error: (err) => {
+          if(err.status==0)
+          {
+            alert("Server is down. Please try again later.");
+            return;
+          }
+          alert(err.error.message);
+
+          console.error('There was an error!', err);
+        },
+      }
+    )
+  }
+
+  onBack() {
+    window.location.href = "/";
+    console.log("Back button clicked");
+  }
+
+  onCancleReservation(id:any){
+    this.authService.CancelReservation(id).subscribe({
+      next: (response) => {
+        if (response.success) {
+          alert("Reservation Cancelled Successfully");
+          this.refreshReservation();
+        } else {
+          alert(response.message);
+        }
+      },
+      error: (err) => {
+        if(err.status==0)
+          {
+            alert("Server is down. Please try again later.");
+            window.location.href="/";
+            return;
+          }
+        console.error(err);
+        alert(err.error.message);
+      }
+    });
+  }
+  onArrival(id:any)
+  {
+    this.authService.ArrivalReservation(id).subscribe({
+      next: (response) => {
+        if (response.success) {
+          alert("Marked as Arrived Successfully");
+          this.refreshReservation();
+        } else {
+          alert(response.message);
+        }
+      },
+      error: (err) => {
+        if(err.status==0)
+          {
+            alert("Server is down. Please try again later.");
+            window.location.href="/";
+            return;
+          }
+        console.error(err);
+        alert(err.error.message);
+      }
+    });
+  }
+}
