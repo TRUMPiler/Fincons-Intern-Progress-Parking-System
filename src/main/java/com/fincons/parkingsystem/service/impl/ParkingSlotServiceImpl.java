@@ -10,7 +10,13 @@ import com.fincons.parkingsystem.mapper.ParkingSlotMapper;
 import com.fincons.parkingsystem.repository.ParkingLotRepository;
 import com.fincons.parkingsystem.repository.ParkingSlotRepository;
 import com.fincons.parkingsystem.service.ParkingSlotService;
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
+import org.postgresql.util.PSQLException;
+import org.springframework.dao.CannotAcquireLockException;
+import org.springframework.dao.DeadlockLoserDataAccessException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -76,6 +82,16 @@ public class ParkingSlotServiceImpl implements ParkingSlotService {
      * @return The updated {@link ParkingSlotDto}.
      */
     @Override
+    @Retryable(
+            retryFor = {
+                    OptimisticLockException.class,
+                    PSQLException.class,
+                    CannotAcquireLockException.class,
+                    DeadlockLoserDataAccessException.class
+            },
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 100)
+    )
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public ParkingSlotDto updateParkingSlotInformation(ParkingSlotDto parkingSlotDto) {
         ParkingSlot updateSlot = parkingSlotRepository.findById(parkingSlotDto.getId())

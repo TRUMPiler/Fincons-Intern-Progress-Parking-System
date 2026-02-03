@@ -9,8 +9,14 @@ import com.fincons.parkingsystem.exception.ResourceNotFoundException;
 import com.fincons.parkingsystem.mapper.ParkingSessionMapper;
 import com.fincons.parkingsystem.repository.*;
 import com.fincons.parkingsystem.service.ParkingService;
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.postgresql.util.PSQLException;
+import org.springframework.dao.CannotAcquireLockException;
+import org.springframework.dao.DeadlockLoserDataAccessException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,11 +52,23 @@ public class ParkingServiceImpl implements ParkingService {
      * Processes the entry of a vehicle. This method is transactional and uses a high isolation level
      * to prevent race conditions when assigning slots. It creates a new parking session, allocates a slot,
      * and persists the session details.
+     *  retries after a transaction faces failure.
      *
      * @param entryRequest DTO containing vehicle and parking lot details.
      * @return The DTO of the newly created parking session.
      */
     @Override
+    @Retryable(
+            retryFor = {
+                    OptimisticLockException.class,
+                    PSQLException.class,
+                    CannotAcquireLockException.class,
+                    DeadlockLoserDataAccessException.class
+            },
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 100)
+    )
+
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public ParkingSessionDto enterVehicle(VehicleEntryRequestDto entryRequest) {
         // Validate input parameters
@@ -109,6 +127,16 @@ public class ParkingServiceImpl implements ParkingService {
      * @return The DTO of the completed parking session, including charge details.
      */
     @Override
+    @Retryable(
+            retryFor = {
+                    OptimisticLockException.class,
+                    PSQLException.class,
+                    CannotAcquireLockException.class,
+                    DeadlockLoserDataAccessException.class
+            },
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 100)
+    )
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public ParkingSessionDto exitVehicle(String vehicleNumber) {
         log.info("Processing exit for vehicle number: {}", vehicleNumber);

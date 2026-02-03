@@ -8,7 +8,13 @@ import com.fincons.parkingsystem.exception.ResourceNotFoundException;
 import com.fincons.parkingsystem.mapper.ReservationMapper;
 import com.fincons.parkingsystem.repository.*;
 import com.fincons.parkingsystem.service.ReservationService;
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
+import org.postgresql.util.PSQLException;
+import org.springframework.dao.CannotAcquireLockException;
+import org.springframework.dao.DeadlockLoserDataAccessException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -45,6 +51,16 @@ public class ReservationServiceImpl implements ReservationService
      * @return The DTO of the newly created reservation.
      */
     @Override
+    @Retryable(
+            retryFor = {
+                    OptimisticLockException.class,
+                    PSQLException.class,
+                    CannotAcquireLockException.class,
+                    DeadlockLoserDataAccessException.class
+            },
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 100)
+    )
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public ReservationDto createReservation(ReservationRequestDto reservationRequestDto) {
 
@@ -99,6 +115,16 @@ public class ReservationServiceImpl implements ReservationService
      * @param reservationId The unique identifier of the reservation to be canceled.
      */
     @Override
+    @Retryable(
+            retryFor = {
+                    OptimisticLockException.class,
+                    PSQLException.class,
+                    CannotAcquireLockException.class,
+                    DeadlockLoserDataAccessException.class
+            },
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 100)
+    )
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public void cancelReservation(Long reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId)
@@ -152,6 +178,16 @@ public class ReservationServiceImpl implements ReservationService
      * @param reservationId The unique identifier of the reservation to be processed.
      */
     @Override
+    @Retryable(
+            retryFor = {
+                    OptimisticLockException.class,
+                    PSQLException.class,
+                    CannotAcquireLockException.class,
+                    DeadlockLoserDataAccessException.class
+            },
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 100)
+    )
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public void processArrival(Long reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId)
@@ -187,7 +223,17 @@ public class ReservationServiceImpl implements ReservationService
      * A scheduled task that runs periodically to handle expired reservations.
      * This method is transactional to ensure atomicity when updating reservation and slot statuses.
      */
-    @Scheduled(fixedRate = 60000) // Runs every minute
+    @Scheduled(fixedRate = 60000)
+    @Retryable(
+            retryFor = {
+                    OptimisticLockException.class,
+                    PSQLException.class,
+                    CannotAcquireLockException.class,
+                    DeadlockLoserDataAccessException.class
+            },
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 100)
+    )// Runs every minute
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public void expireReservations()
     {

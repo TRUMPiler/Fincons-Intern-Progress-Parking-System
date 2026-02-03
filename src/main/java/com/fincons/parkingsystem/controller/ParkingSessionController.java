@@ -29,7 +29,7 @@ public class ParkingSessionController {
      * Handles the HTTP GET request to retrieve a list of all currently active parking sessions.
      * This is useful for real-time monitoring of parked vehicles.
      *
-     * @return A ResponseEntity containing a list of active ParkingSessionDto objects.
+     * @return A {@link ResponseEntity} containing a list of active ParkingSessionDto objects.
      */
     @GetMapping("/active")
     public ResponseEntity<Response<List<ParkingSessionDto>>> getActiveSessions() {
