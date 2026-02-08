@@ -1,30 +1,22 @@
-ul {
-  list-style-type: none;
-
-  margin: 0;
-  padding: 0;
-  background-color: black;
-  display: flex;
-  font:bold;
-  justify-content: center;
+/* Navigation Bar Styles */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
-
-ul li {
-  float:none;
+/* Smooth transitions for navigation links */
+a {
+  transition: all 0.3s ease;
 }
 
-ul li  {
-    
-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  display: block;
-  color: white;
-  text-align: center;
-  padding: 14px 16px;
-  text-decoration: none;
+/* Active route styling */
+:host ::ng-deep .router-link-active {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  border-bottom: 3px solid white;
 }
 
-ul li:hover {
-  background-color: #111111;
-  cursor: pointer;
+/* Body styling */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }

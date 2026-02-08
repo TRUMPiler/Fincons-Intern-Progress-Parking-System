@@ -7,13 +7,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { tap, catchError } from 'rxjs/operators';
+
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  // Base API URL for backend communication
+  // Base API URL used for backend HTTP requests
   private apiUrl = 'http://localhost:8080/api';
 
   constructor(private http: HttpClient) {}
@@ -62,8 +62,20 @@ export class AuthService {
    * Get all active parking lots
    * @returns Observable with list of parking lots
    */
-  getParkingLots() {
-    return this.http.get<any>(this.apiUrl + '/parking-lots');
+  getParkingLots(
+    page: number, 
+    size: number, 
+    sortField: string, 
+    sortDirection: 'asc' | 'desc'
+  ) {
+    return this.http.get<any>(this.apiUrl + `/parking-lots/all?page=${page}&size=${size}&sort=${sortField},${sortDirection}`);
+  }
+
+
+  getALLParkingLots(
+    
+  ) {
+    return this.http.get<any>(this.apiUrl + `/parking-lots`);
   }
 
   /**
@@ -80,11 +92,51 @@ export class AuthService {
    * @returns Observable with list of parking slots
    */
   getParkingSlotsById(id: string) {
-    return this.http.get<any>(this.apiUrl + '/parking-lots/' + id + "/slots");
+    return this.http.get<any>(this.apiUrl + '/parking-slots/by-lot/' + id + "");
   }
 
   /**
-   * Get historical parking sessions
+   * Get paginated parking slots for a specific parking lot
+   * @param parkingLotId - The parking lot ID
+   * @param page - Page number (0-indexed)
+   * @param size - Number of records per page
+   * @param sortField - Field to sort by (e.g., 'slotNumber')
+   * @param sortDirection - Sort direction ('asc' or 'desc')
+   * @returns Observable with paginated parking slots
+   */
+  getParkingSlotsPaginated(
+    parkingLotId: string,
+    page: number,
+    size: number,
+    sortField: string,
+    sortDirection: 'asc' | 'desc'
+  ): Observable<any> {
+    return this.http.get<any>(
+      `${this.apiUrl}/parking-slots/by-lot/${parkingLotId}?page=${page}&size=${size}&sort=${sortField},${sortDirection}`
+    );
+  }
+
+  /**
+   * Get historical parking sessions with server-side pagination
+   * @param page - Page number (0-indexed)
+   * @param size - Number of records per page
+   * @param sortField - Field to sort by (e.g., 'exitTime', 'entryTime')
+   * @param sortDirection - Sort direction ('asc' or 'desc')
+   * @returns Observable with paginated session history
+   */
+  getHistorySessionsPaginated(
+    page: number, 
+    size: number, 
+    sortField: string, 
+    sortDirection: 'asc' | 'desc'
+  ): Observable<any> {
+    return this.http.get<any>(
+      `${this.apiUrl}/sessions/history?page=${page}&size=${size}&sort=${sortField},${sortDirection}`
+    );
+  }
+
+  /**
+   * Get historical parking sessions (non-paginated)
    * @returns Observable with list of past sessions
    */
   getHistorySessions() {
@@ -167,6 +219,6 @@ export class AuthService {
    * @returns Observable with status update response
    */
   ChangeSlotStatus(data: any) {
-    return this.http.patch<any>(this.apiUrl + '/parking-lots/update-slot', data);
+    return this.http.patch<any>(this.apiUrl + '/parking-slots/update-slot', data);
   }
 }

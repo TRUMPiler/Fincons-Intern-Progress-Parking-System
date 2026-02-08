@@ -1,26 +1,28 @@
 package com.fincons.parkingsystem.service;
 
 import com.fincons.parkingsystem.dto.ParkingSessionDto;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /**
- * This is the contract for my service that retrieves information about parking sessions.
- * It defines how I can get lists of active and completed sessions.
+ * Service interface for retrieving information about parking sessions.
+ * This contract defines how to fetch paginated lists of active and completed sessions.
  */
 public interface ParkingSessionService {
 
     /**
-     * This method gets a list of all the parking sessions that are currently active.
+     * Retrieves a paginated list of all parking sessions that are currently active.
      *
-     * @return A list of DTOs for the active sessions.
+     * @param pageable Pagination and sorting information.
+     * @return A paginated list of DTOs, each representing an active parking session.
      */
-    List<ParkingSessionDto> getActiveSessions();
+    Page<ParkingSessionDto> getActiveSessions(Pageable pageable);
 
     /**
-     * This method retrieves the history of all completed parking sessions.
+     * Retrieves a paginated historical list of all parking sessions that have been completed.
      *
-     * @return A list of DTOs for the completed sessions.
+     * @param pageable Pagination and sorting information.
+     * @return A paginated list of DTOs, each representing a completed parking session.
      */
-    List<ParkingSessionDto> getSessionHistory();
+    Page<ParkingSessionDto> getSessionHistory(Pageable pageable);
 }

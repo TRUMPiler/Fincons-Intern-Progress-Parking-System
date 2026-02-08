@@ -1,7 +1,7 @@
 package com.fincons.parkingsystem.service.impl;
 
-import com.fincons.parkingsystem.dto.ParkingSlotAvailability;
 import com.fincons.parkingsystem.dto.ParkingSlotDto;
+import com.fincons.parkingsystem.dto.SlotStatusUpdateDto;
 import com.fincons.parkingsystem.entity.ParkingLot;
 import com.fincons.parkingsystem.entity.ParkingSlot;
 import com.fincons.parkingsystem.entity.SlotStatus;
@@ -9,12 +9,15 @@ import com.fincons.parkingsystem.exception.ResourceNotFoundException;
 import com.fincons.parkingsystem.mapper.ParkingSlotMapper;
 import com.fincons.parkingsystem.repository.ParkingLotRepository;
 import com.fincons.parkingsystem.repository.ParkingSlotRepository;
+import com.fincons.parkingsystem.service.KafkaProducerService;
 import com.fincons.parkingsystem.service.ParkingSlotService;
 import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import org.postgresql.util.PSQLException;
 import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.dao.DeadlockLoserDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
@@ -36,9 +39,10 @@ public class ParkingSlotServiceImpl implements ParkingSlotService {
     private final ParkingSlotRepository parkingSlotRepository;
     private final ParkingLotRepository parkingLotRepository;
     private final ParkingSlotMapper parkingSlotMapper;
+    private final KafkaProducerService kafkaProducerService;
 
     /**
-     * Creates the individual parking slots for a new parking lot.
+     * Creates the individual parking slots for a new parking lot. This operation is transactional.
      *
      * @param parkingLot The parking lot entity to which the slots will be added.
      * @param totalSlots The total number of slots to create.
@@ -58,25 +62,25 @@ public class ParkingSlotServiceImpl implements ParkingSlotService {
     }
 
     /**
-     * Retrieves the current availability of parking slots for a specific parking lot.
+     * Retrieves a paginated list of parking slots for a specific parking lot.
      * This operation is read-only.
      *
      * @param parkingLotId The unique identifier of the parking lot to check.
-     * @return A DTO that encapsulates the list of all parking slots and the count of available ones.
+     * @param pageable Pagination and sorting information.
+     * @return A paginated list of DTOs representing the parking slots.
      */
     @Override
     @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
-    public ParkingSlotAvailability getParkingSlotAvailability(Long parkingLotId) {
+    public Page<ParkingSlotDto> getParkingSlotAvailability(Long parkingLotId, Pageable pageable) {
         ParkingLot parkingLot = parkingLotRepository.findById(parkingLotId)
                 .orElseThrow(() -> new ResourceNotFoundException("Parking lot not found with id: " + parkingLotId));
-        List<ParkingSlotDto> parkingSlots = parkingSlotRepository.findByParkingLot(parkingLot).stream().map(parkingSlotMapper::toDto).toList();
-        Long totalAvailableSlots = parkingSlotRepository.countByParkingLotAndStatus(parkingLot, SlotStatus.AVAILABLE);
-        return new ParkingSlotAvailability(parkingSlots, totalAvailableSlots);
+        return parkingSlotRepository.findByParkingLot(parkingLot, pageable)
+                .map(parkingSlotMapper::toDto);
     }
 
     /**
-     * Updates the information for a specific parking slot.
-     * This operation is transactional to ensure data consistency.
+     * Updates the information for a specific parking slot. This operation is transactional
+     * and retryable to handle concurrent updates.
      *
      * @param parkingSlotDto A DTO containing the updated information for the parking slot.
      * @return The updated {@link ParkingSlotDto}.
@@ -97,12 +101,13 @@ public class ParkingSlotServiceImpl implements ParkingSlotService {
         ParkingSlot updateSlot = parkingSlotRepository.findById(parkingSlotDto.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Parking slot not found with id: " + parkingSlotDto.getId()));
 
-        // Only update the status if it's provided in the DTO
         if (parkingSlotDto.getStatus() != null) {
             updateSlot.setStatus(parkingSlotDto.getStatus());
         }
         
         ParkingSlot savedSlot = parkingSlotRepository.save(updateSlot);
+        SlotStatusUpdateDto statusUpdateDto = new SlotStatusUpdateDto(updateSlot.getParkingLot().getId(), updateSlot.getId(), updateSlot.getStatus());
+        kafkaProducerService.sendSlotUpdateProduce(statusUpdateDto);
         return parkingSlotMapper.toDto(savedSlot);
     }
 }

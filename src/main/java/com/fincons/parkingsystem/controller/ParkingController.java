@@ -15,7 +15,8 @@ import java.time.LocalDateTime;
 
 /**
  * REST controller for handling core parking operations, such as vehicle entry and exit.
- * This controller serves as the API gateway for the primary parking workflow.
+ * This controller serves as the API gateway for the primary parking workflow, delegating
+ * business logic to the ParkingService.
  */
 @RestController
 @RequestMapping("/api/parking")
@@ -25,12 +26,14 @@ public class ParkingController {
     private final ParkingService parkingService;
 
     /**
-     * Handles the HTTP POST request for a vehicle entering a parking lot.
-     * This endpoint expects a request body containing vehicle and parking lot details,
-     * and it initiates a new parking session via the ParkingService.
+     * Handles the HTTP POST request to record a vehicle's entry into a parking lot.
+     * This endpoint is responsible for initiating a new parking session. It validates the incoming
+     * request and delegates the core logic of session creation to the ParkingService.
      *
-     * @param entryRequestDto A DTO containing the vehicle's details and the ID of the parking lot.
-     * @return A ResponseEntity containing the newly created ParkingSessionDto.
+     * @param entryRequestDto A data transfer object containing the vehicle's registration number,
+     *                        type, and the ID of the target parking lot.
+     * @return A ResponseEntity wrapping a standardized Response object, which contains the
+     *         newly created ParkingSessionDto upon success.
      */
     @PostMapping("/entry")
     public ResponseEntity<Response<ParkingSessionDto>> vehicleEntry(@Valid @RequestBody VehicleEntryRequestDto entryRequestDto) {
@@ -40,12 +43,14 @@ public class ParkingController {
     }
 
     /**
-     * Handles the HTTP POST request for a vehicle exiting a parking lot.
-     * This endpoint requires the vehicle's registration number to identify the active session.
-     * The service layer is responsible for calculating charges and completing the session.
+     * Handles the HTTP POST request to record a vehicle's exit from a parking lot.
+     * This endpoint completes an active parking session. It identifies the session based on the
+     * vehicle's registration number and delegates charge calculation and session completion
+     * to the ParkingService.
      *
-     * @param vehicleDto A DTO containing the vehicle's registration number.
-     * @return A ResponseEntity containing the completed ParkingSessionDto with charge details.
+     * @param vehicleDto A data transfer object containing the vehicle's registration number.
+     * @return A ResponseEntity wrapping a standardized Response object, which contains the
+     *         completed ParkingSessionDto, including charge details.
      */
     @PostMapping("/exit")
     public ResponseEntity<Response<ParkingSessionDto>> vehicleExit(@Valid @RequestBody VehicleDto vehicleDto) {

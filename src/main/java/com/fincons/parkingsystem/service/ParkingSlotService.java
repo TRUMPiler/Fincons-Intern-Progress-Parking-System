@@ -1,8 +1,9 @@
 package com.fincons.parkingsystem.service;
 
-import com.fincons.parkingsystem.dto.ParkingSlotAvailability;
 import com.fincons.parkingsystem.dto.ParkingSlotDto;
 import com.fincons.parkingsystem.entity.ParkingLot;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /**
  * Service interface for managing parking slot resources.
@@ -20,12 +21,13 @@ public interface ParkingSlotService {
     void createParkingSlotsForLot(ParkingLot parkingLot, int slots);
 
     /**
-     * Retrieves the current availability of parking slots for a specific parking lot.
+     * Retrieves a paginated list of parking slots for a specific parking lot.
      *
      * @param parkingLotId The unique identifier of the parking lot to check.
-     * @return A DTO that encapsulates the list of all parking slots and the count of available ones.
+     * @param pageable Pagination and sorting information.
+     * @return A paginated list of DTOs representing the parking slots.
      */
-    ParkingSlotAvailability getParkingSlotAvailability(Long parkingLotId);
+    Page<ParkingSlotDto> getParkingSlotAvailability(Long parkingLotId, Pageable pageable);
 
     /**
      * Updates the information for a specific parking slot.

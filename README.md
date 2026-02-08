@@ -13,6 +13,7 @@ This project is a comprehensive backend solution for a modern parking management
 - **Administrative Control**: Endpoints for creating, viewing, deactivating, and reactivating parking lots and their associated slots.
 - **Concurrency Handling**: Implements optimistic and pessimistic locking strategies to ensure data integrity in a multi-user environment.
 - **Statistical Insights**: Provides endpoints to retrieve key performance indicators for each parking lot, such as revenue and occupancy rates.
+- **Real-Time Updates**: Uses WebSockets to push live updates to the UI for events like vehicle entry and exit.
 
 ---
 
@@ -22,6 +23,8 @@ This project is a comprehensive backend solution for a modern parking management
 - **Java 17**
 - **Spring Boot 3**: Core framework for building the application.
 - **Spring Data JPA**: For data persistence and repository management.
+- **Spring WebSocket**: For real-time, two-way communication with clients.
+- **Spring for Apache Kafka**: For asynchronous, decoupled event-driven communication.
 - **PostgreSQL**: Relational database for storing all application data.
 - **Hibernate**: ORM for mapping Java objects to database tables.
 - **MapStruct**: For high-performance mapping between entities and DTOs.
@@ -40,6 +43,7 @@ This project is a comprehensive backend solution for a modern parking management
 - **JDK 17** or later
 - **Maven 3.8** or later
 - **PostgreSQL** database server
+- **Apache Kafka** server
 - **Node.js and npm** (for the frontend)
 
 ### Backend Setup
@@ -50,10 +54,11 @@ This project is a comprehensive backend solution for a modern parking management
    cd ParkingSystem
    ```
 
-2. **Configure the database:**
+2. **Configure the database and Kafka:**
    - Create a PostgreSQL database named `ParkingSystem`.
    - Open `src/main/resources/application-dev.yaml`.
-   - Update the `spring.datasource` properties (`url`, `username`, `password`) to match your local PostgreSQL configuration.
+   - Update the `spring.datasource` properties to match your local PostgreSQL configuration.
+   - Update the `spring.kafka.bootstrap-servers` property to point to your Kafka instance.
 
 3. **Build and run the application:**
    ```bash
@@ -102,6 +107,17 @@ This project is a comprehensive backend solution for a modern parking management
 | `POST`  | `/api/reservations/{id}/arrival`    | Processes the arrival of a vehicle with a reservation, starting a parking session. |
 | `GET`   | `/api/sessions/active`              | Retrieves a list of all currently active parking sessions.                         |
 | `GET`   | `/api/sessions/history`             | Retrieves a history of all completed parking sessions.                             |
+
+---
+
+## WebSocket Communication
+
+The application uses WebSockets to push real-time updates to the client.
+
+- **Endpoint**: `ws://localhost:8080/ws`
+- **Topic for Session Updates**: `/topic/sessions`
+
+When a vehicle enters or exits a parking lot, a message is broadcast to the `/topic/sessions` topic. The message will be a JSON string representing either a `VehicleEnteredEvent` or a `VehicleExitedEvent`. Clients subscribed to this topic should re-fetch the active session list from the `/api/sessions/active` endpoint upon receiving a message.
 
 ---
 

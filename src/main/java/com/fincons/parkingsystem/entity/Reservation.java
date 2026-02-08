@@ -42,16 +42,16 @@ public class Reservation {
      * The parking lot where the reservation is made.
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parking_lot_id", nullable = false)
-    private ParkingLot parkingLot;
+    @JoinColumn(name = "parking_slot_id", nullable = false)
+    private ParkingSlot parkingSlot;
 
     /**
      * A direct mapping to the `parking_lot_id` foreign key column. This allows safe access
      * to the ID without triggering a lazy-loading exception, which is crucial when the
      * associated ParkingLot may have been soft-deleted.
      */
-    @Column(name = "parking_lot_id", insertable = false, updatable = false)
-    private Long parkingLotId;
+    @Column(name = "parking_slot_id", insertable = false, updatable = false)
+    private Long parkingSlotId;
 
     /**
      * The timestamp recorded when the reservation was created.
@@ -76,7 +76,6 @@ public class Reservation {
      * A flag indicating whether the entity has been soft-deleted.
      */
     private boolean deleted = Boolean.FALSE;
-
     /**
      * A version field managed by JPA for optimistic locking, used to handle concurrent
      * modifications to a reservation's status.

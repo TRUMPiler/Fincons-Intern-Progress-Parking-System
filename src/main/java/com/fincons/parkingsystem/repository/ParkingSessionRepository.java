@@ -2,9 +2,10 @@ package com.fincons.parkingsystem.repository;
 
 import com.fincons.parkingsystem.entity.ParkingSession;
 import com.fincons.parkingsystem.entity.ParkingSessionStatus;
-import com.fincons.parkingsystem.entity.ParkingSlot;
 import com.fincons.parkingsystem.entity.Vehicle;
 import jakarta.persistence.LockModeType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
@@ -12,7 +13,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -44,13 +44,13 @@ public interface ParkingSessionRepository extends JpaRepository<ParkingSession, 
     Optional<ParkingSession> findByVehicleAndStatus(Vehicle vehicle, ParkingSessionStatus parkingSessionStatus);
 
     /**
-     * Finds all sessions with a specific status (e.g., all ACTIVE sessions).
+     * Retrieves a paginated list of sessions with a specific status.
      *
      * @param status The status to filter the sessions by.
-     * @return A list of all {@link ParkingSession} entities with the given status.
+     * @param pageable Pagination and sorting information.
+     * @return A paginated list of {@link ParkingSession} entities.
      */
-    @Query(value = "SELECT p FROM ParkingSession p WHERE p.status =:status", nativeQuery = false)
-    List<ParkingSession> findByStatus(@Param("status") ParkingSessionStatus status);
+    Page<ParkingSession> findByStatus(ParkingSessionStatus status, Pageable pageable);
 
     /**
      * Calculates the sum of the `totalAmount` for all completed sessions associated with a specific parking lot.
@@ -74,4 +74,5 @@ public interface ParkingSessionRepository extends JpaRepository<ParkingSession, 
             "AND exit_time BETWEEN :startDateNow AND :endDateNow", nativeQuery = true)
     Double sumOfTotalAmountByParkingLotAndExitTime(@Param("parkingLotId") Long parkingLotId, LocalDateTime startDateNow, LocalDateTime endDateNow);
 
+    Page<ParkingSession> findAll(Pageable pageable);
 }

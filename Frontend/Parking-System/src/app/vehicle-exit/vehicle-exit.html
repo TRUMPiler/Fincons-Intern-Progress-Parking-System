@@ -1,84 +1,47 @@
-
-<div class="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
-
-    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Vehicle Exit Form</h2>
-    <form #form="ngForm" (ngSubmit)="onSubmit()">
-          <div class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2">Vehicle Number</label>
-            <input type="text"
-            class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter Vehicle Number"
-            name="vehicleNumber"
-            [(ngModel)]="vehicleNumber"
-            required            
-            />
-        </div>
-        
-        <div class="flex gap-4">
-                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" id="submit">Submit Button</button>
-    
-                <button (click)="onBack()" type="button" class="bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-gray-500">Back Button</button> </div>
-    </form>
-</div>
-<!-- Bill Modal -->
-<div
-  *ngIf="showBillPopup"
-  class="fixed inset-0 bg-white bg-opacity-50 flex items-center justify-center z-50"
->
-  <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
-
-    <h2 class="text-xl font-bold mb-4 text-center text-gray-800">
-      Parking Bill
-    </h2>
-    @if (billData.length>0)
-    {
-    <div *ngFor="let lot of billData" class="space-y-2 text-gray-700">
-      <p><strong>Vehicle Number:</strong> {{ lot.vehicleNumber }}</p>
-      <p><strong>Entry Time:</strong> {{ lot.entryTime|date:'medium' }}</p>
-      <p><strong>Exit Time:</strong> {{ lot.exitTime|date:'medium' }}</p>
-      <p><strong>Base Price of Lot:</strong> ₹{{ lot.basePricePerHour }}</p>
-      <p><strong>Occupancy Percentage</strong> {{lot.occupancyPercentage }}</p>
-
-        <p><strong>Hours Charged</strong> 
-          @if (lot.hoursCharged<=0)
-          {
-              under 30 minutes
-          }
-          @else
-          {
-              {{lot.hoursCharged }}
-          }
-         </p>
-        <p><strong>Amount multiplied based on occupancy</strong> {{lot.multiplier }}x</p>
-      <p class="text-lg font-bold">
-
-        @if(lot.totalAmount<=0)
-        {
-            Total Amount: Free
-        }
-        @else
-        {
-        Total Amount: ₹{{ lot.totalAmount }}
-        }
-      </p>
-    </div>
-
-    <div class="flex justify-end gap-4 mt-6">
-      <button
-        class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
-        (click)="closePopup()"
-      >
-        Close
-      </button>
-
-      <button
-        class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
-        (click)="confirmExit()"
-      >
-        Confirm Exit
-      </button>
-    </div>
-}
+﻿<!-- Vehicle Exit UI -->
+<div class="max-w-2xl mx-auto mt-8 p-6 bg-white rounded-lg shadow-md">
+  <div class="flex items-center justify-between mb-6">
+    <h2 class="text-2xl font-bold text-gray-800">Vehicle Exit</h2>
+    <button (click)="onBack()" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">Back to Dashboard</button>
   </div>
+
+  <form (ngSubmit)="onExitSubmit()" class="space-y-4">
+    <div class="mb-4">
+      <label class="block text-gray-700 text-sm font-bold mb-2">Vehicle Number</label>
+      <input type="text" [(ngModel)]="exitVehicleNumber" name="exitVehicleNumber" required class="w-full px-3 py-2 border border-gray-300 rounded" placeholder="Enter vehicle number (e.g. KA-01-AB-1234)" />
+    </div>
+
+    <div class="flex justify-end gap-2">
+      <button type="button" (click)="onBack()" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Cancel</button>
+      <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Submit Exit</button>
+    </div>
+  </form>
+
+  <!-- Exit bill popup -->
+  <div *ngIf="exitShowBillPopup" class="fixed inset-0 bg-transparent bg-opacity-30 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+      <h3 class="text-lg font-semibold mb-4">Parking Bill</h3>
+      <div *ngIf="exitBillData && exitBillData.length > 0">
+        <div *ngFor="let item of exitBillData" class="space-y-3 text-gray-700">
+          <p><strong>Session ID:</strong> {{ item.id }}</p>
+          <p><strong>Vehicle Number:</strong> {{ item.vehicleNumber }}</p>
+          <p><strong>Parking Slot ID:</strong> {{ item.parkingSlotId }}</p>
+          <p><strong>Base Price / Hour:</strong> {{ item.basePricePerHour ? ('₹' + item.basePricePerHour) : 'N/A' }}</p>
+          <p><strong>Multiplier:</strong> {{ item.multiplier }}</p>
+          <p><strong>Occupancy %:</strong> {{ item.occupancyPercentage }}%</p>
+          <p><strong>Entry Time:</strong> {{ item.entryTime | date:'medium' }}</p>
+          <p><strong>Exit Time:</strong> {{ item.exitTime | date:'medium' }}</p>
+          <p><strong>Hours Charged:</strong> {{ item.hoursCharged }}</p>
+          <p><strong>Status:</strong> {{ item.status }}</p>
+          <p><strong>Total Amount:</strong> {{ item.totalAmount ? ('₹' + item.totalAmount) : 'Free' }}</p>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 mt-6">
+        <button class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400" (click)="closeExitPopup()">Close</button>
+        <button class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700" (click)="confirmExit()">Confirm Exit</button>
+      </div>
+    </div>
+  </div>
+
 </div>
 

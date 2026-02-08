@@ -1,52 +1,94 @@
-<div class="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
+﻿<!-- Vehicle Entry & Exit UI -->
+<div class="flex gap-2 ml-auto mr-auto mt-auto mb-auto max-w-5xl max-h-2 justify-center  rounded-lg  min-h-screen">
+  <p-toast position="top-left" key="tl"/>
+  <p-toast position="top-left" key="error"/>
+  
+  <div class="flex items-center justify-between mb-6">
+    <h2 class="text-2xl font-bold text-gray-800">Vehicle Entry / Exit</h2>
+    <div class="flex gap-2 py-7 px-7">
+      <button (click)="onBack()" pRipple class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">Back to Dashboard</button>
+      <button (click)="showDialog()" pRipple class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Open Vehicle Entry</button>
+      <button (click)="openExitDialog()" pRipple class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Open Vehicle Exit</button>
+    </div>
+  </div>
 
-    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Vehicle Entry Form</h2>
-    <form #form="ngForm" (ngSubmit)="onSubmit()">
-          <div class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2">Vehicle Number</label>
-            <input type="text"
-            class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            [class.border-red-500]="validationErrors['vehicleNumber']"
-            placeholder="Enter Vehicle Number"
-            name="vehicleNumber"
-            [(ngModel)]="vehicle.vehicleNumber"
-            required            
-            />
-            @if (validationErrors['vehicleNumber']) {
-              <p class="text-red-500 text-sm mt-1">{{ validationErrors['vehicleNumber'] }}</p>
-            }
-        </div>
-        <div class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2">Vehicle type</label>
-            <select [(ngModel)]="vehicle.vehicleType" name="vehicleType" required 
-            [class.border-red-500]="validationErrors['vehicleType']"
-            class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="" selected disabled>Select Vehicle Type</option>
-                <option *ngFor="let type of vehicleTypes" [value]="type">{{type}}</option>
+  <!-- Vehicle Entry Dialog -->
+  <p-dialog header="Vehicle Entry Form" [(visible)]="dialogVisible" [modal]="true" [style]="{ width: '40rem' }">
+    <form #form="ngForm" (ngSubmit)="onSubmit(form)">
+      <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2">Vehicle Number</label>
+        <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded" [class.border-red-500]="validationErrors['vehicleNumber']" placeholder="Enter Vehicle Number (e.g. KA-01-AB-1234)" name="vehicleNumber" [(ngModel)]="vehicle.vehicleNumber" required />
+        @if (validationErrors['vehicleNumber']) { <p class="text-red-500 text-sm mt-1">{{ validationErrors['vehicleNumber'] }}</p> }
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2">Vehicle Type</label>
+        <select [(ngModel)]="vehicle.vehicleType" name="vehicleType" required class="w-full px-3 py-2 border border-gray-300 rounded" [class.border-red-500]="validationErrors['vehicleType']">
+          <option value="" disabled selected>Select Vehicle Type</option>
+          <option *ngFor="let type of vehicleTypes" [value]="type">{{type}}</option>
+        </select>
+        @if (validationErrors['vehicleType']) { <p class="text-red-500 text-sm mt-1">{{ validationErrors['vehicleType'] }}</p> }
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2">Parking Lot</label>
+        @defer (on timer(1s)) {
+          @if (parkingLots && parkingLots.length > 0) {
+            <select [(ngModel)]="vehicle.parkingLotId" name="parkingLotId" required class="w-full px-3 py-2 border border-gray-300 rounded" [class.border-red-500]="validationErrors['parkingLotId']">
+              <option *ngFor="let type of parkingLots" [value]="type.id">{{type.name}}</option>
             </select>
-            @if (validationErrors['vehicleType']) {
-              <p class="text-red-500 text-sm mt-1">{{ validationErrors['vehicleType'] }}</p>
-            }
-        </div>
-             <div class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2">Parking Lot</label>
-            @defer (on timer(1s)) {
-            <select [(ngModel)]="vehicle.parkingLotId" name="parkingLotId" required 
-            [class.border-red-500]="validationErrors['parkingLotId']"
-            class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="" selected disabled>Select Parking Lot</option>
-                <option *ngFor="let type of parkingLots" [value]="type.id">{{type.name}}</option>
-            </select>
-        }@placeholder {
-            <p class="p-3.5 font-bold text-gray-500 text-center">Loading parking lots...</p>
-        }
-            @if (validationErrors['parkingLotId']) {
-              <p class="text-red-500 text-sm mt-1">{{ validationErrors['parkingLotId'] }}</p>
-            }
-        </div>
-        <div class="flex gap-4">
-                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">Submit Button</button>
-    
-                <button (click)="onBack()" type="button" class="bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-gray-500">Back Button</button> </div>
+          } @else {
+            <p class="p-3.5 font-bold text-gray-500 text-center">No Parking Lot Available Right Now</p>
+          }
+        }@placeholder { <p class="p-3.5 font-bold text-gray-500 text-center">Loading parking lots...</p> }
+        @if (validationErrors['parkingLotId']) { <p class="text-red-500 text-sm mt-1">{{ validationErrors['parkingLotId'] }}</p> }
+      </div>
+
+      <div class="flex gap-2 justify-end">
+        <button type="button" (click)="clearForm(form)" class="px-3 py-1 bg-gray-300 rounded">Clear</button>
+        <button type="submit" class="px-3 py-1 bg-green-600 text-white rounded">Submit Entry</button>
+      </div>
     </form>
+  </p-dialog>
+
+  <!-- Vehicle Exit Dialog -->
+  <p-dialog header="Vehicle Exit" [(visible)]="showExitDialog" [modal]="true" [style]="{ width: '30rem' }">
+    <form (ngSubmit)="onExitSubmit()">
+      <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2">Vehicle Number</label>
+        <input type="text" [(ngModel)]="exitVehicleNumber" name="exitVehicleNumber" required class="w-full px-3 py-2 border border-gray-300 rounded" placeholder="Enter vehicle number (e.g. KA-01-AB-1234)" />
+      </div>
+      <div class="flex justify-end gap-2">
+        <button type="button" class="px-3 py-1 bg-gray-300 rounded" (click)="closeExitDialog()">Cancel</button>
+        <button type="submit" class="px-3 py-1 bg-red-600 text-white rounded">Submit Exit</button>
+      </div>
+    </form>
+  </p-dialog>
+
+  <!-- Exit bill popup -->
+  <div *ngIf="exitShowBillPopup" class="fixed inset-0 bg-white backdrop-blur-md flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+      <h3 class="text-lg font-semibold mb-4">Parking Bill</h3>
+      <div *ngIf="exitBillData && exitBillData.length > 0">
+        <div *ngFor="let lot of exitBillData" class="space-y-2 text-gray-700">
+            <p><strong>Session ID:</strong> {{ lot.id }}</p>
+            <p><strong>Vehicle Number:</strong> {{ lot.vehicleNumber }}</p>
+            <p><strong>Parking Slot ID:</strong> {{ lot.parkingSlotId }}</p>
+            <p><strong>Base Price / Hour:</strong> {{ lot.basePricePerHour ? ('₹' + lot.basePricePerHour) : 'N/A' }}</p>
+            <p><strong>Multiplier:</strong> {{ lot.multiplier }}</p>
+            <p><strong>Occupancy %:</strong> {{ lot.occupancyPercentage }}%</p>
+            <p><strong>Entry Time:</strong> {{ lot.entryTime | date:'medium' }}</p>
+            <p><strong>Exit Time:</strong> {{ lot.exitTime | date:'medium' }}</p>
+            <p><strong>Hours Charged:</strong> {{ lot.hoursCharged }}</p>
+            <p><strong>Status:</strong> {{ lot.status }}</p>
+            <p><strong>Total Amount:</strong> {{ lot.totalAmount ? ('₹' + lot.totalAmount) : 'Free' }}</p>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 mt-4">
+        <button class="px-3 py-1 bg-gray-300 rounded" (click)="closeExitPopup()">Close</button>
+        <button class="px-3 py-1 bg-green-600 text-white rounded" (click)="confirmExit()">Confirm Exit</button>
+      </div>
+    </div>
+  </div>
+
 </div>

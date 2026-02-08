@@ -1,6 +1,8 @@
 package com.fincons.parkingsystem.service;
 
 import com.fincons.parkingsystem.dto.ParkingLotDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -20,18 +22,20 @@ public interface ParkingLotService {
     ParkingLotDto createParkingLot(ParkingLotDto parkingLotDto);
 
     /**
-     * Retrieves a list of all active (not soft-deleted) parking lots.
+     * Retrieves a paginated list of all active (not soft-deleted) parking lots.
      *
-     * @return A list of DTOs representing all active parking lots.
+     * @param pageable Pagination and sorting information.
+     * @return A paginated list of DTOs representing all active parking lots.
      */
-    List<ParkingLotDto> getAllParkingLots();
+    Page<ParkingLotDto> getAllParkingLots(Pageable pageable);
 
     /**
-     * Retrieves a list of all parking lots, including those that have been soft-deleted.
+     * Retrieves a paginated list of all parking lots, including those that have been soft-deleted.
      *
-     * @return A list of DTOs representing all parking lots, both active and inactive.
+     * @param pageable Pagination and sorting information.
+     * @return A paginated list of DTOs representing all parking lots, both active and inactive.
      */
-    List<ParkingLotDto> getAllParkingLotsDeleted();
+    Page<ParkingLotDto> getAllParkingLotsDeleted(Pageable pageable);
 
     /**
      * Deactivates a parking lot using a soft-delete mechanism.
@@ -54,4 +58,11 @@ public interface ParkingLotService {
      * @param parkingLotDto A DTO containing the new information for the parking lot.
      */
     void updateParkingLot(Long id, ParkingLotDto parkingLotDto);
+
+    /**
+     * Retrieves a non-paginated list of all active (non-deleted) parking lots.
+     *
+     * @return A list of DTOs representing all active parking lots.
+     */
+    List<ParkingLotDto> findAllParkingLotsNonDeleted();
 }

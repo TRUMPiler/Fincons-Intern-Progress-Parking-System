@@ -1,4 +1,98 @@
-<div class="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
+<!-- Parking Lot Registration and List -->
+<div class="max-w-full mx-auto mt-0 bg-white shadow-md overflow-hidden pb-5 border border-black">
+  <div class="mb-4 px-6">
+    <h2 class="text-2xl font-bold text-gray-800 text-center py-4">Registered Parking Lots</h2>
+    <p-toast position="top-right" key="tl"/>
+    <p-toast position="top-right" key="error"/>
+    
+    <div class="flex justify-end items-center mb-4">
+      <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" (click)="showDialog()">Open Registration Form</button>
+      <p-dialog header="Register a Parking Lot" [modal]="true" [(visible)]="DialogVisible" [style]="{ width: '75rem' }">
+        <div class="p-4">
+          <form #ngForm="ngForm" (ngSubmit)="onSubmit(ngForm)">
+            <div class="mb-4">
+              <label class="block text-gray-700 text-sm font-bold mb-2">Parking Lot Name</label>
+              <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" [class.border-red-500]="validationErrors['name']" placeholder="Enter parking lot name (e.g. 'City Mall - Basement')" name="name" [(ngModel)]="parkinglot.name" required />
+              @if (validationErrors['name']) { <p class="text-red-500 text-sm mt-1">{{ validationErrors['name'] }}</p> }
+            </div>
+
+            <div class="mb-4">
+              <label class="block text-gray-700 text-sm font-bold mb-2">Parking Lot Location</label>
+              <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" [class.border-red-500]="validationErrors['location']" placeholder="Enter full address or nearby landmark" name="location" [(ngModel)]="parkinglot.location" required />
+              @if (validationErrors['location']) { <p class="text-red-500 text-sm mt-1">{{ validationErrors['location'] }}</p> }
+            </div>
+
+            <div class="mb-4">
+              <label class="block text-gray-700 text-sm font-bold mb-2">Total Parking Slots</label>
+              <input type="number" min="1" class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" [class.border-red-500]="validationErrors['totalSlots']" placeholder="Enter total number of parking slots" name="totalslots" [(ngModel)]="parkinglot.totalSlots" required />
+              @if (validationErrors['totalSlots']) { <p class="text-red-500 text-sm mt-1">{{ validationErrors['totalSlots'] }}</p> }
+            </div>
+
+            <div class="mb-6">
+              <label class="block text-gray-700 text-sm font-bold mb-2">Base Price per Hour (INR)</label>
+              <input type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" [class.border-red-500]="validationErrors['basePricePerHour']" placeholder="Enter base price per hour (INR)" name="basePricePerHour" [(ngModel)]="parkinglot.basePricePerHour" required />
+              @if (validationErrors['basePricePerHour']) { <p class="text-red-500 text-sm mt-1">{{ validationErrors['basePricePerHour'] }}</p> }
+            </div>
+
+            <div class="flex gap-4">
+              <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">Register Parking Lot</button>
+              <button (click)="clearForm(ngForm)" type="button" class="bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-gray-500">Clear Form</button>
+            </div>
+          </form>
+        </div>
+      </p-dialog>
+    </div>
+
+    <p-table [value]="parkingLots" *ngIf="parkingLots && parkingLots.length > 0" class="p-datatable-striped p-datatable-hoverable-rows" [tableStyle]="{'min-width':'100%'}">
+      <ng-template pTemplate="header">
+        <tr class="bg-gray-100 text-gray-700">
+          <th class="py-2 px-3 text-left font-semibold">Parking Lot Name</th>
+          <th class="py-2 px-3 text-left font-semibold">Parking Lot Location</th>
+          <th class="py-2 px-3 text-left font-semibold">Total Slots</th>
+          <th class="py-2 px-3 text-left font-semibold">Base Price (₹)/Hour</th>
+          <th class="py-2 px-3 text-left font-semibold">Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-lot>
+        <tr>
+          <td class="py-2 px-3 text-left">{{ lot.name }}</td>
+          <td class="py-2 px-3 text-left">{{ lot.location }}</td>
+          <td class="py-2 px-3 text-left">{{ lot.totalSlots }}</td>
+          <td class="py-2 px-3 text-left">{{ lot.basePricePerHour }}</td>
+          <td class="py-2 px-3 text-left">
+            <button class="bg-green-600 hover:bg-green-700 text-white font-semibold py-1 px-3 rounded transition-colors" type="button" (click)="event(lot.id)">View Details</button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    <!-- Custom Paginator -->
+    <div *ngIf="parkingLots && parkingLots.length > 0" class="flex items-center justify-between p-4 bg-gray-50 border-t">
+      <span class="text-sm text-gray-600">Showing {{ first + 1 }} to {{ Math.min(first + rows, totalRecords) }} of {{ totalRecords }} parking lots</span>
+      <div class="flex gap-2 items-center">
+        <div class="flex items-center mr-2">
+          <label class="text-sm text-gray-600 mr-2">Rows:</label>
+          <select [(ngModel)]="rows" (ngModelChange)="onPageSizeChange($event)" class="px-2 py-1 border rounded">
+            <option [value]="5">5</option>
+            <option [value]="10">10</option>
+            <option [value]="20">20</option>
+            <option [value]="50">50</option>
+          </select>
+        </div>
+        <button (click)="goToPreviousPage()" [disabled]="first === 0" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed">Previous</button>
+        <span class="px-3 py-1 bg-white border border-gray-300 rounded">Page {{ Math.floor(first / rows) + 1 }} of {{ getPageCount() }}</span>
+        <button (click)="goToNextPage()" [disabled]="first + rows >= totalRecords" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed">Next</button>
+      </div>
+    </div>
+
+    <div *ngIf="!parkingLots || parkingLots.length === 0" class="p-6 text-center text-gray-500">No parking lots available</div>
+  </div>
+  <div class="flex justify-between mb-0.5 ml-2.5">
+    <button class="bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-gray-500" (click)="onBack()">Back to Dashboard</button>
+  </div>
+</div>
+<!-- <div class="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
 
     <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Parking Lot Register Form</h2>
     <form form="#ngForm" (ngSubmit)="onSubmit()">
@@ -63,38 +157,5 @@
     
                 <button (click)="onBack()" type="button" class="bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-gray-500">Back Button</button> </div>
     </form>
-</div>
+</div> -->
 
-@defer (on timer(1s)) {
-<div class="max-w-4xl mx-auto mt-10 bg-white rounded-lg shadow-md overflow-hidden pb-5">
-    <h2 class="text-2xl font-bold p-6 text-gray-800 border-b">Registered Parking Lots</h2>
-    <div class="overflow-x-auto">
-        <table class="min-w-full bg-white">
-            <thead class="bg-gray-800 text-white">
-                <tr>
-                    <th class="py-3 px-4 uppercase font-semibold text-sm text-left">Name</th>
-                    <th class="py-3 px-4 uppercase font-semibold text-sm text-left">Location</th>
-                    <th class="py-3 px-4 uppercase font-semibold text-sm text-left">Slots</th>
-                    <th class="py-3 px-4 uppercase font-semibold text-sm text-left">Price/Hr</th>
-
-                    <th class="py-3 px-4 uppercase font-semibold text-sm text-left"></th>
-                </tr>
-            </thead>
-            <tbody class="text-gray-700" *ngIf="parkingLots && parkingLots.length > 0; else noData">
-                <tr *ngFor="let lot of parkingLots" class="border-b hover:bg-gray-100">
-                    <td class="py-3 px-4 text-left">{{ lot.name }}</td>
-                    <td class="py-3 px-4 text-left">{{ lot.location }}</td>
-                    <td class="py-3 px-4 text-left">{{ lot.totalSlots }}</td>
-                    <td class="py-3 px-4 text-left">{{ lot.basePricePerHour }}</td>
-                     <td class="py-3 px-4 text-left"><button class="bg-green-500 rounded-2xl p-2.5 border-2 text-white border-black" type="button" (click)="event(lot.id)" >See Details</button></td>
-                </tr>
-            </tbody>
-            <ng-template #noData>
-                <p class="p-6 text-center">No parking lots available</p>
-            </ng-template>
-        </table>
-    </div>
-</div>
-} @placeholder {
-    <p class="text-center mt-10 text-gray-500">Loading parking lots table...</p>
-}

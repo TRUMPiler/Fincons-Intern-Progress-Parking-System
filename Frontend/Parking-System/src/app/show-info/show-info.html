@@ -1,88 +1,148 @@
-<div class="fixed inset-0 bg-white bg-opacity-50 flex items-center justify-center z-50">
-  <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6 max-h-screen overflow-y-auto">
-
-    <h2 class="text-xl font-bold mb-4 text-center text-gray-800">
-      Parking Lot Data
+<div class="pt-24 min-h-screen bg-gray-50 flex flex-col items-center justify-start p-6">
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-6xl p-8">
+    <p-toast position="top-left" key="tl"/>
+    <p-toast position="top-left" key="error"/>
+    <h2 class="text-3xl font-bold mb-8 text-center text-gray-800">
+      Parking Lot Information
     </h2>
     @defer(on timer(1s))
     {
-    <div *ngFor="let lot of parkingLotInfo" class="space-y-4 text-gray-700">
+    <div class="space-y-6 text-gray-700">
       <!-- Parking Lot Info Section -->
-      <div class="border-b pb-4">
-        <p><strong>Parking Lot Name:</strong> {{ lot.parkingLotName }}</p>
-        <p><strong>Parking slots Active:</strong> {{ lot.activeSessions }}</p>
-        <p><strong>Occupied Slots:</strong> {{ lot.occupiedSlots }}</p>
-        <p><strong>Total Slots:</strong> {{ lot.totalSlots }}</p>
-        <p><strong>Base Price of Lot:</strong> ₹{{ lot.basePricePerHour }}</p>
-        <p><strong>Occupancy Percentage:</strong> {{ lot.occupancyPercentage }}%</p>
-        <p class="text-lg font-bold">
-          Revenue:
-          @if(lot.totalRevenue<=0) { No collections yet } @else { ₹{{ lot.totalRevenue }} }
-        </p>
-        <p class="text-lg font-bold">
-          Revenue for today:
-          @if(lot.revenueToday<=0) { No collections yet } @else { ₹{{ lot.revenueToday }} }
-        </p>
-      </div>
+      @for (lot of parkingLotInfo; track lot.parkingLotId) {
+      <div class="border-l-4 border-blue-500 bg-linear-to-r from-blue-50 to-white p-6 rounded-lg shadow-md">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <p><strong class="text-blue-700">Parking Lot Name:</strong> <span class="text-gray-800">{{
+                lot.parkingLotName }}</span></p>
+            <p class="mt-2"><strong class="text-blue-700">Available Lots:</strong> <span class="text-gray-800">{{
+                lot.availableSlots }}</span></p>
+            <p class="mt-2"><strong class="text-blue-700">Occupied Slots:</strong> <span class="text-gray-800">{{
+                lot.occupiedSlots }}</span></p>
+            <p class="mt-2"><strong class="text-blue-700">Total Slots:</strong> <span class="text-gray-800">{{
+                lot.totalSlots }}</span></p>
+          </div>
+          <div>
+            <p><strong class="text-blue-700">Base Price/Hour:</strong> <span class="text-green-600 font-semibold">₹{{
+                lot.basePricePerHour }}</span></p>
+            <p class="mt-2"><strong class="text-blue-700">Occupancy:</strong> <span class="text-gray-800">{{
+                lot.occupancyPercentage }}%</span></p>
+            <p class="mt-2 text-lg"><strong class="text-blue-700">Total Revenue:</strong>
+              @if(lot.totalRevenue<=0) { <span class="text-gray-500">No collections yet</span>
+                } @else {
+                <span class="text-green-600 font-bold">₹{{ lot.totalRevenue }}</span>
+                }
+            </p>
+            <p class="mt-2 text-lg"><strong class="text-blue-700">Today's Revenue:</strong>
+              @if(lot.revenueToday<=0) { <span class="text-gray-500">No collections yet</span>
+                } @else {
+                <span class="text-green-600 font-bold">₹{{ lot.revenueToday }}</span>
+                }
+            </p>
+          </div>
+        </div>
 
-      <!-- Deactivate/Reactivate Button -->
-      <div class="flex justify-end gap-4">
-        @if(!lot.deleted)
-        {
-        <button class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
-          (click)="onDelete(lot.parkingLotId)">
-          Deactivate Parking Lot
-        </button>
-        }
-        @else {
-        <button class="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded"
-          (click)="onReactivate(lot.parkingLotId)">
-          Reactivate Parking Lot
-        </button>
-        }
-      </div>
+        <!-- Deactivate/Reactivate Button -->
+        <div class="flex justify-end gap-4 mt-4">
+          @if(!lot.deleted)
+          {
+          <button class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded shadow-md transition-colors"
+            (click)="onDelete(lot.parkingLotId)">
+            Deactivate Parking Lot
+          </button>
+          }
+          @else {
+          <button class="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded shadow-md transition-colors"
+            (click)="onReactivate(lot.parkingLotId)">
+            Reactivate Parking Lot
+          </button>
+          }
+        </div>
 
-      <!-- Parking Slots Section -->
-      <div class="border-t pt-4">
-        <h3 class="text-lg font-bold mb-4 text-gray-800">Parking Slots Status</h3>
-        <div class="grid grid-cols-2 gap-3">
-          <div *ngFor="let slot of parkingSlots; let i = index" class="flex flex-col gap-2">
-            <label class="font-semibold">Slot {{ slot.slotNumber }}</label>
-            @if(slot.status==='AVAILABLE')
-            {
-            <button class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm"
-              (click)="onChangeSLotStatus(slot.id,'INACTIVE')">
-              Make Unavailable
-            </button>
-            }
-            @else if(slot.status==='INACTIVE')
-            {
-            <button class="bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded text-sm"
-              (click)="onChangeSLotStatus(slot.id,'AVAILABLE')">
-              Make Available
-            </button>
-            }
-            @else {
-              <p class="text-red-500 font-semibold">{{ slot.status }}</p>
-            }
+        <!-- Parking Slots Section with Normal Table -->
+        <div class="border-t pt-6 mt-6">
+          <h3 class="text-xl font-bold mb-4 text-gray-800">Parking Slots Status - {{ lot.parkingLotName }}</h3>
+
+          <div class="overflow-x-auto">
+            <div class="flex items-center justify-end mb-2">
+              <div>
+                <label class="mr-2 text-sm">Rows:</label>
+                <select [(ngModel)]="pageSize" (ngModelChange)="onPageSizeChange($event)"
+                  class="px-2 py-1 border rounded">
+                  <option [value]="5">5</option>
+                  <option [value]="10">10</option>
+                  <option [value]="20">20</option>
+                  <option [value]="50">50</option>
+                </select>
+              </div>
+            </div>
+
+            <p-table [value]="parkingSlots" [tableStyle]="{'min-width':'100%'}">
+              <ng-template pTemplate="header">
+                <tr>
+
+                  <th class="py-3 px-4 text-left">Slot Number</th>
+                  <th class="py-3 px-4 text-left">Status</th>
+                  <th class="py-3 px-4 text-left">Actions</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-slot>
+                <tr>
+
+                  <td class="py-3 px-4 text-left">{{ slot.slotNumber }}</td>
+                  <td class="py-3 px-4 text-left"><span [ngClass]="getStatusClass(slot.status)">{{ slot.status }}</span>
+                  </td>
+                  <td class="py-3 px-4 text-left">
+                    <ng-container *ngIf="slot.status === 'AVAILABLE'">
+                      <button pButton type="button" label="Mark the slot for Servicing"
+                        class="p-button-sm p-button-danger"
+                        (click)="onChangeSLotStatus(slot.id, 'UNDER_SERVICE')"></button>
+                    </ng-container>
+                    <ng-container *ngIf="slot.status === 'UNDER_SERVICE'">
+                      <button pButton type="button" label="Make the slot Available for parking"
+                        class="p-button-sm p-button-success"
+                        (click)="onChangeSLotStatus(slot.id, 'AVAILABLE')"></button>
+                    </ng-container>
+                    <ng-container *ngIf="slot.status !== 'AVAILABLE' && slot.status !== 'UNDER_SERVICE'">
+                      <span class="font-semibold text-red-600">{{ slot.status }}</span>
+                    </ng-container>
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="4" class="px-4 py-8 text-center text-gray-500">No slots found.</td>
+                </tr>
+              </ng-template>
+            </p-table>
+            <div class="flex items-center justify-between mt-4">
+              <div class="text-sm text-gray-600">Total: {{ totalSlotRecords }}</div>
+              <div class="flex items-center gap-3">
+                <button class="px-3 py-1 border rounded" (click)="goToPreviousPage()"
+                  [disabled]="pageNumber === 0">Previous</button>
+                <div class="text-sm text-gray-700">Page {{ pageNumber + 1 }} of {{ getPageCount() }}</div>
+                <button class="px-3 py-1 border rounded" (click)="goToNextPage()"
+                  [disabled]="(pageNumber + 1) * pageSize >= totalSlotRecords">Next</button>
+              </div>
+            </div>
+            <div class="flex justify-end gap-4 mt-6 border-t pt-4">
+              <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow-md transition-colors"
+                (click)="onBack()">
+                Back to Dashboard
+              </button>
+            </div>
           </div>
         </div>
       </div>
+      }
     </div>
     }
     @loading {
-    <p class="text-center text-gray-600">Loading...</p>
+    <p class="text-center text-gray-600 p-4">Loading...</p>
     }
     @placeholder {
-    <p class="text-center text-gray-600">No Data</p>
+    <p class="text-center text-gray-600 p-4">No Data</p>
     }
-
-    <!-- Exit Button -->
-    <div class="flex justify-end gap-4 mt-6 border-t pt-4">
-      <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded" (click)="onBack()">
-        Confirm Exit
-      </button>
-    </div>
-
   </div>
 </div>
+<!-- Exit Button -->

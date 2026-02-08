@@ -2,6 +2,7 @@ package com.fincons.parkingsystem;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
@@ -10,7 +11,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * The @EnableScheduling annotation is used to activate Spring's scheduled task execution capabilities,
  * which is essential for features like the reservation expiration job.
  */
-@SpringBootApplication
+@SpringBootApplication(exclude = KafkaAutoConfiguration.class)
 @EnableScheduling
 public class ParkingSystemApplication {
 

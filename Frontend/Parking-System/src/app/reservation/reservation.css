@@ -1,0 +1,20 @@
+.status-active {
+  background-color: #22c55e; /* green-500 */
+  color: white;
+}
+.status-pending {
+  background-color: #f59e0b; /* amber-500 */
+  color: white;
+}
+.status-cancelled {
+  background-color: #ef4444; /* red-500 */
+  color: white;
+}
+.status-completed {
+  background-color: #3b82f6; /* blue-500 */
+  color: white;
+}
+.status-secondary {
+  background-color: #6b7280; /* gray-500 */
+  color: white;
+}

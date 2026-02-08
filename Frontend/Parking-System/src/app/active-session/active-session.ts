@@ -1,71 +1,83 @@
-import { CommonModule, DatePipe } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AuthService } from '../auth.service';
+import { Subject } from 'rxjs';
+import { ToastModule } from 'primeng/toast';
+import { RippleModule } from 'primeng/ripple';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-active-session',
-  imports: [CommonModule,FormsModule,DatePipe],
+  imports: [CommonModule, ToastModule, RippleModule],
   standalone: true,
   templateUrl: './active-session.html',
-  styleUrl: './active-session.css',
+  styleUrls: ['./active-session.css'],
 })
-export class ActiveSession implements OnInit {
+export class ActiveSession implements OnInit, OnDestroy {
+  sessionData: any[] = [];
+  sessionHistory: any[] = [];
+  
+  private destroy$ = new Subject<void>();
 
-  constructor(public authService:AuthService)
-  {}
-  sessionData:any[]=[];
-  sessionHistroy:any[]=[];
+  constructor(private authService: AuthService, private messageService: MessageService) {}
+
   ngOnInit(): void {
-    this.authService.getActiveSessions().subscribe(
-      {
-        next: (response) => {
-          if (response.success) {
-            this.sessionData = response.data;
-          }
-          else {
-            alert(response.message);
-          }
-        },
-        error: (err) => {
-          if(err.status==0)
-          {
-            alert("Server is down. Please try again later.");
-            return;
-          }
-          console.error('There was an error!', err);
-        },
-      }
-    );
-    this.authService.getHistorySessions().subscribe(
-      {
-        next:(Response)=>
-        {
-          if(Response.success)
-          {
-            this.sessionHistroy=Response.data;
-            console.log(this.sessionHistroy);
-          }
-          else
-          {
-            alert(Response.message);
-          }
-        },
-        error:(err)=>
-        {
-          if(err.status==0)
-          {
-           
-            return;
-          }
-          alert(err.error.message);
-          console.error('There was an error!', err);  
+    // Initial load of active sessions via HTTP
+    this.loadActiveSessions();
+    // Initial load of session history via HTTP
+   
+  }
+
+  /**
+   * Fetches the list of active sessions from the backend via HTTP.
+   */
+  loadActiveSessions(): void {
+    this.authService.getActiveSessions().subscribe({
+      next: (response) => {
+        console.log('Active Session Component - Received response for active sessions:', response);
+        if (response.success) {
+          this.sessionData = [response.data];
+          console.log('Loaded', this.sessionData.length, 'active sessions');
+        } else {
+          console.error('Failed to load active sessions:', response.message);
         }
-      }
-    );
+      },
+      error: (err) => {
+        if (err.status === 0) {
+          console.error('Server is down. Please try again later.');
+        } else {
+          console.error('Error loading active sessions:', err.error.message);
+        }
+      },
+    });
   }
-  onBack()
-  {
-    window.location.href="/";
+
+  /**
+   * Fetches the list of historical sessions from the backend via HTTP.
+   */
+  loadSessionHistory(): void {
+    this.authService.getHistorySessions().subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.sessionHistory = [response.data];
+          console.log('Loaded', this.sessionHistory.length, 'historical sessions');
+        } else {
+          console.error('Failed to load session history:', response.message);
+        }
+      },
+      error: (err) => {
+        if (err.status === 0) {
+          console.error('Server is down. Please try again later.');
+        } else {
+          console.error('Error loading session history:', err.error.message);
+        }
+      },
+    });
   }
-}
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  }

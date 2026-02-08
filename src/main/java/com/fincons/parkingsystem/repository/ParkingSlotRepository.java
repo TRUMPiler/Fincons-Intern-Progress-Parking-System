@@ -5,7 +5,8 @@ import com.fincons.parkingsystem.entity.ParkingLot;
 import com.fincons.parkingsystem.entity.ParkingSlot;
 import com.fincons.parkingsystem.entity.SlotStatus;
 import jakarta.persistence.LockModeType;
-import org.springframework.data.domain.Limit;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
@@ -32,15 +33,16 @@ public interface ParkingSlotRepository extends JpaRepository<ParkingSlot, Long> 
     Long countByParkingLotAndStatus(ParkingLot parkingLot, SlotStatus slotStatus);
 
     /**
-     * Finds all active slots associated with a specific parking lot.
+     * Retrieves a paginated list of active slots associated with a specific parking lot.
      *
      * @param parkingLot The parking lot entity to find slots for.
-     * @return A list of all active {@link ParkingSlot} entities for the given lot.
+     * @param pageable Pagination and sorting information.
+     * @return A paginated list of active {@link ParkingSlot} entities for the given lot.
      */
-    List<ParkingSlot> findByParkingLot(ParkingLot parkingLot);
+    Page<ParkingSlot> findByParkingLot(ParkingLot parkingLot, Pageable pageable);
 
     /**
-     * Finds the first available slot in a given parking lot, ordered by slot number.
+     * Finds the first available slot in a given parking lot, ordered by ID.
      * A pessimistic write lock is applied to prevent race conditions during concurrent slot assignments.
      *
      * @param parkingLot The parking lot to search within.
@@ -77,4 +79,6 @@ public interface ParkingSlotRepository extends JpaRepository<ParkingSlot, Long> 
      */
     @Query(value = "SELECT * FROM parking_slots WHERE id = :id", nativeQuery = true)
     Optional<ParkingSlot> findByIdWithInactive(@Param("id") Long id);
+
+    long countByParkingLot(ParkingLot parkingLot);
 }

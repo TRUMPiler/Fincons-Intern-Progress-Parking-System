@@ -20,5 +20,5 @@ public enum SlotStatus {
     /**
      * Indicates that the parking slot has been deactivated.
      */
-    INACTIVE
+    UNDER_SERVICE
 }

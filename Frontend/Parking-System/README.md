@@ -1,59 +1,55 @@
-# ParkingSystem
+# Parking System Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.5.
+This is an Angular application for a parking system. It allows users to manage parking lots, handle vehicle entries and exits, view active sessions and session history, and make reservations.
 
-## Development server
+## Project Structure
 
-To start a local development server, run:
+The project is structured as follows:
 
-```bash
-ng serve
-```
+- `src/app/`: Contains the main application logic.
+  - `app.component.ts`: The root component of the application.
+  - `app.routes.ts`: Defines the application's routes.
+  - `auth.service.ts`: Handles authentication and API calls.
+  - `websocket.service.ts`: Manages WebSocket connections for real-time updates.
+  - `active-sessions/`: Component for displaying active parking sessions.
+  - `homepage/`: The main landing page of the application.
+  - `parkinglot-registeration/`: Component for registering and managing parking lots.
+  - `reservation/`: Component for creating and managing reservations.
+  - `session-history/`: Component for displaying the history of parking sessions.
+  - `show-info/`: Component for displaying detailed information about a parking lot.
+  - `vehicle-entry/`: Component for handling vehicle entries.
+  - `vehicle-exit/`: Component for handling vehicle exits.
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## Components
 
-## Code scaffolding
+### Homepage
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+The main landing page of the application. It provides navigation to all the major features.
 
-```bash
-ng generate component component-name
-```
+### Parking Lot Registration
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+This component allows users to register new parking lots and view a list of existing ones. It includes a form for entering the parking lot's name, location, total slots, and base price per hour.
 
-```bash
-ng generate --help
-```
+### Vehicle Entry
 
-## Building
+This component is used to record the entry of a new vehicle. It includes a form for entering the vehicle number, vehicle type, and selecting a parking lot.
 
-To build the project run:
+### Vehicle Exit
 
-```bash
-ng build
-```
+This component is used to process a vehicle's exit from the parking lot. It calculates the parking fee and displays a bill.
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+### Active Sessions
 
-## Running unit tests
+This component displays a real-time list of all active parking sessions. It uses a WebSocket connection to receive live updates.
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+### Session History
 
-```bash
-ng test
-```
+This component displays a paginated and sortable list of all completed parking sessions.
 
-## Running end-to-end tests
+### Show Info
 
-For end-to-end (e2e) testing, run:
+This component displays detailed information about a specific parking lot, including its name, location, total slots, and a list of all parking slots with their current status.
 
-```bash
-ng e2e
-```
+### Reservation
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+This component allows users to make a reservation for a parking slot. It includes a form for entering the vehicle number, vehicle type, and selecting a parking lot. It also displays a list of all existing reservations.

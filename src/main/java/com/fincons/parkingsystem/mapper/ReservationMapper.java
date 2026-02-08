@@ -18,7 +18,8 @@ public interface ReservationMapper {
      * to handle cases where the lot might be soft-deleted.
      */
     @Mapping(source = "vehicle.vehicleNumber", target = "vehicleNumber")
-    @Mapping(source = "parkingLotId", target = "parkingLotId")
+
+    @Mapping(source = "parkingSlotId", target = "parkingSlotId")
     @Mapping(target = "parkingLotName", ignore = true)
     ReservationDto toDto(Reservation reservation);
 
@@ -26,6 +27,6 @@ public interface ReservationMapper {
      * This method converts a ReservationDto back to a Reservation entity.
      */
     @Mapping(source = "vehicleNumber", target = "vehicle.vehicleNumber")
-    @Mapping(source = "parkingLotId", target = "parkingLot.id")
+    @Mapping(source = "parkingSlotId", target = "parkingSlotId")
     Reservation toEntity(ReservationDto reservationDto);
 }

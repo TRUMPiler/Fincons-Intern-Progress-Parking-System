@@ -1,17 +1,21 @@
-/**
- * Homepage Component
- * This is the main landing page of the Parking System
- * Provides navigation links to all major features of the application
- */
+import { Component, OnInit } from '@angular/core';
+import { Form, FormsModule, NgForm } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { AuthService } from '../auth.service';
+import { TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
+import { ChangeDetectorRef } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import {ToastModule} from 'primeng/toast';
+import {RippleModule} from 'primeng/ripple';
 
-import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router';
 
 @Component({
-  selector: 'app-homepage',
-  imports: [RouterModule],
+  selector: 'app-parkinglot-registeration',
+  imports: [FormsModule, CommonModule, TableModule, ButtonModule,DialogModule,RouterLink],
   standalone: true,
-  templateUrl: './homepage.html',
+  templateUrl: 'homepage.html',
   styleUrl: './homepage.css',
 })
-export class Homepage {}
+export class Homepage  {}

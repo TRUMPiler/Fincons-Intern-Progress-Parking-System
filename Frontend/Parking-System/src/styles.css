@@ -1,3 +1,40 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import "tailwindcss";
+@import "tailwindcss-primeui";
+
+/* PrimeNG / table header styling: black background with white text */
+.p-table thead th, .p-datatable-thead th, table thead th {
+	background: black !important;
+	color: white !important;
+}
+
+/* Custom simple paginator buttons */
+.custom-paginator .btn-next {
+	background: white;
+	color: black;
+	border: 1px solid #000;
+	padding: 6px 12px;
+	border-radius: 4px;
+}
+.custom-paginator .btn-prev {
+	background: black;
+	color: white;
+	border: 1px solid #000;
+	padding: 6px 12px;
+	border-radius: 4px;
+}
+
+/* PrimeNG paginator compatibility */
+.p-paginator .p-paginator-next, .p-paginator .p-paginator-prev {
+	padding: 6px 12px;
+	border-radius: 4px;
+}
+.p-paginator .p-paginator-next {
+	background: white;
+	color: black;
+}
+.p-paginator .p-paginator-prev {
+	background: black;
+	color: white;
+}

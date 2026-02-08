@@ -5,6 +5,7 @@ import com.fincons.parkingsystem.entity.ParkingLot;
 import com.fincons.parkingsystem.entity.ParkingSlot;
 import com.fincons.parkingsystem.entity.ReservationStatus;
 import com.fincons.parkingsystem.entity.SlotStatus;
+import com.fincons.parkingsystem.exception.BadRequestException;
 import com.fincons.parkingsystem.exception.ConflictException;
 import com.fincons.parkingsystem.exception.ResourceNotFoundException;
 import com.fincons.parkingsystem.mapper.ParkingLotMapper;
@@ -14,6 +15,8 @@ import com.fincons.parkingsystem.repository.ReservationRepository;
 import com.fincons.parkingsystem.service.ParkingLotService;
 import com.fincons.parkingsystem.service.ParkingSlotService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,30 +60,32 @@ public class ParkingLotServiceImpl implements ParkingLotService {
     }
 
     /**
-     * Retrieves a list of all active (not soft-deleted) parking lots.
+     * Retrieves a paginated list of all active (not soft-deleted) parking lots.
      * This operation is read-only.
      *
-     * @return A list of DTOs representing all active parking lots.
+     * @param pageable Pagination and sorting information.
+     * @return A paginated list of DTOs representing all active parking lots.
      */
     @Override
     @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
-    public List<ParkingLotDto> getAllParkingLots() {
-        return parkingLotRepository.findAll().stream()
-                .map(parkingLotMapper::toDto)
-                .collect(Collectors.toList());
+    public Page<ParkingLotDto> getAllParkingLots(Pageable pageable) {
+        return parkingLotRepository.findAll(pageable)
+                .map(parkingLotMapper::toDto);
     }
 
     /**
-     * Retrieves a list of all parking lots, including those that have been soft-deleted.
+     * Retrieves a paginated list of all parking lots, including those that have been soft-deleted.
      * This operation is read-only.
      *
-     * @return A list of DTOs representing all parking lots.
+     * @param pageable Pagination and sorting information.
+     * @return A paginated list of DTOs representing all parking lots.
      */
     @Override
     @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
-    public List<ParkingLotDto> getAllParkingLotsDeleted() {
-        return parkingLotRepository.findAllWithInactive().stream()
-                .map(parkingLotMapper::toDto).collect(Collectors.toList());
+    public Page<ParkingLotDto> getAllParkingLotsDeleted(Pageable pageable) {
+        return parkingLotRepository.findAllWithInactive(pageable)
+                .map(parkingLotMapper::toDto);
+
     }
 
     /**
@@ -91,15 +96,22 @@ public class ParkingLotServiceImpl implements ParkingLotService {
      */
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
-    public void deleteParkingLot(Long id) {
+    public void deleteParkingLot(Long id)
+    {
         ParkingLot parkingLot = parkingLotRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Parking lot not found with id: " + id));
-        if (parkingSlotRepository.countByParkingLotAndStatus(parkingLot, SlotStatus.OCCUPIED) > 0) {
+        if (parkingSlotRepository.countByParkingLotAndStatus(parkingLot, SlotStatus.OCCUPIED) > 0)
+        {
             throw new ConflictException("Can't delete Parking Lot because slots are occupied");
         }
-        if(reservationRepository.existsByParkingLotAndStatus(parkingLot, ReservationStatus.ACTIVE))
+
+        List<ParkingSlot> parkingSlots=parkingSlotRepository.findAllByParkingLotIdWithInactive(parkingLot.getId());
+        for(ParkingSlot parkingSlot:parkingSlots)
         {
-            throw new ConflictException("Can't delete Parking Lot because it has reservations");
+            if(reservationRepository.existsByParkingSlotAndStatus(parkingSlot,ReservationStatus.ACTIVE))
+            {
+                throw new BadRequestException("Parking Can't be deleted due to active reservation");
+            }
         }
         parkingLotRepository.delete(parkingLot);
     }
@@ -131,5 +143,15 @@ public class ParkingLotServiceImpl implements ParkingLotService {
     @Override
     public void updateParkingLot(Long id, ParkingLotDto parkingLotDto) {
         // Implementation for updating parking lot details can be added here.
+    }
+
+    /**
+     * Retrieves a non-paginated list of all active (non-deleted) parking lots.
+     *
+     * @return A list of DTOs representing all active parking lots.
+     */
+    @Override
+    public List<ParkingLotDto> findAllParkingLotsNonDeleted() {
+        return parkingLotRepository.findAll().stream().map(parkingLotMapper::toDto).toList();
     }
 }

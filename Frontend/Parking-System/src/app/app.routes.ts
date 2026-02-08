@@ -7,56 +7,61 @@ import { Routes } from '@angular/router';
 import { ParkinglotRegisteration } from './parkinglot-registeration/parkinglot-registeration';
 import { Homepage } from './homepage/homepage';
 import { VehicleEntry } from './vehicle-entry/vehicle-entry';
-import { VehicleExit } from './vehicle-exit/vehicle-exit';
-import { ActiveSession } from './active-session/active-session';
+import { ActiveSessionsComponent } from './active-sessions/active-sessions';
+import { SessionHistoryComponent } from './session-history/session-history';
 import { ShowInfo } from './show-info/show-info';
 import { Reservation } from './reservation/reservation';
-
-// Array of route definitions for the application
+import { Topicstest } from './topicstest/topicstest';
+// Array of application route definitions
 export const routes: Routes = [
-    // Route for parking lot registration page
+    // Route: parking lot registration page
     {
         path: 'register',
         component: ParkinglotRegisteration,
         title: 'Parking-System'
     },
-    // Default home page route
+    // Route: default home page
     {
         path: '',
         component: Homepage,
         title: 'Home'
     },
-    // Route for vehicle entry page
+    // Route: vehicle entry page
     {
         path: 'vehicle-entry',
         component: VehicleEntry,
         title: 'Vehicle Entry'
     },
-    // Route for vehicle exit page
+    // Route: active parking sessions
     {
-        path: 'vehicle-exit',
-        component: VehicleExit,
-        title: 'Vehicle Exit'
+        path: 'active-sessions',
+        component: ActiveSessionsComponent,
+        title: 'Active Sessions'
     },
-    // Route for active parking sessions
+    // Route: session history
     {
-        path: 'active-session',
-        component: ActiveSession,
-        title: 'Active Session'
+        path: 'session-history',
+        component: SessionHistoryComponent,
+        title: 'Session History'
     },
-    // Route for parking lot information and management
+    {
+        path: 'websocket-test',
+        component: Topicstest,
+        title: 'WebSocket Test'
+    },
+    // Route: parking lot information and management
     {
         path: 'show-info',
         component: ShowInfo,
         title: 'Parking Lot Info'
     },
-    // Route for parking reservations
+    // Route: parking reservations
     {
         path: 'reservation',
         component: Reservation,
         title: 'Parking Reservation'
     },
-    // Wildcard route: redirects any unmatched paths to home
+    // Wildcard route: redirect unmatched paths to the home page
     {
         path: '**',
         redirectTo: '',

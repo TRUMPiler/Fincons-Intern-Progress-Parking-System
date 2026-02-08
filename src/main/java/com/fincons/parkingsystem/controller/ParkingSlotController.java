@@ -1,9 +1,11 @@
 package com.fincons.parkingsystem.controller;
-import com.fincons.parkingsystem.dto.ParkingSlotAvailability;
 import com.fincons.parkingsystem.dto.ParkingSlotDto;
 import com.fincons.parkingsystem.service.ParkingSlotService;
 import com.fincons.parkingsystem.utils.Response;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,23 +15,23 @@ import java.time.LocalDateTime;
  * REST controller for retrieving and managing parking slots.
  */
 @RestController
-@RequestMapping("/api/parking-lots")
+@RequestMapping("/api/parking-slots")
 @RequiredArgsConstructor
-public class ParkingSlotController {
+public class    ParkingSlotController {
 
     private final ParkingSlotService parkingSlotService;
 
     /**
-     * Handles the HTTP GET request to retrieve the status of all parking slots for a given parking lot.
-     * This endpoint is used to get a real-time view of slot availability (e.g., AVAILABLE, OCCUPIED, RESERVED).
+     * Handles the HTTP GET request to retrieve a paginated list of parking slots for a given parking lot.
      *
      * @param parkingLotId The unique identifier of the parking lot to be checked.
-     * @return A ResponseEntity containing a DTO with a list of all slots and a count of available ones.
+     * @param pageable Pagination and sorting information.
+     * @return A ResponseEntity containing a paginated list of ParkingSlotDto objects.
      */
-    @GetMapping("/{parkingLotId}/slots")
-    public ResponseEntity<Response<ParkingSlotAvailability>> getSlotsByParkingLot(@PathVariable Long parkingLotId) {
-        ParkingSlotAvailability getSlots = parkingSlotService.getParkingSlotAvailability(parkingLotId);
-        Response<ParkingSlotAvailability> response = new Response<>(LocalDateTime.now(), getSlots, "Slots fetched successfully", true, 200);
+    @GetMapping("/by-lot/{parkingLotId}")
+    public ResponseEntity<Response<Page<ParkingSlotDto>>> getSlotsByParkingLot(@PathVariable Long parkingLotId, Pageable pageable) {
+        Page<ParkingSlotDto> slots = parkingSlotService.getParkingSlotAvailability(parkingLotId, pageable);
+        Response<Page<ParkingSlotDto>> response = new Response<>(LocalDateTime.now(), slots, "Slots fetched successfully", true, HttpStatus.OK.value());
         return ResponseEntity.ok(response);
     }
 
@@ -41,10 +43,10 @@ public class ParkingSlotController {
      * @return A ResponseEntity containing the updated ParkingSlotDto.
      */
     @PatchMapping("/update-slot")
-    public ResponseEntity<Object> updateParkingSlot(@RequestBody ParkingSlotDto parkingSlotDto)
+    public ResponseEntity<Response<ParkingSlotDto>> updateParkingSlot(@RequestBody ParkingSlotDto parkingSlotDto)
     {
-        ParkingSlotDto parkingSlotDto1=parkingSlotService.updateParkingSlotInformation(parkingSlotDto);
-        Response<ParkingSlotDto> response=new Response<>(LocalDateTime.now(),parkingSlotDto1,"Parking Slot updated successfully",true,200);
+        ParkingSlotDto updatedSlot = parkingSlotService.updateParkingSlotInformation(parkingSlotDto);
+        Response<ParkingSlotDto> response = new Response<>(LocalDateTime.now(), updatedSlot, "Parking Slot updated successfully", true, HttpStatus.OK.value());
         return ResponseEntity.ok(response);
     }
 }

@@ -1,9 +1,7 @@
 package com.fincons.parkingsystem.repository;
 
-import com.fincons.parkingsystem.entity.ParkingLot;
-import com.fincons.parkingsystem.entity.Reservation;
-import com.fincons.parkingsystem.entity.ReservationStatus;
-import com.fincons.parkingsystem.entity.Vehicle;
+import com.fincons.parkingsystem.entity.*;
+import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -32,19 +30,26 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
      * Finds a reservation for a specific vehicle and parking lot with a given status.
      *
      * @param vehicle The vehicle entity to find the reservation for.
-     * @param parkingLotId The ID of the parking lot.
+     * @param parkingSlotId The ID of the parking slot.
      * @param status The status of the reservation to find.
      * @return An {@link Optional} containing the found reservation, or empty if not found.
      */
-    Optional<Reservation> findByVehicleAndParkingLotIdAndStatus(Vehicle vehicle, Long parkingLotId, ReservationStatus status);
 
+
+    @Query(value="SELECT r FROM Reservation r WHERE r.vehicle = :vehicle AND r.parkingSlot.id = :parkingSlotId AND r.status = :status")
+    Optional<Reservation> findByVehicleAndParkingSlotIdAndStatus(Vehicle vehicle, Long parkingSlotId, ReservationStatus status);
+
+//    Page<Reservation> findAll(Pa);
     /**
      * Checks if a parking lot has any reservations with a specific status.
      * This is used to prevent the deactivation of a parking lot with active reservations.
      *
-     * @param parkingLot The parking lot entity to check.
+     * @param parkingSlot The parking slot entity to check.
      * @param reservationStatus The status of the reservations to check for.
      * @return {@code true} if a matching reservation exists, {@code false} otherwise.
      */
-    boolean existsByParkingLotAndStatus(ParkingLot parkingLot, ReservationStatus reservationStatus);
+    boolean existsByParkingSlotAndStatus(ParkingSlot parkingSlot, ReservationStatus reservationStatus);
+
+    @Query(value="SELECT r FROM Reservation r")
+    List<Reservation> findAllByCustom();
 }
