@@ -1,47 +1,95 @@
 ﻿<!-- Vehicle Entry & Exit UI -->
 <div class="flex gap-2 ml-auto mr-auto mt-auto mb-auto max-w-5xl max-h-2 justify-center  rounded-lg  min-h-screen">
-  <p-toast position="top-left" key="tl"/>
-  <p-toast position="top-left" key="error"/>
-  
+  <p-toast position="top-left" key="tl" />
+  <p-toast position="top-left" key="error" />
+
   <div class="flex items-center justify-between mb-6">
     <h2 class="text-2xl font-bold text-gray-800">Vehicle Entry / Exit</h2>
     <div class="flex gap-2 py-7 px-7">
-      <button (click)="onBack()" pRipple class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">Back to Dashboard</button>
-      <button (click)="showDialog()" pRipple class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Open Vehicle Entry</button>
-      <button (click)="openExitDialog()" pRipple class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Open Vehicle Exit</button>
+      <button (click)="onBack()" pRipple class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">Back to
+        Dashboard</button>
+      <button (click)="showDialog()" pRipple class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Open
+        Vehicle Entry</button>
+      <button (click)="openExitDialog()" pRipple class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Open
+        Vehicle Exit</button>
     </div>
   </div>
 
   <!-- Vehicle Entry Dialog -->
-  <p-dialog header="Vehicle Entry Form" [(visible)]="dialogVisible" [modal]="true" [style]="{ width: '40rem' }">
+  <p-dialog header="Vehicle Entry Form" [(visible)]="dialogVisible" [modal]="true" [style]="{ width: '70rem' }">
     <form #form="ngForm" (ngSubmit)="onSubmit(form)">
       <div class="mb-4">
         <label class="block text-gray-700 text-sm font-bold mb-2">Vehicle Number</label>
-        <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded" [class.border-red-500]="validationErrors['vehicleNumber']" placeholder="Enter Vehicle Number (e.g. KA-01-AB-1234)" name="vehicleNumber" [(ngModel)]="vehicle.vehicleNumber" required />
-        @if (validationErrors['vehicleNumber']) { <p class="text-red-500 text-sm mt-1">{{ validationErrors['vehicleNumber'] }}</p> }
+        <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded"
+          [class.border-red-500]="validationErrors['vehicleNumber']"
+          placeholder="Enter Vehicle Number (e.g. KA-01-AB-1234)" name="vehicleNumber"
+          [(ngModel)]="vehicle.vehicleNumber" required />
+        @if (validationErrors['vehicleNumber']) { <p class="text-red-500 text-sm mt-1">{{
+          validationErrors['vehicleNumber'] }}</p> }
       </div>
 
       <div class="mb-4">
         <label class="block text-gray-700 text-sm font-bold mb-2">Vehicle Type</label>
-        <select [(ngModel)]="vehicle.vehicleType" name="vehicleType" required class="w-full px-3 py-2 border border-gray-300 rounded" [class.border-red-500]="validationErrors['vehicleType']">
+        <select [(ngModel)]="vehicle.vehicleType" name="vehicleType" required
+          class="w-full px-3 py-2 border border-gray-300 rounded"
+          [class.border-red-500]="validationErrors['vehicleType']">
           <option value="" disabled selected>Select Vehicle Type</option>
           <option *ngFor="let type of vehicleTypes" [value]="type">{{type}}</option>
         </select>
-        @if (validationErrors['vehicleType']) { <p class="text-red-500 text-sm mt-1">{{ validationErrors['vehicleType'] }}</p> }
+        @if (validationErrors['vehicleType']) { <p class="text-red-500 text-sm mt-1">{{ validationErrors['vehicleType']
+          }}</p> }
       </div>
 
       <div class="mb-4">
         <label class="block text-gray-700 text-sm font-bold mb-2">Parking Lot</label>
         @defer (on timer(1s)) {
-          @if (parkingLots && parkingLots.length > 0) {
-            <select [(ngModel)]="vehicle.parkingLotId" name="parkingLotId" required class="w-full px-3 py-2 border border-gray-300 rounded" [class.border-red-500]="validationErrors['parkingLotId']">
-              <option *ngFor="let type of parkingLots" [value]="type.id">{{type.name}}</option>
-            </select>
-          } @else {
-            <p class="p-3.5 font-bold text-gray-500 text-center">No Parking Lot Available Right Now</p>
-          }
+        @if (parkingLots && parkingLots.length > 0) {
+        <p-select [options]="parkingLots" [(ngModel)]="vehicle.parkingLotId" optionLabel="name" optionValue="id"
+          name="parkingLotId" placeholder="Select a Parking Lot" [filter]="true" filterBy="name" appendTo="body"
+          [style]="{ width: '100%' }" [class.border-red-500]="validationErrors['parkingLotId']">
+          <ng-template #item let-lot>
+            <div class="flex flex-col gap-0.5 py-1 ">
+              @if(Math.round( ((lot.parkingSlots.length - lot.availableSlots) / lot.parkingSlots.length) * 100)<=50) { 
+                <span class="font-semibold text-green-600">{{ lot.name }}</span>
+                <div class="flex gap-3 text-sm text-green-600">
+                  <span>₹{{ lot.basePricePerHour }}/hr</span>
+                  <span>{{ lot.availableSlots }} / {{ lot.totalSlots }} slots available</span>
+                </div>
+
+                }
+                @else if(Math.round( ((lot.parkingSlots.length - lot.availableSlots) / lot.parkingSlots.length) * 100)>50 && Math.round( ((lot.parkingSlots.length - lot.availableSlots) / lot.parkingSlots.length) * 100)<80) {
+                  <span class="font-semibold text-yellow-600">{{ lot.name }}</span>
+                  <div class="flex gap-3 text-sm text-yellow-600">
+                    <span>₹{{ lot.basePricePerHour }}/hr</span>
+                    <span>{{ lot.availableSlots }} / {{ lot.totalSlots }} slots available</span>
+                  </div>
+                }
+                @else {
+                  <span class="font-semibold text-red-600">{{ lot.name }}</span>
+                  <div class="flex gap-3 text-sm text-red-600">
+                    <span>₹{{ lot.basePricePerHour }}/hr</span>
+                    <span>{{ lot.availableSlots }} / {{ lot.totalSlots }} slots available</span>
+                  </div>
+                }
+            </div>
+          </ng-template>
+          <ng-template #selectedItem let-lot>
+            <div class="flex items-center gap-2 " *ngIf="lot">
+              <span>{{ lot.name }}</span>
+
+
+              <span class="text-sm ">(₹{{ lot.basePricePerHour }}/hr — {{ lot.availableSlots }}/{{ lot.totalSlots }}
+                avail.)</span>
+
+            </div>
+          </ng-template>
+        </p-select>
+        } @else {
+        <p class="p-3.5 font-bold text-gray-500 text-center">No Parking Lot Available Right Now</p>
+        }
         }@placeholder { <p class="p-3.5 font-bold text-gray-500 text-center">Loading parking lots...</p> }
-        @if (validationErrors['parkingLotId']) { <p class="text-red-500 text-sm mt-1">{{ validationErrors['parkingLotId'] }}</p> }
+        @if (validationErrors['parkingLotId']) { <p class="text-red-500 text-sm mt-1">{{
+          validationErrors['parkingLotId'] }}</p> }
       </div>
 
       <div class="flex gap-2 justify-end">
@@ -56,7 +104,9 @@
     <form (ngSubmit)="onExitSubmit()">
       <div class="mb-4">
         <label class="block text-gray-700 text-sm font-bold mb-2">Vehicle Number</label>
-        <input type="text" [(ngModel)]="exitVehicleNumber" name="exitVehicleNumber" required class="w-full px-3 py-2 border border-gray-300 rounded" placeholder="Enter vehicle number (e.g. KA-01-AB-1234)" />
+        <input type="text" [(ngModel)]="exitVehicleNumber" name="exitVehicleNumber" required
+          class="w-full px-3 py-2 border border-gray-300 rounded"
+          placeholder="Enter vehicle number (e.g. KA-01-AB-1234)" />
       </div>
       <div class="flex justify-end gap-2">
         <button type="button" class="px-3 py-1 bg-gray-300 rounded" (click)="closeExitDialog()">Cancel</button>
@@ -71,17 +121,17 @@
       <h3 class="text-lg font-semibold mb-4">Parking Bill</h3>
       <div *ngIf="exitBillData && exitBillData.length > 0">
         <div *ngFor="let lot of exitBillData" class="space-y-2 text-gray-700">
-            <p><strong>Session ID:</strong> {{ lot.id }}</p>
-            <p><strong>Vehicle Number:</strong> {{ lot.vehicleNumber }}</p>
-            <p><strong>Parking Slot ID:</strong> {{ lot.parkingSlotId }}</p>
-            <p><strong>Base Price / Hour:</strong> {{ lot.basePricePerHour ? ('₹' + lot.basePricePerHour) : 'N/A' }}</p>
-            <p><strong>Multiplier:</strong> {{ lot.multiplier }}</p>
-            <p><strong>Occupancy %:</strong> {{ lot.occupancyPercentage }}%</p>
-            <p><strong>Entry Time:</strong> {{ lot.entryTime | date:'medium' }}</p>
-            <p><strong>Exit Time:</strong> {{ lot.exitTime | date:'medium' }}</p>
-            <p><strong>Hours Charged:</strong> {{ lot.hoursCharged }}</p>
-            <p><strong>Status:</strong> {{ lot.status }}</p>
-            <p><strong>Total Amount:</strong> {{ lot.totalAmount ? ('₹' + lot.totalAmount) : 'Free' }}</p>
+          <p><strong>Session ID:</strong> {{ lot.id }}</p>
+          <p><strong>Vehicle Number:</strong> {{ lot.vehicleNumber }}</p>
+          <p><strong>Parking Slot ID:</strong> {{ lot.parkingSlotId }}</p>
+          <p><strong>Base Price / Hour:</strong> {{ lot.basePricePerHour ? ('₹' + lot.basePricePerHour) : 'N/A' }}</p>
+          <p><strong>Multiplier:</strong> {{ lot.multiplier }}</p>
+          <p><strong>Occupancy %:</strong> {{ lot.occupancyPercentage }}%</p>
+          <p><strong>Entry Time:</strong> {{ lot.entryTime | date:'medium' }}</p>
+          <p><strong>Exit Time:</strong> {{ lot.exitTime | date:'medium' }}</p>
+          <p><strong>Hours Charged:</strong> {{ lot.hoursCharged }}</p>
+          <p><strong>Status:</strong> {{ lot.status }}</p>
+          <p><strong>Total Amount:</strong> {{ lot.totalAmount ? ('₹' + lot.totalAmount) : 'Free' }}</p>
         </div>
       </div>
       <div class="flex justify-end gap-2 mt-4">

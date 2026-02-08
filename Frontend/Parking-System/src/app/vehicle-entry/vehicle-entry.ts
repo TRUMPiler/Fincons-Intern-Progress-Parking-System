@@ -8,10 +8,11 @@ import { RippleModule } from 'primeng/ripple';
 import { MessageService } from 'primeng/api';
 import { WebSocket1Service } from '../websocket1.service';
 import { Subject, takeUntil } from 'rxjs';
+import { Select } from 'primeng/select';
 
 @Component({
   selector: 'app-vehicle-entry',
-  imports: [FormsModule, CommonModule, DialogModule, ToastModule, RippleModule],
+  imports: [FormsModule, CommonModule, DialogModule, ToastModule, RippleModule, Select],
   standalone: true,
   providers: [MessageService],
   templateUrl: './vehicle-entry.html',
@@ -41,7 +42,7 @@ export class VehicleEntry implements OnInit, OnDestroy {
   constructor(private authService: AuthService, private cdr: ChangeDetectorRef,private webSocket1Service: WebSocket1Service) {
     
   }
-
+  Math=Math;
   refreshParkingLots(): void {
     this.authService.getALLParkingLots().subscribe({
       next: (response) => {
@@ -49,13 +50,19 @@ export class VehicleEntry implements OnInit, OnDestroy {
           if (Array.isArray(response.data)) {
             console.log('Received parking lots data:', response.data);
             this.parkingLots = response.data;
-            this.parkingLots.forEach(lot => {
-              this.loadSlotOfLots(lot.id);
-            });
+            
           } else if (response.data && Array.isArray((response.data as any).content)) {
             console.log('Received parking lots data:', response.data.content);
             this.parkingLots = response.data.content;
-             
+            this.parkingLots.forEach((lot: any) => {
+              lot.totalSlots = lot.parkingSlots ? lot.parkingSlots.length : 0;
+              lot.availableSlots = lot.parkingSlots ? lot.parkingSlots.filter((s: any) => s.status === 'AVAILABLE').length : 0;
+              lot.occupiedSlots = lot.totalSlots - lot.availableSlots;
+              lot.occupancyPercentage = lot.totalSlots > 0 ? Math.round((lot.occupiedSlots / lot.totalSlots) * 100) : 0;
+            });
+             this.parkingLots.forEach(lot => {
+              this.loadSlotOfLots(lot.id);
+            });
           } else {
             this.parkingLots = [];
             console.warn('Unexpected parking lots data format:', response.data);
@@ -83,9 +90,7 @@ export class VehicleEntry implements OnInit, OnDestroy {
     // this.refreshParkingLots();
     this.dialogVisible = true;
   }
-
- 
-
+  
   openExitDialog(): void {
     this.showExitDialog = true;
   }
@@ -168,6 +173,14 @@ export class VehicleEntry implements OnInit, OnDestroy {
       return;
     }
 
+    if(this.parkingLots.length === 0) {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No parking lots available. Please try again later.', key: 'error', life: 3000 });
+      return;
+    }
+    if(this.parkingLots.find(lot => lot.id == this.vehicle.parkingLotId)?.availableSlots === 0) {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Selected parking lot is full. Please select another lot.', key: 'error', life: 3000 });
+      return;
+    }
     // Prepare payload: ensure parkingLotId is numeric if provided
     const payload = {
       vehicleNumber: this.vehicle.vehicleNumber,
@@ -205,16 +218,64 @@ export class VehicleEntry implements OnInit, OnDestroy {
   loadSlotOfLots(parkingLotId: string | number): void
   {
     console.log('Subscribing to slot updates for parking lot ID:', parkingLotId);
-    this.webSocket1Service.DashBoardUpdates(parkingLotId.toString()).
-    pipe(takeUntil(this.destroy$)).subscribe((message) => {
-      console.log('Received slot update message for parking lot ID:', parkingLotId, 'Message:', message);
-      console.log('Current parking lots before update:', this.parkingLots);
-      this.parkingLots.map(lot => {
-        if(lot.id === message.payload.parkingLotId) {
-            console.log('Updating parking lot ID:', lot.id, 'with new slot data:', message.payload.slots);
+    this.webSocket1Service.DashBoardUpdates(parkingLotId.toString())
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((message) => {
+        try {
+          console.log('Received slot update message for parking lot ID:', parkingLotId, 'Message:', message);
+          const payload = message.payload || {};
+          const updatedSlots = Array.isArray(payload.slots) ? payload.slots : [];
+          const lotId = payload.parkingLotId ?? payload.parkingLot?.id ?? parkingLotId;
+
+          // Update the parkingLots array immutably so Angular change detection picks it up
+          this.parkingLots = this.parkingLots.map(lot => {
+            if (lot.id === lotId) {
+              const totalSlots = updatedSlots.length || (lot.totalSlots ?? lot.parkingSlots?.length ?? 0);
+              const availableSlots = updatedSlots.filter((s: any) => s.status === 'AVAILABLE').length;
+              const occupiedSlots = totalSlots - availableSlots;
+              const occupancyPercentage = totalSlots === 0 ? 0 : Math.round((occupiedSlots / totalSlots) * 100);
+
+              return {
+                ...lot,
+                parkingSlots: updatedSlots.length ? updatedSlots : lot.parkingSlots,
+                totalSlots,
+                availableSlots,
+                occupiedSlots,
+                occupancyPercentage
+              };
+            }
+            return lot;
+          });
+
+          // If payload contains aggregate fields, sync them too
+          if (payload.availableSlots !== undefined || payload.occupiedSlots !== undefined || payload.occupancyPercentage !== undefined) {
+            this.parkingLots = this.parkingLots.map(lot => {
+              if (lot.id === payload.parkingLotId) {
+                return {
+                  ...lot,
+                  availableSlots: payload.availableSlots ?? lot.availableSlots,
+                  occupiedSlots: payload.occupiedSlots ?? lot.occupiedSlots,
+                  occupancyPercentage: payload.occupancyPercentage ?? lot.occupancyPercentage
+                };
+              }
+              return lot;
+            });
+          }
+
+          this.cdr.markForCheck();
+        } catch (err) {
+          console.error('Error processing dashboard update message:', err);
         }
       });
-    });
+  }
+  getAvailableSlots(lot: any): number {
+    if (!lot.parkingSlots || !Array.isArray(lot.parkingSlots)) return 0;
+    return lot.parkingSlots.filter((s: any) => s.status === 'AVAILABLE').length;
+  }
+  getPercentageFilled(lot: any): number {
+    if (!lot.parkingSlots || !Array.isArray(lot.parkingSlots) || lot.parkingSlots.length === 0) return 0;
+    const available = this.getAvailableSlots(lot);
+    return ((lot.parkingSlots.length - available) / lot.parkingSlots.length) * 100;
   }
   clearForm(form: NgForm) {
     form.resetForm();

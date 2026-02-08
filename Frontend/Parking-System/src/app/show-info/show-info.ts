@@ -12,6 +12,7 @@ import { ChangeDetectorRef } from '@angular/core';
 import { ToastModule } from 'primeng/toast';
 import { RippleModule } from 'primeng/ripple';
 import { MessageService } from 'primeng/api';
+import { SessionData} from '../SessionDataModal';
 @Component({
   selector: 'app-show-info',
   imports: [CommonModule, TableModule, InputTextModule, ButtonModule, FormsModule, ToastModule, RippleModule],

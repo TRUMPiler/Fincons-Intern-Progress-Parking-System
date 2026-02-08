@@ -11,7 +11,7 @@ import { ActiveSessionsComponent } from './active-sessions/active-sessions';
 import { SessionHistoryComponent } from './session-history/session-history';
 import { ShowInfo } from './show-info/show-info';
 import { Reservation } from './reservation/reservation';
-import { Topicstest } from './topicstest/topicstest';
+
 // Array of application route definitions
 export const routes: Routes = [
     // Route: parking lot registration page
@@ -44,11 +44,7 @@ export const routes: Routes = [
         component: SessionHistoryComponent,
         title: 'Session History'
     },
-    {
-        path: 'websocket-test',
-        component: Topicstest,
-        title: 'WebSocket Test'
-    },
+  
     // Route: parking lot information and management
     {
         path: 'show-info',
