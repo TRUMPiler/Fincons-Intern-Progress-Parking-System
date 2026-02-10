@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * Service implementation for managing parking slot resources.
  * This class contains the business logic for creating, updating, and retrieving information
- * about parking slots.
+ * about individual parking slots, and it integrates with Kafka to broadcast status changes.
  */
 @Service
 @RequiredArgsConstructor
@@ -42,7 +42,9 @@ public class ParkingSlotServiceImpl implements ParkingSlotService {
     private final KafkaProducerService kafkaProducerService;
 
     /**
-     * Creates the individual parking slots for a new parking lot. This operation is transactional.
+     * Creates the individual parking slots for a new parking lot.
+     * This operation is transactional and generates a specified number of slots,
+     * each initialized as AVAILABLE.
      *
      * @param parkingLot The parking lot entity to which the slots will be added.
      * @param totalSlots The total number of slots to create.
@@ -63,11 +65,12 @@ public class ParkingSlotServiceImpl implements ParkingSlotService {
 
     /**
      * Retrieves a paginated list of parking slots for a specific parking lot.
-     * This operation is read-only.
+     * This is a read-only operation, suitable for displaying the status of slots to users.
      *
      * @param parkingLotId The unique identifier of the parking lot to check.
      * @param pageable Pagination and sorting information.
      * @return A paginated list of DTOs representing the parking slots.
+     * @throws ResourceNotFoundException if the parking lot does not exist.
      */
     @Override
     @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
@@ -79,11 +82,14 @@ public class ParkingSlotServiceImpl implements ParkingSlotService {
     }
 
     /**
-     * Updates the information for a specific parking slot. This operation is transactional
-     * and retryable to handle concurrent updates.
+     * Updates the information for a specific parking slot, such as its status.
+     * This operation is transactional and retryable to handle concurrent updates safely.
+     * After a successful update, it publishes a message to Kafka to notify other services
+     * of the slot's status change.
      *
      * @param parkingSlotDto A DTO containing the updated information for the parking slot.
      * @return The updated {@link ParkingSlotDto}.
+     * @throws ResourceNotFoundException if the parking slot does not exist.
      */
     @Override
     @Retryable(

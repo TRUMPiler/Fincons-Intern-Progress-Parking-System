@@ -60,6 +60,10 @@ public class WebSocketServiceImpl implements WebSocketService {
         log.warn("Sending high occupancy alert to WebSocket topic {}: {}", topic, alert);
         messagingTemplate.convertAndSend(topic, new WebSocketMessage<>("HIGH_OCCUPANCY_ALERT", alert));
     }
+    /**
+     * Sends a slot status update for a specific parking lot.
+     *
+     **/
     @Override
     public void SendSlotStatusUpdate(Long parkingLotId, SlotStatusUpdateDto statusUpdateDto) {
         String topic="/topic/slots/"+parkingLotId;

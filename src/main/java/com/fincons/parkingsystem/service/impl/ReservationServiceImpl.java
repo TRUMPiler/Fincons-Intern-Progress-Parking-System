@@ -15,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.postgresql.util.PSQLException;
 import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.dao.DeadlockLoserDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -27,13 +29,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Service implementation for managing parking reservations.
- * This class contains the business logic for creating, canceling, and managing the lifecycle of reservations.
+ * This service handles all business logic related to parking reservations, including creation,
+ * cancellation, processing arrivals, and handling expirations. It ensures data consistency
+ * through transactional management and is designed to be resilient in a concurrent environment.
  */
 @Service
 @RequiredArgsConstructor
-public class ReservationServiceImpl implements ReservationService
-{
+public class ReservationServiceImpl implements ReservationService {
 
     private final ReservationRepository reservationRepository;
     private final VehicleRepository vehicleRepository;
@@ -41,15 +43,20 @@ public class ReservationServiceImpl implements ReservationService
     private final ParkingSlotRepository parkingSlotRepository;
     private final ReservationMapper reservationMapper;
     private final ParkingSessionRepository parkingSessionRepository;
-    private final KafkaProducerService  kafkaProducerService;
+    private final KafkaProducerService kafkaProducerService;
+
+    // A reservation is held for 15 minutes before it automatically expires.
     private static final int RESERVATION_EXPIRATION_MINUTES = 15;
 
     /**
-     * Creates a new reservation. This operation is transactional and uses a high isolation level
-     * to prevent race conditions when reserving a slot. It is also retryable.
+     * Creates a new reservation for a vehicle. This method is transactional and retryable to handle
+     * potential deadlocks or optimistic locking conflicts in a high-concurrency environment.
+     * It finds an available slot, reserves it, and creates a reservation record.
      *
-     * @param reservationRequestDto A DTO containing the details for the new reservation.
-     * @return The DTO of the newly created reservation.
+     * @param reservationRequestDto The request DTO containing the vehicle and parking lot details.
+     * @return A DTO representing the newly created reservation.
+     * @throws ConflictException if the vehicle already has an active session or reservation, or if no slots are available.
+     * @throws ResourceNotFoundException if the specified parking lot does not exist.
      */
     @Override
     @Retryable(
@@ -99,8 +106,9 @@ public class ReservationServiceImpl implements ReservationService
                 .build();
 
         Reservation savedReservation = reservationRepository.save(reservation);
-        SlotStatusUpdateDto statusUpdateDto=new SlotStatusUpdateDto(parkingLot.getId(),availableSlot.getId(),SlotStatus.RESERVED);
+        SlotStatusUpdateDto statusUpdateDto = new SlotStatusUpdateDto(parkingLot.getId(), availableSlot.getId(), SlotStatus.RESERVED);
         kafkaProducerService.sendSlotUpdateProduce(statusUpdateDto);
+
         ReservationDto dto = reservationMapper.toDto(savedReservation);
         dto.setParkingLotName(parkingLot.getName());
         dto.setParkingSlotId(availableSlot.getId());
@@ -108,9 +116,12 @@ public class ReservationServiceImpl implements ReservationService
     }
 
     /**
-     * Cancels an active reservation. This operation is transactional and retryable.
+     * Cancels an active reservation. This makes the previously reserved slot available again.
+     * This operation is transactional and retryable.
      *
-     * @param reservationId The unique identifier of the reservation to be canceled.
+     * @param reservationId The ID of the reservation to cancel.
+     * @throws ResourceNotFoundException if the reservation or its associated slot is not found.
+     * @throws ConflictException if the reservation is not in an active state.
      */
     @Override
     @Retryable(
@@ -134,44 +145,54 @@ public class ReservationServiceImpl implements ReservationService
 
         reservation.setStatus(ReservationStatus.CANCELLED);
         reservationRepository.save(reservation);
-        ParkingLot parkingLot = parkingLotRepository.findByIdWithInactive(reservation.getParkingSlot().getParkingLotId())
-                .orElseThrow(() -> new ResourceNotFoundException("Parking lot not found for this reservation."));
 
         ParkingSlot reservedSlot = parkingSlotRepository.findById(reservation.getParkingSlotId())
                 .orElseThrow(() -> new ResourceNotFoundException("No reserved slot found for this reservation."));
-        kafkaProducerService.sendSlotUpdateProduce(new SlotStatusUpdateDto(parkingLot.getId(),reservedSlot.getId(),SlotStatus.AVAILABLE));
+        
         reservedSlot.setStatus(SlotStatus.AVAILABLE);
         parkingSlotRepository.save(reservedSlot);
+        
+        kafkaProducerService.sendSlotUpdateProduce(new SlotStatusUpdateDto(reservedSlot.getParkingLotId(), reservedSlot.getId(), SlotStatus.AVAILABLE));
     }
 
     /**
-     * Retrieves a list of all reservations. This operation is read-only.
+     * Retrieves a paginated list of all reservations in the system.
+     * This operation is read-only and enriches the DTO with the parking lot name,
+     * safely handling cases where related entities might be soft-deleted.
      *
-     * @return A list of DTOs representing all reservations.
+     * @param pageable Pagination and sorting information.
+     * @return A paginated list of DTOs for all reservations.
      */
     @Override
     @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
-    public List<ReservationDto> getReservationStatus() {
-        List<Reservation> reservations = reservationRepository.findAllByCustom();
+    public Page<ReservationDto> getReservationStatus(Pageable pageable) {
 
-        if (reservations.isEmpty()) {
-            throw new ResourceNotFoundException("No reservations found.");
-        }
-        return reservations.stream()
-                .map(reservation -> {
-                    ReservationDto dto = reservationMapper.toDto(reservation);
-                    parkingLotRepository.findByIdWithInactive(parkingSlotRepository.findByIdWithInactive(reservation.getParkingSlotId()).get().getParkingLotId())
-                            .ifPresent(parkingLot -> dto.setParkingLotName(parkingLot.getName()));
-                    return dto;
-                })
-                .collect(Collectors.toList());
+        Page<Reservation> reservations =
+                reservationRepository.findAllByCustom(pageable);
+
+        return reservations.map(reservation -> {
+            ReservationDto dto = reservationMapper.toDto(reservation);
+
+            parkingSlotRepository.findByIdWithInactive(reservation.getParkingSlotId())
+                    .flatMap(slot ->
+                            parkingLotRepository.findByIdWithInactive(slot.getParkingLotId())
+                    )
+                    .ifPresent(parkingLot ->
+                            dto.setParkingLotName(parkingLot.getName())
+                    );
+
+            return dto;
+        });
     }
 
+
     /**
-     * Processes the arrival of a vehicle with a reservation, converting it into an active parking session.
-     * This operation is transactional and retryable.
+     * Processes the arrival of a vehicle with an active reservation. This converts the reservation
+     * into an active parking session, marks the slot as occupied, and updates the reservation status to COMPLETED.
      *
-     * @param reservationId The unique identifier of the reservation to be processed.
+     * @param reservationId The ID of the reservation to process.
+     * @throws ResourceNotFoundException if the reservation or its slot is not found.
+     * @throws ConflictException if the reservation is not active.
      */
     @Override
     @Retryable(
@@ -192,10 +213,8 @@ public class ReservationServiceImpl implements ReservationService
         if (reservation.getStatus() != ReservationStatus.ACTIVE) {
             throw new ConflictException("Reservation is not active.");
         }
-        ParkingLot parkingLot = parkingLotRepository.findByIdWithInactive(reservation.getParkingSlot().getParkingLotId())
-                .orElseThrow(() -> new ResourceNotFoundException("Parking lot not found for this reservation."));
 
-        ParkingSlot reservedSlot = parkingSlotRepository.findFirstByParkingLotAndStatusOrderByIdAsc(parkingLot, SlotStatus.RESERVED)
+        ParkingSlot reservedSlot = parkingSlotRepository.findById(reservation.getParkingSlotId())
                 .orElseThrow(() -> new ResourceNotFoundException("No reserved slot found for this reservation."));
 
         reservedSlot.setStatus(SlotStatus.OCCUPIED);
@@ -208,14 +227,17 @@ public class ReservationServiceImpl implements ReservationService
                 .status(ParkingSessionStatus.ACTIVE)
                 .build();
         parkingSessionRepository.save(newSession);
-        kafkaProducerService.sendSlotUpdateProduce(new SlotStatusUpdateDto(parkingLot.getId(),reservedSlot.getId(),SlotStatus.OCCUPIED));
+
+        kafkaProducerService.sendSlotUpdateProduce(new SlotStatusUpdateDto(reservedSlot.getParkingLotId(), reservedSlot.getId(), SlotStatus.OCCUPIED));
+        
         reservation.setStatus(ReservationStatus.COMPLETED);
         reservationRepository.save(reservation);
     }
 
     /**
-     * A scheduled task that runs periodically to handle expired reservations.
-     * This method is transactional and retryable to ensure atomicity and resilience.
+     * A scheduled task that runs every minute to find and expire unclaimed reservations.
+     * It marks the reservation as EXPIRED and sets the corresponding slot back to AVAILABLE.
+     * This is a self-healing mechanism to free up slots that were reserved but never used.
      */
     @Scheduled(fixedRate = 60000)
     @Retryable(
@@ -229,8 +251,7 @@ public class ReservationServiceImpl implements ReservationService
             backoff = @Backoff(delay = 100)
     )
     @Transactional(isolation = Isolation.SERIALIZABLE)
-    public void expireReservations()
-    {
+    public void expireReservations() {
         List<Reservation> expiredReservations = reservationRepository.findAll()
                 .stream()
                 .filter(r -> r.getStatus() == ReservationStatus.ACTIVE && r.getExpirationTime().isBefore(LocalDateTime.now()))
@@ -240,18 +261,11 @@ public class ReservationServiceImpl implements ReservationService
             reservation.setStatus(ReservationStatus.EXPIRED);
             reservationRepository.save(reservation);
 
-            ParkingLot parkingLot = parkingLotRepository.findByIdWithInactive(reservation.getParkingSlot().getParkingLotId())
-                    .orElse(null);
-
-            if (parkingLot != null) {
-                ParkingSlot reservedSlot = parkingSlotRepository.findFirstByParkingLotAndStatusOrderByIdAsc(parkingLot, SlotStatus.RESERVED)
-                        .orElse(null);
-
-                if (reservedSlot != null) {
-                    reservedSlot.setStatus(SlotStatus.AVAILABLE);
-                    parkingSlotRepository.save(reservedSlot);
-                }
-            }
+            parkingSlotRepository.findByIdWithInactive(reservation.getParkingSlotId()).ifPresent(reservedSlot -> {
+                reservedSlot.setStatus(SlotStatus.AVAILABLE);
+                parkingSlotRepository.save(reservedSlot);
+                kafkaProducerService.sendSlotUpdateProduce(new SlotStatusUpdateDto(reservedSlot.getParkingLotId(), reservedSlot.getId(), SlotStatus.AVAILABLE));
+            });
         }
     }
 }

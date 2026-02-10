@@ -2,6 +2,7 @@ package com.fincons.parkingsystem.repository;
 
 import com.fincons.parkingsystem.entity.*;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -50,6 +51,9 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
      */
     boolean existsByParkingSlotAndStatus(ParkingSlot parkingSlot, ReservationStatus reservationStatus);
 
-    @Query(value="SELECT r FROM Reservation r")
-    List<Reservation> findAllByCustom();
+    @Query(
+            value = "SELECT r FROM Reservation r",
+            countQuery = "SELECT COUNT(r) FROM Reservation r"
+    )
+    Page<Reservation> findAllByCustom(Pageable pageable);
 }

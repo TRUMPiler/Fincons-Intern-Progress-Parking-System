@@ -138,7 +138,7 @@ export class ParkinglotRegisteration implements OnInit,OnDestroy {
     this.first = event.first;
     this.rows = event.rows;
     this.page = Math.floor(this.first / this.rows);
-    this.authService.getParkingLots(this.page, this.rows, this.sortField, this.sortDirection)
+    this.authService.getALLParkingLots()
       .subscribe({
         next: (response: any) => {
           const data = response?.data ?? response ?? {};

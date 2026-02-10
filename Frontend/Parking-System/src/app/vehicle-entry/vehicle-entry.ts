@@ -73,8 +73,11 @@ export class VehicleEntry implements OnInit, OnDestroy {
       },
       error: (err) => {
         if (err.status == 0) {
-          alert('Server is down. Please try again later.');
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Server is down. Please try again later.', key: 'error', life: 3000 });
+         setTimeout(() => {
           window.location.href = '/';
+         }, 5000);
+          
           return;
         }
         console.error(err);

@@ -1,17 +1,20 @@
 ﻿<!-- Vehicle Entry & Exit UI -->
-<div class="flex gap-2 ml-auto mr-auto mt-auto mb-auto max-w-5xl max-h-2 justify-center  rounded-lg  min-h-screen">
+<div class="flex max-w-full justify-center rounded-lg  min-h-screen">
   <p-toast position="top-left" key="tl" />
   <p-toast position="top-left" key="error" />
 
-  <div class="flex items-center justify-between mb-6">
-    <h2 class="text-2xl font-bold text-gray-800">Vehicle Entry / Exit</h2>
-    <div class="flex gap-2 py-7 px-7">
-      <button (click)="onBack()" pRipple class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">Back to
+  <div class="flex flex-col  justify-center items-center">
+    <h2 class="text-2xl font-bold text-gray-800">Manage Check in/ Check out</h2>
+    <div class="flex flex-col gap-2 py-7 px-7">
+     
+      
+      <button (click)="showDialog()" pRipple class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+        Vehicle Check-in</button>
+      <button (click)="openExitDialog()" pRipple class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+        Vehicle Check-out</button>
+
+        <button (click)="onBack()" pRipple class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">Back to
         Dashboard</button>
-      <button (click)="showDialog()" pRipple class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Open
-        Vehicle Entry</button>
-      <button (click)="openExitDialog()" pRipple class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Open
-        Vehicle Exit</button>
     </div>
   </div>
 

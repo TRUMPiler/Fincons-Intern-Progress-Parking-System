@@ -7,6 +7,7 @@ import com.fincons.parkingsystem.service.ParkingService;
 import com.fincons.parkingsystem.utils.Response;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,8 +17,9 @@ import java.time.LocalDateTime;
 /**
  * REST controller for handling core parking operations, such as vehicle entry and exit.
  * This controller serves as the API gateway for the primary parking workflow, delegating
- * business logic to the ParkingService.
+ * business logic to the {@link ParkingService}.
  */
+@Slf4j
 @RestController
 @RequestMapping("/api/parking")
 @RequiredArgsConstructor
@@ -32,13 +34,15 @@ public class ParkingController {
      *
      * @param entryRequestDto A data transfer object containing the vehicle's registration number,
      *                        type, and the ID of the target parking lot.
-     * @return A ResponseEntity wrapping a standardized Response object, which contains the
-     *         newly created ParkingSessionDto upon success.
+     * @return A {@link ResponseEntity} wrapping a standardized {@link Response} object, which contains the
+     *         newly created {@link ParkingSessionDto} upon success.
      */
     @PostMapping("/entry")
     public ResponseEntity<Response<ParkingSessionDto>> vehicleEntry(@Valid @RequestBody VehicleEntryRequestDto entryRequestDto) {
+        log.info("Received vehicle entry request for vehicle number: {}", entryRequestDto.getVehicleNumber());
         ParkingSessionDto parkingSessionDto = parkingService.enterVehicle(entryRequestDto);
         Response<ParkingSessionDto> response = new Response<>(LocalDateTime.now(), parkingSessionDto, "Parking session initiated for this vehicle.", true, HttpStatus.OK.value());
+        log.info("Successfully created parking session with ID: {}", parkingSessionDto.getId());
         return ResponseEntity.ok(response);
     }
 
@@ -49,13 +53,15 @@ public class ParkingController {
      * to the ParkingService.
      *
      * @param vehicleDto A data transfer object containing the vehicle's registration number.
-     * @return A ResponseEntity wrapping a standardized Response object, which contains the
-     *         completed ParkingSessionDto, including charge details.
+     * @return A {@link ResponseEntity} wrapping a standardized {@link Response} object, which contains the
+     *         completed {@link ParkingSessionDto}, including charge details.
      */
     @PostMapping("/exit")
     public ResponseEntity<Response<ParkingSessionDto>> vehicleExit(@Valid @RequestBody VehicleDto vehicleDto) {
+        log.info("Received vehicle exit request for vehicle number: {}", vehicleDto.getVehicleNumber());
         ParkingSessionDto parkingSessionDto = parkingService.exitVehicle(vehicleDto.getVehicleNumber());
         Response<ParkingSessionDto> response = new Response<>(LocalDateTime.now(), parkingSessionDto, "Parking session completed.", true, HttpStatus.OK.value());
+        log.info("Successfully completed parking session for vehicle number: {}", vehicleDto.getVehicleNumber());
         return ResponseEntity.ok(response);
     }
 }

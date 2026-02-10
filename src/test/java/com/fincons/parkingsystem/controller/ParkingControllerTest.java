@@ -21,6 +21,10 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * Unit tests for {@link ParkingController}.
+ * This class tests the core parking workflow endpoints for vehicle entry and exit.
+ */
 @WebMvcTest(ParkingController.class)
 public class ParkingControllerTest {
 
@@ -33,9 +37,13 @@ public class ParkingControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    /**
+     * Tests the successful entry of a vehicle.
+     * Verifies that the endpoint returns a 200 OK status and the correct session data.
+     */
     @Test
     void testVehicleEntry_Success() throws Exception {
-        // Given
+        // Arrange
         VehicleEntryRequestDto entryRequest = new VehicleEntryRequestDto("TEST1234", VehicleType.CAR, 1L);
         ParkingSessionDto sessionDto = ParkingSessionDto.builder()
                 .id(1L)
@@ -44,10 +52,9 @@ public class ParkingControllerTest {
                 .entryTime(LocalDateTime.now())
                 .status(ParkingSessionStatus.ACTIVE)
                 .build();
-
         when(parkingService.enterVehicle(any(VehicleEntryRequestDto.class))).thenReturn(sessionDto);
 
-        // When & Then
+        // Act & Assert
         mockMvc.perform(post("/api/parking/entry")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(entryRequest)))
@@ -59,9 +66,29 @@ public class ParkingControllerTest {
                 .andExpect(jsonPath("$.data.status").value("ACTIVE"));
     }
 
+    /**
+     * Tests that a validation error on vehicle entry (e.g., blank vehicle number)
+     * results in a 400 Bad Request status.
+     */
+    @Test
+    void testVehicleEntry_ValidationError() throws Exception {
+        // Arrange
+        VehicleEntryRequestDto entryRequest = new VehicleEntryRequestDto("", VehicleType.CAR, 1L);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/parking/entry")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(entryRequest)))
+                .andExpect(status().isBadRequest());
+    }
+
+    /**
+     * Tests the successful exit of a vehicle.
+     * Verifies that the endpoint returns a 200 OK status and the completed session data, including the total amount.
+     */
     @Test
     void testVehicleExit_Success() throws Exception {
-        // Given
+        // Arrange
         VehicleDto vehicleDto = new VehicleDto(0L, "TEST1234", VehicleType.CAR);
         ParkingSessionDto sessionDto = ParkingSessionDto.builder()
                 .id(1L)
@@ -72,10 +99,9 @@ public class ParkingControllerTest {
                 .status(ParkingSessionStatus.COMPLETED)
                 .totalAmount(10.0)
                 .build();
-
         when(parkingService.exitVehicle(any(String.class))).thenReturn(sessionDto);
 
-        // When & Then
+        // Act & Assert
         mockMvc.perform(post("/api/parking/exit")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(vehicleDto)))

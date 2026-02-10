@@ -28,7 +28,7 @@ export const routes: Routes = [
     },
     // Route: vehicle entry page
     {
-        path: 'vehicle-entry',
+        path: 'access',
         component: VehicleEntry,
         title: 'Vehicle Entry'
     },

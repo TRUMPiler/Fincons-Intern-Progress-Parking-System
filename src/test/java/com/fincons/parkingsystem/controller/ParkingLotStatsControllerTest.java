@@ -13,6 +13,10 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * Unit tests for {@link ParkingLotStatsController}.
+ * This class tests the endpoint for retrieving statistical data for a parking lot.
+ */
 @WebMvcTest(ParkingLotStatsController.class)
 public class ParkingLotStatsControllerTest {
 
@@ -22,9 +26,12 @@ public class ParkingLotStatsControllerTest {
     @MockBean
     private ParkingLotStatsService parkingLotStatsService;
 
+    /**
+     * Tests the successful retrieval of statistics for a specific parking lot.
+     */
     @Test
     void testGetStats_Success() throws Exception {
-        // Given
+        // Arrange
         Long lotId = 1L;
         ParkingLotStatsDto statsDto = ParkingLotStatsDto.builder()
                 .parkingLotId(lotId)
@@ -34,10 +41,9 @@ public class ParkingLotStatsControllerTest {
                 .occupancyPercentage(50.0)
                 .totalRevenue(1234.56)
                 .build();
-
         when(parkingLotStatsService.getParkingLotStats(lotId)).thenReturn(statsDto);
 
-        // When & Then
+        // Act & Assert
         mockMvc.perform(get("/api/parking-lots/{id}/stats", lotId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

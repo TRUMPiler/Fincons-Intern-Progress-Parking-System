@@ -61,9 +61,9 @@ public class ParkingLotDashboardServiceImpl implements ParkingLotDashboardServic
         long totalSlots = parkingSlotRepository.countByParkingLot(parkingLot);
         long occupiedSlots = parkingSlotRepository.countByParkingLotAndStatus(parkingLot, SlotStatus.OCCUPIED);
         long availableSlots = parkingSlotRepository.countByParkingLotAndStatus(parkingLot, SlotStatus.AVAILABLE);
-
+        long reservedSlots=parkingSlotRepository.countByParkingLotAndStatus(parkingLot, SlotStatus.RESERVED);
         // Update State
-        ParkingLotState state = new ParkingLotState(totalSlots, occupiedSlots, availableSlots);
+        ParkingLotState state = new ParkingLotState(totalSlots, occupiedSlots, availableSlots,reservedSlots);
         dashboardState.put(parkingLotId, state);
 
         broadcastOccupancyUpdate(parkingLotId);
@@ -88,11 +88,11 @@ public class ParkingLotDashboardServiceImpl implements ParkingLotDashboardServic
 
         long currentOccupied = parkingSlotRepository.countByParkingLotAndStatus(parkingLot, SlotStatus.OCCUPIED);
         long currentAvailable = parkingSlotRepository.countByParkingLotAndStatus(parkingLot, SlotStatus.AVAILABLE);
-
+        long reservedSlots=parkingSlotRepository.countByParkingLotAndStatus(parkingLot, SlotStatus.RESERVED);
         // Update the in-memory state
         state.setOccupiedSlots(currentOccupied);
         state.setAvailableSlots(currentAvailable);
-
+        state.setReservedSlots(reservedSlots);
         broadcastOccupancyUpdate(parkingLotId);
         checkAndSendHighOccupancyAlert(parkingLotId);
     }
@@ -108,7 +108,7 @@ public class ParkingLotDashboardServiceImpl implements ParkingLotDashboardServic
         if (state != null) {
             OccupancyUpdateDto update = new OccupancyUpdateDto(
                     parkingLotId,
-                    state.getOccupiedSlots(),
+                    state.getOccupiedSlots()+state.getReservedSlots(),
                     state.getAvailableSlots(),
                     state.getOccupancyPercentage()
             );
@@ -150,8 +150,8 @@ public class ParkingLotDashboardServiceImpl implements ParkingLotDashboardServic
         long totalSlots = parkingLot.getTotalSlots(); // Assuming this is defined in Entity
         long occupiedSlots = parkingSlotRepository.countByParkingLotAndStatus(parkingLot, SlotStatus.OCCUPIED);
         long availableSlots = parkingSlotRepository.countByParkingLotAndStatus(parkingLot, SlotStatus.AVAILABLE);
-
-        return new ParkingLotState(totalSlots, occupiedSlots, availableSlots);
+        long reservedSlots=parkingSlotRepository.countByParkingLotAndStatus(parkingLot, SlotStatus.RESERVED);
+        return new ParkingLotState(totalSlots, occupiedSlots, availableSlots,reservedSlots);
     }
 
     public void SendSlotUpdate(SlotStatusUpdateDto statusUpdateDto) {
@@ -168,18 +168,19 @@ public class ParkingLotDashboardServiceImpl implements ParkingLotDashboardServic
         private long totalSlots;
         private long occupiedSlots;
         private long availableSlots;
-
-        public ParkingLotState(long totalSlots, long occupiedSlots, long availableSlots) {
+        private long reservedSlots;
+        public ParkingLotState(long totalSlots, long occupiedSlots, long availableSlots,long reservedSlots) {
             this.totalSlots = totalSlots;
             this.occupiedSlots = occupiedSlots;
             this.availableSlots = availableSlots;
+            this.reservedSlots=reservedSlots;
         }
 
         public double getOccupancyPercentage() {
             // FIX: Denominator must be (Occupied + Available) = Total Active Capacity
             // This ignores "Maintenance/Unavailable" slots from the calculation.
-            long activeCapacity = occupiedSlots + availableSlots;
-
+            long activeCapacity = occupiedSlots + availableSlots+reservedSlots;
+            occupiedSlots+=reservedSlots;
             if (activeCapacity == 0) {
                 return 0.0;
             }

@@ -75,7 +75,7 @@ export class AuthService {
   getALLParkingLots(
     
   ) {
-    return this.http.get<any>(this.apiUrl + `/parking-lots`);
+    return this.http.get<any>(this.apiUrl + `/parking-lots/with-inactive`);
   }
 
   /**
@@ -193,6 +193,22 @@ export class AuthService {
    */
   getReservations() {
     return this.http.get<any>(this.apiUrl + '/reservations');
+  }
+
+  /**
+   * Get paginated reservations (server-side pagination)
+   * @param page - Page number (0-indexed)
+   * @param size - Number of records per page
+   * @param sortField - Field to sort by
+   * @param sortDirection - Sort direction ('asc' | 'desc')
+   */
+  getReservationsPaginated(
+    page: number,
+    size: number,
+    sortField: string,
+    sortDirection: 'asc' | 'desc'
+  ) {
+    return this.http.get<any>(`${this.apiUrl}/reservations?page=${page}&size=${size}&sort=${sortField},${sortDirection}`);
   }
 
   /**

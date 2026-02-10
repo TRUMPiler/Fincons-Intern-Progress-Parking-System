@@ -20,7 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service implementation for retrieving parking session information.
- * This class handles the business logic for fetching active and completed sessions.
+ * This class handles the business logic for fetching paginated lists of active and completed sessions,
+ * ensuring that related data is safely retrieved and mapped to DTOs.
  */
 @Service
 @RequiredArgsConstructor
@@ -33,7 +34,8 @@ public class ParkingSessionServiceImpl implements ParkingSessionService {
 
     /**
      * Retrieves a paginated list of all currently active parking sessions.
-     * This operation is read-only.
+     * This is a read-only operation, optimized for performance. Each session DTO is enriched
+     * with details from related entities.
      *
      * @param pageable Pagination and sorting information.
      * @return A paginated list of DTOs representing active parking sessions.
@@ -46,11 +48,12 @@ public class ParkingSessionServiceImpl implements ParkingSessionService {
     }
 
     /**
-     * Retrieves a paginated history of all completed parking sessions.
-     * This operation is read-only.
+     * Retrieves a paginated history of all parking sessions (both active and completed).
+     * This is a read-only operation, suitable for historical reporting. Each session DTO is
+     * enriched with details from related entities.
      *
      * @param pageable Pagination and sorting information.
-     * @return A paginated list of DTOs representing completed parking sessions.
+     * @return A paginated list of DTOs representing all parking sessions.
      */
     @Override
     @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
@@ -60,11 +63,15 @@ public class ParkingSessionServiceImpl implements ParkingSessionService {
     }
 
     /**
-     * Enriches a ParkingSessionDto with the name of the associated parking lot.
-     * This method safely fetches related entities, even if they have been soft-deleted.
+     * Enriches a ParkingSessionDto with the name of the associated parking lot and the slot number.
+     * This method safely fetches related entities, even if they have been soft-deleted, by using
+     * repository methods that bypass the default "deleted=false" filter. This ensures that
+     * historical session data remains complete and accessible.
      *
      * @param session The ParkingSession entity to process.
      * @return The enriched ParkingSessionDto.
+     * @throws ResourceNotFoundException if the associated parking slot or lot cannot be found,
+     *                                   even among soft-deleted records.
      */
     private ParkingSessionDto enrichDto(ParkingSession session) {
         ParkingSessionDto dto = parkingSessionMapper.toDto(session);

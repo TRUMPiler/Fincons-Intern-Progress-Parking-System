@@ -4,6 +4,7 @@ import com.fincons.parkingsystem.dto.ParkingLotStatsDto;
 import com.fincons.parkingsystem.service.ParkingLotStatsService;
 import com.fincons.parkingsystem.utils.Response;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +18,7 @@ import java.time.LocalDateTime;
  * REST controller for retrieving statistical data related to parking lots.
  * This controller provides an endpoint for monitoring the performance and status of a specific lot.
  */
+@Slf4j
 @RestController
 @RequestMapping("/api/parking-lots")
 @RequiredArgsConstructor
@@ -30,13 +32,15 @@ public class ParkingLotStatsController
      * and daily earnings for the specified lot.
      *
      * @param id The unique identifier of the parking lot for which to retrieve statistics.
-     * @return A ResponseEntity containing a DTO with the parking lot's statistics.
+     * @return A {@link ResponseEntity} containing a DTO with the parking lot's statistics.
      */
     @GetMapping("/{id}/stats")
     public ResponseEntity<Response<ParkingLotStatsDto>> getStats(@PathVariable Long id)
     {
+        log.info("Received request for statistics of parking lot with ID: {}", id);
         ParkingLotStatsDto parkingLotStatsDto = parkingLotStatsService.getParkingLotStats(id);
         Response<ParkingLotStatsDto> response = new Response<>(LocalDateTime.now(), parkingLotStatsDto, "Parking Lot Details Fetched", true, HttpStatus.OK.value());
+        log.info("Successfully retrieved statistics for parking lot with ID: {}", id);
         return ResponseEntity.ok(response);
     }
 }

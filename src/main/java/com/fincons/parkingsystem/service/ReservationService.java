@@ -3,6 +3,9 @@ package com.fincons.parkingsystem.service;
 import com.fincons.parkingsystem.dto.ReservationDto;
 import com.fincons.parkingsystem.dto.ReservationRequestDto;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 
 /**
@@ -31,7 +34,7 @@ public interface ReservationService {
      *
      * @return A list of DTOs representing all reservations.
      */
-    List<ReservationDto> getReservationStatus();
+    Page<ReservationDto> getReservationStatus(Pageable pageable);
 
     /**
      * Processes the arrival of a vehicle with a reservation, converting the reservation
