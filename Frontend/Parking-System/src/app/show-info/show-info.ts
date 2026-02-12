@@ -19,7 +19,7 @@ import { SessionData} from '../SessionDataModal';
   standalone: true,
   providers: [MessageService],
   templateUrl: './show-info.html',
-  styleUrl: './show-info.css',
+  styleUrls: ['./show-info.css'],
 })
 export class ShowInfo implements OnInit, OnDestroy {
   public parkingLotInfo: any[] = [];
@@ -66,7 +66,13 @@ export class ShowInfo implements OnInit, OnDestroy {
         if (!incomingId) return;
         const idx = this.parkingSlots.findIndex(s => String(s.id ?? s.slotId ?? s.slotNumber) === String(incomingId));
         if (idx === -1) return;
+        const amount=payload?.amount ?? payload?.totalAmount ?? payload?.sessionAmount;
 
+        this.parkingLotInfo.map(info => {
+          
+          info.revenueToday += amount ?? 0;
+          info.totalRevenue+= amount ?? 0;
+        });
         const source = payload?.payload ?? payload?.data ?? payload;
         const updated = { ...this.parkingSlots[idx], ...source };
         updated.status = source?.status ?? source?.newStatus ?? updated.status;
@@ -126,16 +132,17 @@ export class ShowInfo implements OnInit, OnDestroy {
   loadParkingLotInfo(id: any): void {
     this.auth.getParkingLotInfo(id).subscribe({
       next: (response) => {
+        console.log('ShowInfo - Loaded parking lot info for id', id, 'Received response:', response);
         this.parkingLotInfo = [response.data];
         this.cdr.markForCheck();
       },
       error: (err: any) => {
         if (err.status == 0) {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Server is down. Please try again later.',key: 'error', life: 3000 });
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Server is down. Please try again later.',key: 'error', life:5000 });
           window.location.href = '/';
           return;
         }
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.message ?? 'Error loading parking lot info', key: 'error', life: 3000 });
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.message ?? 'Error loading parking lot info', key: 'error', life:5000 });
         
         console.log(err);
       },
@@ -156,7 +163,8 @@ export class ShowInfo implements OnInit, OnDestroy {
           const total = (data.totalElements ?? data.totalRecords) ?? rows.length ?? 0;
           console.log('ShowInfo - Loaded parking slots for lot id', id, 'with pagination:', {
             page: this.pageNumber,
-            size: this.pageSize,            sortField: this.sortField,
+            size: this.pageSize,            
+            sortField: this.sortField,
             sortDirection: this.sortDirection,
           }, 'Received response:', response);
           this.scheduleUpdate(() => {
@@ -169,12 +177,12 @@ export class ShowInfo implements OnInit, OnDestroy {
         error: (err: any) => {
           this.loading = false;
           if (err?.status === 0) {
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Server is down. Please try again later.', key: 'error', life: 3000 });
-            setTimeout(() => { window.location.href = "/"; }, 3000);
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Server is down. Please try again later.', key: 'error', life:5000 });
+            setTimeout(() => { window.location.href = "/"; },5000);
           
             return;
           }
-          // this.messageService.add({ severity: 'error', summary: 'Error', detail: err?.error?.message ?? 'Error loading parking slots', key: 'error', life: 3000 });
+          // this.messageService.add({ severity: 'error', summary: 'Error', detail: err?.error?.message ?? 'Error loading parking slots', key: 'error', life:5000 });
           this.parkingSlots = [];
           this.totalSlotRecords = 0;
         }
@@ -243,17 +251,17 @@ export class ShowInfo implements OnInit, OnDestroy {
     this.auth.ParkingLotDelete(id).subscribe({
       next: (response) => {
         if (response.success) {
-          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Parking Lot Deleted Successfully', key: 'tl', life: 3000 });  
-          setTimeout(() => { window.location.href = "/"; }, 3000);
+          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Parking Lot Deleted Successfully', key: 'tl', life:5000 });  
+          setTimeout(() => { window.location.href = "/"; },5000);
         }
       },
       error: (err: any) => {
         if (err.status == 0) {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Server is down. Please try again later.', key: 'error', life: 3000 });
-          setTimeout(() => { window.location.href = "/"; }, 3000);
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Server is down. Please try again later.', key: 'error', life:5000 });
+          setTimeout(() => { window.location.href = "/"; },5000);
           return;
         }
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error.message, key: 'error', life: 3000   });
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error.message, key: 'error', life:5000   });
         console.log(err);
       },
     });
@@ -263,17 +271,17 @@ export class ShowInfo implements OnInit, OnDestroy {
     this.auth.ParkingLotActivate(id).subscribe({
       next: (response) => {
         if (response.success) {
-          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Parking Lot Reactivated Successfully', key: 'tl', life: 3000 });
-          setTimeout(() => { window.location.href = "/"; }, 3000);
+          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Parking Lot Reactivated Successfully', key: 'tl', life:5000 });
+          setTimeout(() => { window.location.href = "/"; },5000);
         }
       },
       error: (err: any) => {
         if (err.status == 0) {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Server is down. Please try again later.', key: 'error', life: 3000 });
-          setTimeout(() => { window.location.href = "/"; }, 3000);
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Server is down. Please try again later.', key: 'error', life:5000 });
+          setTimeout(() => { window.location.href = "/"; },5000);
           return;
         }
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error.message, key: 'error', life: 3000 });
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error.message, key: 'error', life:5000 });
         console.log(err);
       },
     });
@@ -287,18 +295,18 @@ export class ShowInfo implements OnInit, OnDestroy {
     this.auth.ChangeSlotStatus(data).subscribe({
       next: (response) => {
         if (response.success) {
-          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Parking Slot Status Changed Successfully', key: 'tl', life: 3000 });
+          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Parking Slot Status Changed Successfully', key: 'tl', life:5000 });
           const lotId = sessionStorage.getItem("ID");
           this.loadParkingSlots(lotId);
         }
       },
       error: (err: any) => {
         if (err.status == 0) {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Server is down. Please try again later.', key: 'error', life: 3000 });
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Server is down. Please try again later.', key: 'error', life:5000 });
           window.location.href = "/";
           return;
         }
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error.message, key: 'error', life: 3000 });
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error.message, key: 'error', life:5000 });
         console.log(err);
       }
     });

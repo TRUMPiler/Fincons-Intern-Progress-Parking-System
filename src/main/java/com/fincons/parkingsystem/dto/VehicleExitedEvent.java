@@ -29,7 +29,8 @@ public class VehicleExitedEvent {
 
     /** The identifier of the parking slot that was vacated. */
     private Long parkingSlotId;
-
+    /** The identifier of the parking slot that was vacated. */
+    private String parkingSlotNumber;
     /** The timestamp of the vehicle's entry. */
     private LocalDateTime entryTime;
 

@@ -1,0 +1,18 @@
+/* Parking Lot Registration component tweaks */
+
+:host {
+  display: block;
+}
+
+/* Make PrimeNG table headers match the white card look */
+/* Card header */
+.card-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+@media (max-width: 640px) {
+  .card-header {
+    padding: 0.75rem 1rem;
+  }
+}

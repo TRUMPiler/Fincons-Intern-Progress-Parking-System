@@ -63,19 +63,19 @@ export class AuthService {
    * @returns Observable with list of parking lots
    */
   getParkingLots(
-    page: number, 
-    size: number, 
-    sortField: string, 
-    sortDirection: 'asc' | 'desc'
+    
   ) {
-    return this.http.get<any>(this.apiUrl + `/parking-lots/all?page=${page}&size=${size}&sort=${sortField},${sortDirection}`);
+    return this.http.get<any>(this.apiUrl + `/parking-lots/all`);
   }
 
 
   getALLParkingLots(
-    
+     page: number, 
+    size: number, 
+    sortField: string, 
+    sortDirection: 'asc' | 'desc'
   ) {
-    return this.http.get<any>(this.apiUrl + `/parking-lots/with-inactive`);
+    return this.http.get<any>(this.apiUrl + `/parking-lots/with-inactive?page=${page}&size=${size}&sort=${sortField},${sortDirection}`);
   }
 
   /**
@@ -134,7 +134,12 @@ export class AuthService {
       `${this.apiUrl}/sessions/history?page=${page}&size=${size}&sort=${sortField},${sortDirection}`
     );
   }
-
+  getPlacesApi(text: string)
+  {
+      const apiKey = 'aPFf8ok93olEtVMvJ8m5NyHdtEM6oCRgr6LvMaGK'; 
+      const url= `https://api.olamaps.io/places/v1/autocomplete?input=${encodeURIComponent(text)}&api_key=${apiKey}`;
+      return this.http.get<any>(url);
+  }
   /**
    * Get historical parking sessions (non-paginated)
    * @returns Observable with list of past sessions

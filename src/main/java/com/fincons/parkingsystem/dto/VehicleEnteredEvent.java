@@ -26,7 +26,8 @@ public class VehicleEnteredEvent {
 
     /** The identifier of the parking slot that was occupied. */
     private Long parkingSlotId;
-
+    /** The identifier of the parking slot that was vacated. */
+    private String parkingSlotNumber;
     /** The name of the parking lot that was entered. */
     private String parkingLotName;
 

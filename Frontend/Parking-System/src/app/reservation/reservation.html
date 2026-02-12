@@ -1,7 +1,10 @@
-<!-- <div class="pt-24 max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
+ <div class="min-h-screen p-8" [style]="{'background-image': 'linear-gradient(to bottom right, #eff6ff, #dbeafe)'}">
+
+    <div class="max-w-full mx-auto bg-white rounded-md px-1">
+  <!--<div class="bg-white rounded-2xl shadow-lg overflow-hidden p-8">
 
     <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Vehicle Reservation Form</h2>
-    <form #form="ngForm" (ngSubmit)="onSubmit()">
+    <form #form="ngForm" (ngSubmit)="onSubmit(form)">
           <div class="mb-4">
             <label class="block text-gray-700 text-sm font-bold mb-2">Vehicle Number</label>
             <input type="text"
@@ -52,170 +55,316 @@
     
                 <button (click)="onBack()" type="button" class="bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-gray-500 shadow-md transition-colors">Back Button</button> </div>
     </form>
-</div> -->
+</div> --> 
 @defer (on timer(1s)) {
-<div class="max-w-full mx-auto mt-10 bg-white rounded-lg shadow-md overflow-hidden pb-5">
-     <h2 class="text-2xl font-bold p-6 text-gray-800 border-b">Reservations</h2>
-    <p-toast key="error"/>
-    <p-toast key="tl"/>
-   
-    <div class="flex gap2 justify-end mr-2 mt-1.5">
-        <button class="bg-blue-600 text-white rounded-md py-1.5 px-2 shadow-black border" (click)="showDialog()">Open Reservation Entry Form</button>
+    <div class="flex justify-center  items-center ">
+    <h2 class="text-2xl font-bold p-2 text-black">Reservations</h2>
     </div>
-    <div class="flex items-center justify-between p-4 bg-gray-50 border-b">
+    <p-toast key="error" />
+    <p-toast key="tl" />
+
+    <div class="flex gap2 justify-end mr-2">
+        <button class="bg-blue-600 text-white rounded-md p-2 shadow-black border" (click)="showDialog()">Open
+            Reservation Entry Form</button>
+    </div>
+    <div class="flex items-center justify-center p-4 border-b">
         <div class="card flex justify-center">
-      
-            <p-dialog header="Reserve a parking Slot for a upcoming Vehicle " [modal]="true" [(visible)]="visible" [style]="{ width: '25rem' }">
-             <form #form="ngForm" (ngSubmit)="onSubmit(form)">
-          <div class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2">Vehicle Number</label>
-            <input type="text"
-            class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            [class.border-red-500]="validationErrors['vehicleNumber']"
-            placeholder="Enter Vehicle Number"
-            name="vehicleNumber"
-            [(ngModel)]="vehicle.vehicleNumber"
-            required            
-            />
-            @if (validationErrors['vehicleNumber']) {
-              <p class="text-red-500 text-sm mt-1">{{ validationErrors['vehicleNumber'] }}</p>
-            }
-        </div>
-        <div class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2">Vehicle type</label>
-            <select [(ngModel)]="vehicle.vehicleType" name="vehicleType" required 
-            [class.border-red-500]="validationErrors['vehicleType']"
-            class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="" selected disabled>Select Vehicle Type</option>
-                <option *ngFor="let type of vehicleTypes" [value]="type">{{type}}</option>
-            </select>
-            @if (validationErrors['vehicleType']) {
-              <p class="text-red-500 text-sm mt-1">{{ validationErrors['vehicleType'] }}</p>
-            }
-        </div>
-             <div class="mb-4">
-        <label class="block text-gray-700 text-sm font-bold mb-2">Parking Lot</label>
-        @defer (on timer(1s)) {
-        @if (parkingLots && parkingLots.length > 0) {
-        <p-select [options]="parkingLots" [(ngModel)]="vehicle.parkingLotId" optionLabel="name" optionValue="id"
-          name="parkingLotId" placeholder="Select a Parking Lot" [filter]="true" filterBy="name" appendTo="body"
-          [style]="{ width: '100%' }" [class.border-red-500]="validationErrors['parkingLotId']">
-          <ng-template #item let-lot>
-            <div class="flex flex-col gap-0.5 py-1 ">
-              @if(Math.round( ((lot.parkingSlots.length - lot.availableSlots) / lot.parkingSlots.length) * 100)<=50) { 
-                <span class="font-semibold text-green-600">{{ lot.name }}</span>
-                <div class="flex gap-3 text-sm text-green-600">
-                  <span>₹{{ lot.basePricePerHour }}/hr</span>
-                  <span>{{ lot.availableSlots }} / {{ lot.totalSlots }} slots available</span>
-                </div>
 
-                }
-                @else if(Math.round( ((lot.parkingSlots.length - lot.availableSlots) / lot.parkingSlots.length) * 100)>50 && Math.round( ((lot.parkingSlots.length - lot.availableSlots) / lot.parkingSlots.length) * 100)<80) {
-                  <span class="font-semibold text-yellow-600">{{ lot.name }}</span>
-                  <div class="flex gap-3 text-sm text-yellow-600">
-                    <span>₹{{ lot.basePricePerHour }}/hr</span>
-                    <span>{{ lot.availableSlots }} / {{ lot.totalSlots }} slots available</span>
-                  </div>
-                }
-                @else {
-                  <span class="font-semibold text-red-600">{{ lot.name }}</span>
-                  <div class="flex gap-3 text-sm text-red-600">
-                    <span>₹{{ lot.basePricePerHour }}/hr</span>
-                    <span>{{ lot.availableSlots }} / {{ lot.totalSlots }} slots available</span>
-                  </div>
-                }
-            </div>
-          </ng-template>
-          <ng-template #selectedItem let-lot>
-            <div class="flex items-center gap-2 " *ngIf="lot">
-              <span>{{ lot.name }}</span>
+            <p-dialog header="Reserve a parking Slot for a upcoming Vehicle " [modal]="true" [(visible)]="visible"
+                [style]="{ width: '25rem' }">
+                <form #form="ngForm" (ngSubmit)="onSubmit(form)">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Vehicle Number</label>
+                        <input type="text"
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            [class.border-red-500]="validationErrors['vehicleNumber']"
+                            placeholder="Enter Vehicle Number" name="vehicleNumber" [(ngModel)]="vehicle.vehicleNumber"
+                            required />
+                        @if (validationErrors['vehicleNumber']) {
+                        <p class="text-red-500 text-sm mt-1">{{ validationErrors['vehicleNumber'] }}</p>
+                        }
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Vehicle type</label>
+                        <select [(ngModel)]="vehicle.vehicleType" name="vehicleType" required
+                            [class.border-red-500]="validationErrors['vehicleType']"
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="" selected disabled>Select Vehicle Type</option>
+                            <option *ngFor="let type of vehicleTypes" [value]="type">{{type}}</option>
+                        </select>
+                        @if (validationErrors['vehicleType']) {
+                        <p class="text-red-500 text-sm mt-1">{{ validationErrors['vehicleType'] }}</p>
+                        }
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Parking Lot</label>
+                        @defer (on timer(1s)) {
+                        @if (parkingLots && parkingLots.length > 0) {
+                        <p-select [options]="parkingLots" [(ngModel)]="vehicle.parkingLotId" optionLabel="name"
+                            optionValue="id" name="parkingLotId" placeholder="Select a Parking Lot" [filter]="true"
+                            filterBy="name" appendTo="body" [style]="{ width: '100%' }"
+                            [class.border-red-500]="validationErrors['parkingLotId']">
+                            <ng-template #item let-lot>
+                                <div class="flex flex-col gap-0.5 py-1 ">
+                                    @if(Math.round( ((lot.parkingSlots.length - lot.availableSlots) /
+                                    lot.parkingSlots.length) * 100)<=50) { <span class="font-semibold text-green-600">{{
+                                        lot.name }}</span>
+                                        <div class="flex gap-3 text-sm text-green-600">
+                                            <span>₹{{ lot.basePricePerHour }}/hr</span>
+                                            <span>{{ lot.availableSlots }} / {{ lot.totalSlots }} slots available</span>
+                                        </div>
+
+                                        }
+                                        @else if(Math.round( ((lot.parkingSlots.length - lot.availableSlots) /
+                                        lot.parkingSlots.length) * 100)>50 && Math.round( ((lot.parkingSlots.length -
+                                        lot.availableSlots) / lot.parkingSlots.length) * 100)<80) { <span
+                                            class="font-semibold text-yellow-600">{{ lot.name }}</span>
+                                            <div class="flex gap-3 text-sm text-yellow-600">
+                                                <span>₹{{ lot.basePricePerHour }}/hr</span>
+                                                <span>{{ lot.availableSlots }} / {{ lot.totalSlots }} slots
+                                                    available</span>
+                                            </div>
+                                            }
+                                            @else {
+                                            <span class="font-semibold text-red-600">{{ lot.name }}</span>
+                                            <div class="flex gap-3 text-sm text-red-600">
+                                                <span>₹{{ lot.basePricePerHour }}/hr</span>
+                                                <span>{{ lot.availableSlots }} / {{ lot.totalSlots }} slots
+                                                    available</span>
+                                            </div>
+                                            }
+                                </div>
+                            </ng-template>
+                            <ng-template #selectedItem let-lot>
+                                <div class="flex items-center gap-2 " *ngIf="lot">
+                                    <span>{{ lot.name }}</span>
 
 
-              <span class="text-sm ">(₹{{ lot.basePricePerHour }}/hr — {{ lot.availableSlots }}/{{ lot.totalSlots }}
-                avail.)</span>
+                                    <span class="text-sm ">(₹{{ lot.basePricePerHour }}/hr — {{ lot.availableSlots }}/{{
+                                        lot.totalSlots }}
+                                        avail.)</span>
 
-            </div>
-          </ng-template>
-        </p-select>
-        } @else {
-        <p class="p-3.5 font-bold text-gray-500 text-center">No Parking Lot Available Right Now</p>
-        }
-        }@placeholder { <p class="p-3.5 font-bold text-gray-500 text-center">Loading parking lots...</p> }
-        @if (validationErrors['parkingLotId']) { <p class="text-red-500 text-sm mt-1">{{
-          validationErrors['parkingLotId'] }}</p> }
-      </div>
+                                </div>
+                            </ng-template>
+                        </p-select>
+                        } @else {
+                        <p class="p-3.5 font-bold text-gray-500 text-center">No Parking Lot Available Right Now</p>
+                        }
+                        }@placeholder { <p class="p-3.5 font-bold text-gray-500 text-center">Loading parking lots...</p>
+                        }
+                        @if (validationErrors['parkingLotId']) { <p class="text-red-500 text-sm mt-1">{{
+                            validationErrors['parkingLotId'] }}</p> }
+                    </div>
 
-        <div class="flex gap-4">
-                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-md transition-colors">Reserve Slot</button>
-    
-                <button (click)="Clear(form)" type="button" class="bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-gray-500 shadow-md transition-colors">Clear</button> </div>
-    </form>
+                    <div class="flex gap-4">
+                        <button type="submit"
+                            class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-md transition-colors">Reserve
+                            Slot</button>
+
+                        <button (click)="Clear(form)" type="button"
+                            class="bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-gray-500 shadow-md transition-colors">Clear</button>
+                    </div>
+                </form>
             </p-dialog>
-        </div>  
-        <span class="text-xl items-center font-semibold text-gray-700">Reservation List</span>
-    </div>  
-     
-        <p-table [value]="reservation" class="w-full">
-            <ng-template pTemplate="header">
-                <tr>
-                    <th class="px-6 py-4 text-left text-sm font-bold uppercase tracking-wider">Vehicle Number</th>
-                    <th class="px-6 py-4 text-left text-sm font-bold uppercase tracking-wider">Parking Lot Name</th>
-                    <th class="px-6 py-4 text-left text-sm font-bold uppercase tracking-wider">Reservation Time</th>
-                    <th class="px-6 py-4 text-left text-sm font-bold uppercase tracking-wider">Expiration Time</th>
-                    <th class="px-6 py-4 text-left text-sm font-bold uppercase tracking-wider">Status</th>
-                    <th class="px-6 py-4 text-left text-sm font-bold uppercase tracking-wider">Actions</th>
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="body" let-lot>
-                <tr class="hover:bg-purple-50 transition-colors duration-150">
-                    <td class="px-4 py-3 text-sm text-gray-900 font-medium whitespace-nowrap">{{ lot.vehicleNumber }}</td>
-                    <td class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">{{ lot.parkingLotName }}</td>
-                    <td class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">{{ lot.reservationTime | date:'short' }}</td>
-                    <td class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">{{ lot.expirationTime | date:'short' }}</td>
-                    <td class="px-4 py-3 text-sm whitespace-nowrap">
-                        <span [ngClass]="getStatusClass(lot.status)" class="font-semibold shadow-sm p-2 rounded">{{ lot.status }}</span>
-                    </td>
-                    <td class="px-4 py-3 text-sm whitespace-nowrap">
-                        <ng-container *ngIf="lot.status === 'ACTIVE'; else noActions">
-                            <button class="bg-blue-500 rounded-2xl p-2.5 border-2 text-white border-black mr-2 hover:bg-blue-600 transition-colors shadow-md" type="button" (click)="onArrival(lot.id)">
-                                Mark as Arrived
-                            </button>
-                            <button class="bg-green-500 rounded-2xl p-2.5 border-2 text-white border-black hover:bg-green-600 transition-colors shadow-md" type="button" (click)="onCancleReservation(lot.id)">
-                                Cancel Reservation
-                            </button>
-                        </ng-container>
-                        <ng-template #noActions>
-                            <span class="text-gray-500 font-medium">No Actions Available</span>
-                        </ng-template>
-                    </td>
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="empty">
-                <tr>
-                    <td colspan="6" class="px-4 py-8 text-center text-gray-500">No Reservations available</td>
-                </tr>
-            </ng-template>
-        </p-table>
-        
-            
-        
-        <!-- Simple custom paginator -->
-        <div class="custom-paginator flex items-center justify-between p-4">
-            <div class="flex gap-2">
-              
-                <button type="button" class="btn-prev" (click)="getPreviousPage()" [disabled]="pageNumber === 0">Previous</button>
-                <button type="button" class="btn-next" (click)="getNextPage()" [disabled]="pageNumber>=totalPages-1">Next</button>
-            </div>
-            <div class="flex items-center gap-2">
-                  <p clas>Showing Pages {{StartPage()}} to {{EndPage()}}</p>
-                <label class="text-sm text-gray-700">Rows per page</label>
-                <select class="px-2 py-1 border rounded" 
-            [ngModel]="pageSize" (ngModelChange)="onPageSizeChange($event)">
-                    <option *ngFor="let n of [5,10,20,50]" [value]="n">{{n}}</option>
-                </select>
-            </div>
         </div>
-</div>
-} @placeholder {
+          <!-- <span class="text-xl items-center font-semibold text-black [-webkit-text-stroke:0.2px_darkblue]">Reservation List</span> -->
+    </div>
+
+    <p-table [value]="reservation" class="w-full">
+        <ng-template pTemplate="header">
+            <tr>
+                <th class="px-6 py-4 text-left text-sm font-bold uppercase tracking-wider">
+                    
+                        <span>Vehicle Number</span>
+
+                </th>
+                <th class="px-6 py-4 text-left text-sm font-bold uppercase tracking-wider">
+                    <div class="flex items-center gap-2">
+                        <span>Parking Lot Name</span>
+                    @if(isSorted==false || sortField!=='parkingSlotId') {
+                    <svg (click)="ChangingSorting('parkingSlotId')" xmlns="http://www.w3.org/2000/svg" width="20"
+                        height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" class="cursor-pointer">
+                        <path d="M3 9l4 -4l4 4m-4 -4v14" />
+                        <path d="M21 15l-4 4l-4 -4m4 4v-14" />
+                    </svg>
+                    }
+                    @else if(isSorted==true && sortField=='parkingSlotId' && sortDirection=='asc') {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        (click)="ChangingSorting('parkingSlotId')">
+                        <line x1="12" y1="19" x2="12" y2="5"></line>
+                        <polyline points="5 12 12 5 19 12"></polyline>
+                    </svg>
+                    }
+                    @else
+                    {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        (click)="ChangingSorting('parkingSlotId')">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <polyline points="19 12 12 19 5 12"></polyline>
+                    </svg>
+                    }
+                </div>
+                </th>
+                <th class="px-6 py-4 text-left text-sm font-bold uppercase tracking-wider">
+                       <div class="flex items-center gap-2">
+                        <span>Reservation Time</span>
+                    @if(isSorted==false || sortField!=='reservationTime') {
+                    <svg (click)="ChangingSorting('reservationTime')" xmlns="http://www.w3.org/2000/svg" width="20"
+                        height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" class="cursor-pointer">
+                        <path d="M3 9l4 -4l4 4m-4 -4v14" />
+                        <path d="M21 15l-4 4l-4 -4m4 4v-14" />
+                    </svg>
+                    }
+                    @else if(isSorted==true && sortField=='reservationTime' && sortDirection=='asc') {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        (click)="ChangingSorting('reservationTime')">
+                        <line x1="12" y1="19" x2="12" y2="5"></line>
+                        <polyline points="5 12 12 5 19 12"></polyline>
+                    </svg>
+                    }
+                    @else
+                    {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        (click)="ChangingSorting('reservationTime')">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <polyline points="19 12 12 19 5 12"></polyline>
+                    </svg>
+                    }
+                </div>
+                </th>
+                <th class="px-6 py-4 text-left text-sm font-bold uppercase tracking-wider">
+                     <div class="flex items-center gap-2">
+                        <span>Expiration Time</span>
+                    @if(isSorted==false || sortField!=='expirationTime') {
+                    <svg (click)="ChangingSorting('expirationTime')" xmlns="http://www.w3.org/2000/svg" width="20"
+                        height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" class="cursor-pointer">
+                        <path d="M3 9l4 -4l4 4m-4 -4v14" />
+                        <path d="M21 15l-4 4l-4 -4m4 4v-14" />
+                    </svg>
+                    }
+                    @else if(isSorted==true && sortField=='expirationTime' && sortDirection=='asc') {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        (click)="ChangingSorting('expirationTime')">
+                        <line x1="12" y1="19" x2="12" y2="5"></line>
+                        <polyline points="5 12 12 5 19 12"></polyline>
+                    </svg>
+                    }
+                    @else
+                    {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        (click)="ChangingSorting('expirationTime')">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <polyline points="19 12 12 19 5 12"></polyline>
+                    </svg>
+                    }
+                </div>
+                </th>   
+                <th class="px-6 py-4 text-left text-sm font-bold uppercase tracking-wider">
+                       <div class="flex items-center gap-2">
+                        <span>Status</span>
+                    @if(isSorted==false || sortField!=='status') {
+                    <svg (click)="ChangingSorting('status')" xmlns="http://www.w3.org/2000/svg" width="20"
+                        height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" class="cursor-pointer">
+                        <path d="M3 9l4 -4l4 4m-4 -4v14" />
+                        <path d="M21 15l-4 4l-4 -4m4 4v-14" />
+                    </svg>
+                    }
+                    @else if(isSorted==true && sortField=='status' && sortDirection=='asc') {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        (click)="ChangingSorting('status')">
+                        <line x1="12" y1="19" x2="12" y2="5"></line>
+                        <polyline points="5 12 12 5 19 12"></polyline>
+                    </svg>
+                    }
+                    @else
+                    {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        (click)="ChangingSorting('status')">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <polyline points="19 12 12 19 5 12"></polyline>
+                    </svg>
+                    }
+                </div>
+                </th>
+                <th class="px-6 py-4 text-left text-sm font-bold uppercase tracking-wider">Actions</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-lot>
+            <tr class="hover:bg-purple-50 transition-colors duration-150">
+                <td class="px-4 py-3 text-sm text-gray-900 font-medium whitespace-nowrap">{{ lot.vehicleNumber }}</td>
+                <td class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">{{ lot.parkingLotName }}</td>
+                <td class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">{{ lot.reservationTime | date:'short' }}
+                </td>
+                <td class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">{{ lot.expirationTime | date:'short' }}
+                </td>
+                <td class="px-4 py-3 text-sm whitespace-nowrap">
+                    <span [ngClass]="getStatusClass(lot.status)" class="font-semibold shadow-sm p-2 rounded">{{
+                        lot.status }}</span>
+                </td>
+                <td class="px-4 py-3 text-sm whitespace-nowrap">
+                    <ng-container *ngIf="lot.status === 'ACTIVE'; else noActions">
+                        <button
+                            class="bg-blue-500 rounded-2xl p-2.5 border-2 text-white border-black mr-2 hover:bg-blue-600 transition-colors shadow-md"
+                            type="button" (click)="onArrival(lot.id)">
+                            Mark as Arrived
+                        </button>
+                        <button
+                            class="bg-green-500 rounded-2xl p-2.5 border-2 text-white border-black hover:bg-green-600 transition-colors shadow-md"
+                            type="button" (click)="onCancleReservation(lot.id)">
+                            Cancel Reservation
+                        </button>
+                    </ng-container>
+                    <ng-template #noActions>
+                        <span class="text-gray-500 font-medium">No Actions Available</span>
+                    </ng-template>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="empty">
+            <tr>
+                <td colspan="6" class="px-4 py-8 text-center text-gray-500">No Reservations available</td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+
+
+    <!-- Simple custom paginator -->
+    <div class="custom-paginator flex items-center justify-between p-4">
+        <div class="flex gap-2">
+
+            <button type="button" class="btn-prev" (click)="getPreviousPage()"
+                [disabled]="pageNumber === 0">Previous</button>
+            <button type="button" class="btn-next" (click)="getNextPage()"
+                [disabled]="pageNumber>=totalPages-1">Next</button>
+        </div>
+        <div class="flex items-center gap-2">
+            <p clas>Showing Pages {{StartPage()}} to {{EndPage()}}</p>
+            <label class="text-sm text-gray-700">Rows per page</label>
+            <select class="px-2 py-1 border rounded" [ngModel]="pageSize" (ngModelChange)="onPageSizeChange($event)">
+                <option *ngFor="let n of [5,10,20,50]" [value]="n">{{n}}</option>
+            </select>
+        </div>
+    </div>
+    <div class="flex justify-between pt-6 border-t mt-4">
+      <button class="bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded transition-colors" (click)="onBack()">Back to Dashboard</button>
+    </div>
+  
+}
+@placeholder {
     <p class="text-center mt-10 text-gray-500 p-4 bg-gray-100 rounded-lg">Loading reservations table...</p>
 }
+</div>
+</div>

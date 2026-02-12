@@ -80,7 +80,8 @@ public class ParkingSessionServiceImpl implements ParkingSessionService {
         ParkingLot lot = parkingLotRepository.findByIdWithInactive(slot.getParkingLotId())
                 .orElseThrow(() -> new ResourceNotFoundException("Parking lot not found with id: " + slot.getParkingLotId()));
         dto.setParkingLotName(lot.getName());
-        dto.setParkingSlotId(Long.parseLong(slot.getSlotNumber()));
+        dto.setParkingSlotId(slot.getId());
+        dto.setParkingSlotNumber(Long.parseLong(slot.getSlotNumber()));
         return dto;
     }
 }

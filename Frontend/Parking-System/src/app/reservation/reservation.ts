@@ -39,9 +39,10 @@ export class Reservation implements OnInit, OnDestroy{
   pageNumber: number = 0;
   pageSize: number = 10;
   totalRecords: number = 0;
+  isSorted: boolean = true;
   totalPages: number = 0;
-  sortField: string = 'id';
-  sortDirection: 'asc' | 'desc' = 'asc';
+  sortField: string = 'parkingSlotId';
+  sortDirection: 'asc' | 'desc' = 'desc';
   vehicleTypes = ['CAR', 'BIKE'];
   parkingLots: any[] = [];
   reservation: any[] = [];
@@ -101,19 +102,53 @@ export class Reservation implements OnInit, OnDestroy{
     this.destroy$.complete();
   }
   // no pagination helpers — entire list is shown in `displayedReservations`
-  
+  ChangingSorting(field: string) {
+    if(this.isSorted==false||(this.isSorted==true&&this.sortField!=field)){
+      this.sortField=field;
+      this.sortDirection='asc';
+      this.isSorted=true;
+      this.refreshReservation();
+    }
+    else if(this.isSorted==true&&this.sortField==field&&this.sortDirection=='asc'){
+      this.sortDirection='desc';
+      this.refreshReservation();
+    }
+    else
+    {
+      this.isSorted=false;
+      this.sortField='parkingSlotId';
+      this.sortDirection='desc';
+      this.refreshReservation();
+    }
+    
+    this.cdr.markForCheck();
+  }
   refreshParkingLots(): void {
-    this.authService.getALLParkingLots().subscribe({
+    this.authService.getParkingLots().subscribe({
       next: (response) => {
         if (response.success) {
           if (Array.isArray(response.data)) {
             // console.log('Received parking lots data:', response.data);
             this.parkingLots = response.data;
+            console.log('Received parking lots data:', response.data.content);
             
+            this.parkingLots = response.data;
+            
+            this.parkingLots.forEach((lot: any) => {
+              lot.totalSlots = lot.parkingSlots ? lot.parkingSlots.length : 0;
+              lot.availableSlots = lot.parkingSlots ? lot.parkingSlots.filter((s: any) => s.status === 'AVAILABLE').length : 0;
+              lot.occupiedSlots = lot.totalSlots - lot.availableSlots;
+              lot.occupancyPercentage = lot.totalSlots > 0 ? Math.round((lot.occupiedSlots / lot.totalSlots) * 100) : 0;
+            });
+             this.parkingLots.forEach(lot => {
+              this.loadSlotOfLots(lot.id);
+            });
+            console.log('Loaded parking lots:', this.parkingLots.length);
+             this.cdr.markForCheck();
           } else if (response.data && Array.isArray((response.data as any).content)) {
             console.log('Received parking lots data:', response.data.content);
             
-            this.parkingLots = response.data.content;
+            this.parkingLots = response.data;
             
             this.parkingLots.forEach((lot: any) => {
               lot.totalSlots = lot.parkingSlots ? lot.parkingSlots.length : 0;
@@ -137,7 +172,7 @@ export class Reservation implements OnInit, OnDestroy{
       },
       error: (err) => {
         if (err.status == 0) {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Server is down. Please try again later.', key: 'error', life: 3000 });
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Server is down. Please try again later.', key: 'error', life:5000 });
          setTimeout(() => {
           window.location.href = '/';
          }, 5000);
@@ -276,12 +311,12 @@ export class Reservation implements OnInit, OnDestroy{
   
     if (!this.validateForm()) {
 
-      this.messageService.add({ severity: 'error', summary: 'Validation Error', detail: 'Please fix the validation errors and try again.', key: 'error', life: 3000 });
+      this.messageService.add({ severity: 'error', summary: 'Validation Error', detail: 'Please fix the validation errors and try again.', key: 'error', life:5000 });
       return;
 
     }
     if(this.parkingLots.at(this.parkingLots.findIndex(lot => lot.id === this.vehicle.parkingLotId))?.availableSlots === 0){
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Selected parking lot is full. Please select another lot.', key: 'error', life: 3000 });
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Selected parking lot is full. Please select another lot.', key: 'error', life:5000 });
       return;
     }
     this.authService.ParkingLotReservation(this.vehicle).subscribe(
@@ -289,25 +324,25 @@ export class Reservation implements OnInit, OnDestroy{
         next: (response) => {
           console.log(response);
           if (response.success) {
-            this.messageService.add({ severity: 'success', summary: 'Success', detail: "Parking Slot Reserved Successfully", key: 'tl', life: 3000 });
+            this.messageService.add({ severity: 'success', summary: 'Success', detail: "Parking Slot Reserved Successfully", key: 'tl', life:5000 });
             this.visible=false;
             form.resetForm();
             this.refreshReservation();
           }
           else {
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: response.message, key: 'error', life: 3000 });
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: response.message, key: 'error', life:5000 });
           }
           this.cdr.markForCheck();
         },
         error: (err) => {
           if (err.status == 0) {
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Server is down. Please try again later.', key: 'error', life: 3000 });
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Server is down. Please try again later.', key: 'error', life:5000 });
             setTimeout(() => {
               window.location.href = "/";
             }, 5000);
             return;
           }
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error.message, key: 'error', life: 3000 });
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error.message, key: 'error', life:5000 });
 
           console.error('There was an error!', err);
         },
@@ -326,22 +361,22 @@ export class Reservation implements OnInit, OnDestroy{
     this.authService.CancelReservation(id).subscribe({
       next: (response) => {
         if (response.success) {
-          this.messageService.add({ severity: 'success', summary: 'Success', detail: "Reservation Cancelled Successfully", key: 'tl', life: 3000 });
+          this.messageService.add({ severity: 'success', summary: 'Success', detail: "Reservation Cancelled Successfully", key: 'tl', life:5000 });
           this.refreshReservation();
         } else {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: response.message, key: 'error', life: 3000 });
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: response.message, key: 'error', life:5000 });
         }
       },
       error: (err) => {
         if (err.status == 0) {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Server is down. Please try again later.', key: 'error', life: 3000 });
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Server is down. Please try again later.', key: 'error', life:5000 });
           setTimeout(() => {
             window.location.href = "/";
           }, 5000);
           return;
         }
         console.error(err);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error.message, key: 'error', life: 3000 });
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error.message, key: 'error', life:5000 });
       }
     });
   }
@@ -349,20 +384,20 @@ export class Reservation implements OnInit, OnDestroy{
     this.authService.ArrivalReservation(id).subscribe({
       next: (response) => {
         if (response.success) {
-          this.messageService.add({ severity: 'success', summary: 'Success', detail: "Marked as Arrived Successfully", key: 'tl', life: 3000 });
+          this.messageService.add({ severity: 'success', summary: 'Success', detail: "Marked as Arrived Successfully", key: 'tl', life:5000 });
           this.refreshReservation();
         } else {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: response.message, key: 'error', life: 3000 });
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: response.message, key: 'error', life:5000 });
         }
       },
       error: (err) => {
         if (err.status == 0) {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Server is down. Please try again later.', key: 'error', life: 3000 });
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Server is down. Please try again later.', key: 'error', life:5000 });
           window.location.href = "/";
           return;
         }
         console.error(err);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error.message, key: 'error', life: 3000 });
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error.message, key: 'error', life:5000 });
       }
     });
   }

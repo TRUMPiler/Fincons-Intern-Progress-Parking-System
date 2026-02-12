@@ -16,7 +16,7 @@ import { Select } from 'primeng/select';
   standalone: true,
   providers: [MessageService],
   templateUrl: './vehicle-entry.html',
-  styleUrl: './vehicle-entry.css',
+  styleUrls: ['./vehicle-entry.css'],
 })
 export class VehicleEntry implements OnInit, OnDestroy {
   // Vehicle model uses camelCase keys expected by the backend
@@ -44,16 +44,15 @@ export class VehicleEntry implements OnInit, OnDestroy {
   }
   Math=Math;
   refreshParkingLots(): void {
-    this.authService.getALLParkingLots().subscribe({
+    this.authService.getParkingLots().subscribe({
       next: (response) => {
         if (response.success) {
+          console.log('Received parking lots response:', response);
           if (Array.isArray(response.data)) {
             console.log('Received parking lots data:', response.data);
             this.parkingLots = response.data;
-            
-          } else if (response.data && Array.isArray((response.data as any).content)) {
             console.log('Received parking lots data:', response.data.content);
-            this.parkingLots = response.data.content;
+            this.parkingLots = response.data;
             this.parkingLots.forEach((lot: any) => {
               lot.totalSlots = lot.parkingSlots ? lot.parkingSlots.length : 0;
               lot.availableSlots = lot.parkingSlots ? lot.parkingSlots.filter((s: any) => s.status === 'AVAILABLE').length : 0;
@@ -63,6 +62,8 @@ export class VehicleEntry implements OnInit, OnDestroy {
              this.parkingLots.forEach(lot => {
               this.loadSlotOfLots(lot.id);
             });
+          } else if (response.data && Array.isArray((response.data as any).content)) {
+            
           } else {
             this.parkingLots = [];
             console.warn('Unexpected parking lots data format:', response.data);
@@ -73,7 +74,7 @@ export class VehicleEntry implements OnInit, OnDestroy {
       },
       error: (err) => {
         if (err.status == 0) {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Server is down. Please try again later.', key: 'error', life: 3000 });
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Server is down. Please try again later.', key: 'error', life:5000 });
          setTimeout(() => {
           window.location.href = '/';
          }, 5000);
@@ -113,28 +114,28 @@ export class VehicleEntry implements OnInit, OnDestroy {
       next: (response) => {
         if (response.success) {
           this.exitBillData = [response.data];
-          this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message, key: 'tl' ,life: 3000});
+          this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message, key: 'tl' ,life:5000});
           this.showExitDialog = false;
           this.exitShowBillPopup = true;
           console.log('Exit Bill Data:', this.exitBillData);
           this.cdr.markForCheck();
         } else {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: response.message, key: 'error', life: 3000 });
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: response.message, key: 'error', life:5000 });
         }
       },
       error: (err: any) => {
         if (err.status == 0) {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Server is down. Please try again later.', key: 'error', life: 3000 });
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Server is down. Please try again later.', key: 'error', life:5000 });
           return;
         }
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.message || err.message || 'Error', key: 'error', life: 3000 });
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.message || err.message || 'Error', key: 'error', life:5000 });
       }
     });
   }
 
   confirmExit(): void {
     this.exitShowBillPopup = false;
-    this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Vehicle exited successfully', key: 'tl', life: 3000 });
+    this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Vehicle exited successfully', key: 'tl', life:5000 });
     this.exitVehicleNumber = '';
     this.closeExitDialog();
   }
@@ -171,17 +172,17 @@ export class VehicleEntry implements OnInit, OnDestroy {
   onSubmit(form:NgForm): void {
 
     if (!this.validateForm()) {
-      this.messageService.add({ severity: 'error', summary: 'Validation Error', detail: 'Please fix the validation errors', key: 'error', life: 3000 });
+      this.messageService.add({ severity: 'error', summary: 'Validation Error', detail: 'Please fix the validation errors', key: 'error', life: 5000 });
       
       return;
     }
 
     if(this.parkingLots.length === 0) {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No parking lots available. Please try again later.', key: 'error', life: 3000 });
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No parking lots available. Please try again later.', key: 'error', life: 5000 });
       return;
     }
     if(this.parkingLots.find(lot => lot.id == this.vehicle.parkingLotId)?.availableSlots === 0) {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Selected parking lot is full. Please select another lot.', key: 'error', life: 3000 });
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Selected parking lot is full. Please select another lot.', key: 'error', life: 5000 });
       return;
     }
     // Prepare payload: ensure parkingLotId is numeric if provided
@@ -197,22 +198,22 @@ export class VehicleEntry implements OnInit, OnDestroy {
       next: (response) => {
         console.log(response);
         if (response.success) {
-          this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message, key: 'tl', life: 3000 });
+          this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message, key: 'tl', life: 5000 });
         
           this.dialogVisible = false;
           this.clearForm(form);
           this.cdr.detectChanges();
         } else {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: response.message, key: 'error', life: 3000 });
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: response.message, key: 'error', life: 5000 });
         }
       },
       error: (err) => {
         if (err.status == 0) {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Server is down. Please try again later.', key: 'error', life: 3000 });
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Server is down. Please try again later.', key: 'error', life: 5000 });
           window.location.href = '/';
           return;
         }
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.message || err.message || 'Error', key: 'error', life: 3000 });
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.message || err.message || 'Error', key: 'error', life: 5000 });
         console.error('There was an error!', err);
       }
     });

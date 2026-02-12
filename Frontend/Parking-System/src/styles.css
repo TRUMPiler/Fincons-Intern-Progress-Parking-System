@@ -3,6 +3,18 @@
 @import "tailwindcss";
 @import "tailwindcss-primeui";
 
+/* Global background and layout to keep pages visually consistent */
+html, body, app-root {
+	height: 100%;
+}
+body {
+	/* Linear gradient from Tailwind blue-50 to blue-100 */
+	background-image: linear-gradient(to right, #f1f6fe, #add0ff);
+	background-repeat: no-repeat;
+	background-attachment: fixed;
+	min-height: 100vh;
+}
+
 /* PrimeNG / table header styling: black background with white text */
 .p-table thead th, .p-datatable-thead th, table thead th {
 	background: black !important;

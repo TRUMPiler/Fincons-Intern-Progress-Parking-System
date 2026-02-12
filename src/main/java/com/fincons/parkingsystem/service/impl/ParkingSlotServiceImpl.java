@@ -112,7 +112,7 @@ public class ParkingSlotServiceImpl implements ParkingSlotService {
         }
         
         ParkingSlot savedSlot = parkingSlotRepository.save(updateSlot);
-        SlotStatusUpdateDto statusUpdateDto = new SlotStatusUpdateDto(updateSlot.getParkingLot().getId(), updateSlot.getId(), updateSlot.getStatus());
+        SlotStatusUpdateDto statusUpdateDto = new SlotStatusUpdateDto(updateSlot.getParkingLot().getId(), updateSlot.getId(), updateSlot.getSlotNumber(),updateSlot.getStatus());
         kafkaProducerService.sendSlotUpdateProduce(statusUpdateDto);
         return parkingSlotMapper.toDto(savedSlot);
     }

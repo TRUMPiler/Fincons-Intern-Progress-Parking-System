@@ -106,7 +106,7 @@ public class ReservationServiceImpl implements ReservationService {
                 .build();
 
         Reservation savedReservation = reservationRepository.save(reservation);
-        SlotStatusUpdateDto statusUpdateDto = new SlotStatusUpdateDto(parkingLot.getId(), availableSlot.getId(), SlotStatus.RESERVED);
+        SlotStatusUpdateDto statusUpdateDto = new SlotStatusUpdateDto(parkingLot.getId(), availableSlot.getId(), availableSlot.getSlotNumber(),SlotStatus.RESERVED);
         kafkaProducerService.sendSlotUpdateProduce(statusUpdateDto);
 
         ReservationDto dto = reservationMapper.toDto(savedReservation);
@@ -152,7 +152,7 @@ public class ReservationServiceImpl implements ReservationService {
         reservedSlot.setStatus(SlotStatus.AVAILABLE);
         parkingSlotRepository.save(reservedSlot);
         
-        kafkaProducerService.sendSlotUpdateProduce(new SlotStatusUpdateDto(reservedSlot.getParkingLotId(), reservedSlot.getId(), SlotStatus.AVAILABLE));
+        kafkaProducerService.sendSlotUpdateProduce(new SlotStatusUpdateDto(reservedSlot.getParkingLotId(), reservedSlot.getId(), reservedSlot.getSlotNumber(),SlotStatus.AVAILABLE));
     }
 
     /**
@@ -228,7 +228,7 @@ public class ReservationServiceImpl implements ReservationService {
                 .build();
         parkingSessionRepository.save(newSession);
 
-        kafkaProducerService.sendSlotUpdateProduce(new SlotStatusUpdateDto(reservedSlot.getParkingLotId(), reservedSlot.getId(), SlotStatus.OCCUPIED));
+        kafkaProducerService.sendSlotUpdateProduce(new SlotStatusUpdateDto(reservedSlot.getParkingLotId(), reservedSlot.getId(), reservedSlot.getSlotNumber(),SlotStatus.OCCUPIED));
         
         reservation.setStatus(ReservationStatus.COMPLETED);
         reservationRepository.save(reservation);
@@ -264,7 +264,7 @@ public class ReservationServiceImpl implements ReservationService {
             parkingSlotRepository.findByIdWithInactive(reservation.getParkingSlotId()).ifPresent(reservedSlot -> {
                 reservedSlot.setStatus(SlotStatus.AVAILABLE);
                 parkingSlotRepository.save(reservedSlot);
-                kafkaProducerService.sendSlotUpdateProduce(new SlotStatusUpdateDto(reservedSlot.getParkingLotId(), reservedSlot.getId(), SlotStatus.AVAILABLE));
+                kafkaProducerService.sendSlotUpdateProduce(new SlotStatusUpdateDto(reservedSlot.getParkingLotId(),reservedSlot.getId(), reservedSlot.getSlotNumber(),SlotStatus.AVAILABLE));
             });
         }
     }

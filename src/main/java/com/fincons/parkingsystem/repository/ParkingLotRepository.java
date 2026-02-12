@@ -52,5 +52,4 @@ public interface ParkingLotRepository extends JpaRepository<ParkingLot, Long> {
      */
     @Query(value = "SELECT * FROM parking_lots WHERE id = :id", nativeQuery = true)
     Optional<ParkingLot> findByIdWithInactive(@Param("id") Long id);
-
 }

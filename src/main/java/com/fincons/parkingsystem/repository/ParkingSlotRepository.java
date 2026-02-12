@@ -81,4 +81,6 @@ public interface ParkingSlotRepository extends JpaRepository<ParkingSlot, Long> 
     Optional<ParkingSlot> findByIdWithInactive(@Param("id") Long id);
 
     long countByParkingLot(ParkingLot parkingLot);
+
+    List<ParkingSlot> findByParkingLotId(Long id);
 }

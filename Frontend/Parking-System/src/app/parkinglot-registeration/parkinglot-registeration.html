@@ -1,14 +1,18 @@
 <!-- Parking Lot Registration and List -->
-<div class="max-w-full mx-auto mt-0 bg-white shadow-md overflow-hidden pb-5 border border-black">
-  <div class="mb-4 px-6">
-    <h2 class="text-2xl font-bold text-gray-800 text-center py-4">Registered Parking Lots</h2>
-    <p-toast position="top-right" key="tl"/>
-    <p-toast position="top-right" key="error"/>
-    
-    <div class="flex justify-end items-center mb-4">
-      <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" (click)="showDialog()">Open Registration Form</button>
+<div class="min-h-screen p-8" [style]="{'background-image': 'linear-gradient(to bottom right, #eff6ff, #dbeafe)'}">
+  <div class="max-w-7xl mx-auto">
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+      <div class="mb-6 px-8 pt-8">
+        <h2 class="text-4xl font-bold text-gray-800 text-center">Registered Parking Lots</h2>
+        <p class="text-gray-600 text-center mt-2">Manage and view all parking lot registrations</p>
+      </div>
+      <p-toast position="top-right" key="tl"/>
+      <p-toast position="top-right" key="error"/>
+      
+      <div class="flex justify-end items-center mb-6 px-8">
+        <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all" (click)="showDialog()">+ Open Registration Form</button>
       <p-dialog header="Register a Parking Lot" [modal]="true" [(visible)]="DialogVisible" [style]="{ width: '75rem' }">
-        <div class="p-4">
+        <div class="p-6 max-h-[70vh] overflow-y-auto">
           <form #ngForm="ngForm" (ngSubmit)="onSubmit(ngForm)">
             <div class="mb-4">
               <label class="block text-gray-700 text-sm font-bold mb-2">Parking Lot Name</label>
@@ -16,12 +20,15 @@
               @if (validationErrors['name']) { <p class="text-red-500 text-sm mt-1">{{ validationErrors['name'] }}</p> }
             </div>
 
-            <div class="mb-4">
+            <!-- <div class="mb-4">
               <label class="block text-gray-700 text-sm font-bold mb-2">Parking Lot Location</label>
               <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" [class.border-red-500]="validationErrors['location']" placeholder="Enter full address or nearby landmark" name="location" [(ngModel)]="parkinglot.location" required />
               @if (validationErrors['location']) { <p class="text-red-500 text-sm mt-1">{{ validationErrors['location'] }}</p> }
-            </div>
-
+            </div> -->
+            <div class="mb-4">
+              <label class="block text-gray-700 text-sm font-bold mb-2">Parking Lot Location</label>
+            <p-autocomplete class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" [class.border-red-500]="validationErrors['location']" placeholder="Enter full address or nearby landmark" name="location" [(ngModel)]="parkinglot.location" required [suggestions]="items" (completeMethod)="getPlacesApi()" [showClear]="true" [inputStyle]="{width: '100%'}" />
+          </div>
             <div class="mb-4">
               <label class="block text-gray-700 text-sm font-bold mb-2">Total Parking Slots</label>
               <input type="number" min="1" class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" [class.border-red-500]="validationErrors['totalSlots']" placeholder="Enter total number of parking slots" name="totalslots" [(ngModel)]="parkinglot.totalSlots" required />
@@ -34,55 +41,165 @@
               @if (validationErrors['basePricePerHour']) { <p class="text-red-500 text-sm mt-1">{{ validationErrors['basePricePerHour'] }}</p> }
             </div>
 
-            <div class="flex gap-4">
-              <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">Register Parking Lot</button>
-              <button (click)="clearForm(ngForm)" type="button" class="bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-gray-500">Clear Form</button>
+            <div class="flex gap-4 pt-6 border-t">
+              <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all flex-1">Register Parking Lot</button>
+              <button (click)="clearForm(ngForm)" type="button" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all flex-1">Clear Form</button>
             </div>
           </form>
         </div>
       </p-dialog>
     </div>
 
-    <p-table [value]="parkingLots" *ngIf="parkingLots && parkingLots.length > 0" class="p-datatable-striped p-datatable-hoverable-rows" [tableStyle]="{'min-width':'100%'}">
+    <p-table [value]="parkingLots" *ngIf="parkingLots && parkingLots.length > 0" class="p-datatable-striped p-datatable-hoverable-rows w-full" [tableStyle]="{'min-width':'100%'}">
       <ng-template pTemplate="header">
-        <tr class="bg-gray-100 text-gray-700">
-          <th class="py-2 px-3 text-left font-semibold">Parking Lot Name</th>
-          <th class="py-2 px-3 text-left font-semibold">Parking Lot Location</th>
-          <th class="py-2 px-3 text-left font-semibold">Total Slots</th>
-          <th class="py-2 px-3 text-left font-semibold">Base Price (₹)/Hour</th>
+        <tr class="bg-blue-600 text-white">
+          <th class="py-2 px-3 text-left font-semibold">
+            <div class="flex items-center gap-2">
+                        <span>Name of the lot</span>
+                    @if(isSorted==false || sortField!=='name') {
+                    <svg (click)="ChangingSorting('name')" xmlns="http://www.w3.org/2000/svg" width="20"
+                        height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" class="cursor-pointer">
+                        <path d="M3 9l4 -4l4 4m-4 -4v14" />
+                        <path d="M21 15l-4 4l-4 -4m4 4v-14" />
+                    </svg>
+                    }
+                    @else if(isSorted==true && sortField==='name' && sortDirection=='asc') {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        (click)="ChangingSorting('name')">
+                        <line x1="12" y1="19" x2="12" y2="5"></line>
+                        <polyline points="5 12 12 5 19 12"></polyline>
+                    </svg>
+                    }
+                    @else
+                    {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        (click)="ChangingSorting('name')">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <polyline points="19 12 12 19 5 12"></polyline>
+                    </svg>
+                    }
+                </div>
+          </th>
+          <th class="py-2 px-3 text-left font-semibold"><div class="flex items-center gap-2">
+                        <span>Location of the lot</span>
+                    @if(isSorted==false || sortField!=='location') {
+                    <svg (click)="ChangingSorting('location')" xmlns="http://www.w3.org/2000/svg" width="20"
+                        height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" class="cursor-pointer">
+                        <path d="M3 9l4 -4l4 4m-4 -4v14" />
+                        <path d="M21 15l-4 4l-4 -4m4 4v-14" />
+                    </svg>
+                    }
+                    @else if(isSorted==true && sortField==='location' && sortDirection=='asc') {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        (click)="ChangingSorting('location')">
+                        <line x1="12" y1="19" x2="12" y2="5"></line>
+                        <polyline points="5 12 12 5 19 12"></polyline>
+                    </svg>
+                    }
+                    @else
+                    {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        (click)="ChangingSorting('location')">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <polyline points="19 12 12 19 5 12"></polyline>
+                    </svg>
+                    }
+                </div></th>
+          <th class="py-2 px-3 text-left font-semibold"><div class="flex items-center gap-2">
+                        <span>Total Slots</span>
+                    @if(isSorted==false || sortField!=='total_slots') {
+                    <svg (click)="ChangingSorting('total_slots')" xmlns="http://www.w3.org/2000/svg" width="20"
+                        height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" class="cursor-pointer">
+                        <path d="M3 9l4 -4l4 4m-4 -4v14" />
+                        <path d="M21 15l-4 4l-4 -4m4 4v-14" />
+                    </svg>
+                    }
+                    @else if(isSorted==true && sortField==='total_slots' && sortDirection=='asc') {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        (click)="ChangingSorting('total_slots')">
+                        <line x1="12" y1="19" x2="12" y2="5"></line>
+                        <polyline points="5 12 12 5 19 12"></polyline>
+                    </svg>
+                    }
+                    @else
+                    {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        (click)="ChangingSorting('total_slots')">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <polyline points="19 12 12 19 5 12"></polyline>
+                    </svg>
+                    }
+                </div></th>
+          <th class="py-2 px-3 text-left font-semibold"><div class="flex items-center gap-2">
+                        <span>Base Price (₹)/Hour</span>
+                    @if(isSorted==false || sortField!=='basepriceperhour') {
+                    <svg (click)="ChangingSorting('base_price_per_hour')" xmlns="http://www.w3.org/2000/svg" width="20"
+                        height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" class="cursor-pointer">
+                        <path d="M3 9l4 -4l4 4m-4 -4v14" />
+                        <path d="M21 15l-4 4l-4 -4m4 4v-14" />
+                    </svg>
+                    }
+                    @else if(isSorted==true && sortField==='basepriceperhour' && sortDirection=='asc') {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        (click)="ChangingSorting('base_price_per_hour')">
+                        <line x1="12" y1="19" x2="12" y2="5"></line>
+                        <polyline points="5 12 12 5 19 12"></polyline>
+                    </svg>
+                    }
+                    @else
+                    {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        (click)="ChangingSorting('base_price_per_hour')">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <polyline points="19 12 12 19 5 12"></polyline>
+                    </svg>
+                    }
+                </div></th>
           <th class="py-2 px-3 text-left font-semibold">Actions</th>
         </tr>
       </ng-template>
 
       <ng-template pTemplate="body" let-lot>
-        <tr>
-          <td class="py-2 px-3 text-left">{{ lot.name }}</td>
-          <td class="py-2 px-3 text-left">{{ lot.location }}</td>
-          <td class="py-2 px-3 text-left">{{ lot.totalSlots }}</td>
-          <td class="py-2 px-3 text-left">{{ lot.basePricePerHour }}</td>
-          <td class="py-2 px-3 text-left">
-            <button class="bg-green-600 hover:bg-green-700 text-white font-semibold py-1 px-3 rounded transition-colors" type="button" (click)="event(lot.id)">View Details</button>
+        <tr class="hover:bg-blue-50 transition-colors">
+          <td class="py-3 px-4 text-left">{{ lot.name }}</td>
+          <td class="py-3 px-4 text-left">{{ lot.location }}</td>
+          <td class="py-3 px-4 text-left">{{ lot.totalSlots }}</td>
+          <td class="py-3 px-4 text-left">₹{{ lot.basePricePerHour }}</td>
+          <td class="py-3 px-4 text-left">
+            <button class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors shadow-md" type="button" (click)="event(lot.id)">View Details</button>
           </td>
         </tr>
       </ng-template>
     </p-table>
 
     <!-- Custom Paginator -->
-    <div *ngIf="parkingLots && parkingLots.length > 0" class="flex items-center justify-between p-4 bg-gray-50 border-t">
-      <span class="text-sm text-gray-600">Showing {{ first + 1 }} to {{ Math.min(first + rows, totalRecords) }} of {{ totalRecords }} parking lots</span>
-      <div class="flex gap-2 items-center">
+    <div *ngIf="parkingLots && parkingLots.length > 0" class="flex items-center justify-between p-6 bg-gray-50 border-t">
+      <span class="text-sm text-gray-600 font-semibold">Showing {{ first + 1 }} to {{ Math.min(first + rows, totalRecords) }} of {{ totalRecords }} parking lots</span>
+      <div class="flex gap-3 items-center">
         <div class="flex items-center mr-2">
-          <label class="text-sm text-gray-600 mr-2">Rows:</label>
-          <select [(ngModel)]="rows" (ngModelChange)="onPageSizeChange($event)" class="px-2 py-1 border rounded">
+          <label class="text-sm text-gray-600 mr-3 font-semibold">Rows:</label>
+          <select [(ngModel)]="rows" (ngModelChange)="onPageSizeChange($event)" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
             <option [value]="5">5</option>
             <option [value]="10">10</option>
             <option [value]="20">20</option>
             <option [value]="50">50</option>
           </select>
         </div>
-        <button (click)="goToPreviousPage()" [disabled]="first === 0" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed">Previous</button>
-        <span class="px-3 py-1 bg-white border border-gray-300 rounded">Page {{ Math.floor(first / rows) + 1 }} of {{ getPageCount() }}</span>
-        <button (click)="goToNextPage()" [disabled]="first + rows >= totalRecords" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed">Next</button>
+        <button (click)="goToPreviousPage()" [disabled]="first === 0" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-semibold">Previous</button>
+        <span class="px-4 py-2 bg-white border border-gray-300 rounded-lg font-semibold text-gray-700">Page {{ Math.floor(first / rows) + 1 }} of {{ getPageCount() }}</span>
+        <button (click)="goToNextPage()" [disabled]="first + rows >= totalRecords" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-semibold">Next</button>
       </div>
     </div>
 

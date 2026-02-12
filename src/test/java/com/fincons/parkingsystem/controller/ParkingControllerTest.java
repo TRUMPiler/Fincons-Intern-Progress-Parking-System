@@ -113,4 +113,31 @@ public class ParkingControllerTest {
                 .andExpect(jsonPath("$.data.status").value("COMPLETED"))
                 .andExpect(jsonPath("$.data.totalAmount").value(10.0));
     }
+    @Test
+    void testVehicleExit_Failure() throws Exception {
+        // Arrange
+        VehicleDto vehicleDto = new VehicleDto(0L, "TEST1234", VehicleType.CAR);
+        ParkingSessionDto sessionDto = ParkingSessionDto.builder()
+                .id(1L)
+                .vehicleNumber("TEST1234")
+                .parkingSlotId(10L)
+                .entryTime(LocalDateTime.now().minusHours(2))
+                .exitTime(LocalDateTime.now())
+                .status(ParkingSessionStatus.COMPLETED)
+                .totalAmount(10.0)
+                .build();
+        when(parkingService.exitVehicle(any(String.class))).thenReturn(sessionDto);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/parking/exit")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(vehicleDto)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.message").value("Parking session completed."))
+                .andExpect(jsonPath("$.data.vehicleNumber").value("TEST1234"))
+                .andExpect(jsonPath("$.data.status").value("COMPLETED"))
+                .andExpect(jsonPath("$.data.totalAmount").value(10.0));
+    }
 }

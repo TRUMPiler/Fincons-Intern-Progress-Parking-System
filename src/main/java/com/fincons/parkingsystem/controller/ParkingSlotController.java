@@ -2,6 +2,7 @@ package com.fincons.parkingsystem.controller;
 import com.fincons.parkingsystem.dto.ParkingSlotDto;
 import com.fincons.parkingsystem.service.ParkingSlotService;
 import com.fincons.parkingsystem.utils.Response;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -49,7 +50,7 @@ public class    ParkingSlotController {
      * @return A {@link ResponseEntity} containing the updated {@link ParkingSlotDto}.
      */
     @PatchMapping("/update-slot")
-    public ResponseEntity<Response<ParkingSlotDto>> updateParkingSlot(@RequestBody ParkingSlotDto parkingSlotDto)
+    public ResponseEntity<Response<ParkingSlotDto>> updateParkingSlot(@Valid @RequestBody ParkingSlotDto parkingSlotDto)
     {
         log.info("Received request to update parking slot with ID: {}", parkingSlotDto.getId());
         ParkingSlotDto updatedSlot = parkingSlotService.updateParkingSlotInformation(parkingSlotDto);

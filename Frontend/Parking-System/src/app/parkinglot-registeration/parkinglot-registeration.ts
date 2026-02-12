@@ -9,14 +9,16 @@ import { ChangeDetectorRef } from '@angular/core';
 import { ToastModule } from 'primeng/toast';
 import { RippleModule } from 'primeng/ripple';
 import { MessageService } from 'primeng/api';
+import { AutoCompleteModule } from 'primeng/autocomplete';
 import { WebSocket1Service } from '../websocket1.service';
-import { Subject,takeUntil } from 'rxjs';
+import { Subject, of } from 'rxjs';
+import { takeUntil, debounceTime, distinctUntilChanged, switchMap, catchError } from 'rxjs/operators';
 @Component({
   selector: 'app-parkinglot-registeration',
-  imports: [FormsModule, CommonModule, TableModule, ButtonModule,DialogModule, ToastModule, RippleModule],
+  imports: [FormsModule, CommonModule, TableModule, ButtonModule,DialogModule, ToastModule, RippleModule , AutoCompleteModule],
   standalone: true,
   providers: [MessageService],
-  templateUrl: 'parkinglot-registeration.html',
+  templateUrl: './parkinglot-registeration.html',
   styleUrl: './parkinglot-registeration.css',
 })
 export class ParkinglotRegisteration implements OnInit,OnDestroy {
@@ -27,13 +29,16 @@ export class ParkinglotRegisteration implements OnInit,OnDestroy {
     basePricePerHour: '',
     parkingSlots: []
   }
+  items: any[] = [];
   destroy$ = new Subject<void>();
+  private placeInput$ = new Subject<string>();
   page: number = 0;
+  isSorted: boolean = false; 
   first: number = 0;
   rows: number = 10;
   totalRecords: number = 0;
-  sortField: string = 'id';
-  sortDirection: 'asc' | 'desc' = 'asc';
+  sortField: string = 'name';
+  sortDirection: 'asc' | 'desc' = 'desc';
   public parkingLots: any[] = [];
   validationErrors: { [key: string]: string } = {};
   errorMessage = '';
@@ -74,6 +79,26 @@ export class ParkinglotRegisteration implements OnInit,OnDestroy {
 
   ngOnInit(): void {
     this.loadParkingLots({first: 0, rows: this.rows});
+
+    // Subscribe to debounced place input for autocomplete
+    this.placeInput$.pipe(
+      debounceTime(400),
+      distinctUntilChanged(),
+      switchMap((q: string) => {
+        if (!q || q.length < 3) return of([]);
+        return this.authService.getPlacesApi(q).pipe(
+          catchError((err) => {
+            console.error('Error fetching places API data:', err);
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to fetch location suggestions.', key: 'error', life: 5000 });
+            return of([]);
+          })
+        );
+      }),
+      takeUntil(this.destroy$)
+    ).subscribe((response: any) => {
+      this.items = response?.predictions?.map((p: any) => p.description) ?? [];
+      this.cdr.markForCheck();
+    });
   }
   onBack(): void {
     window.location.href = '/';
@@ -84,7 +109,7 @@ export class ParkinglotRegisteration implements OnInit,OnDestroy {
     }
   onSubmit(form: NgForm) {
     if (!this.validateForm()) {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Please fix the validation errors', key: 'error' ,life: 3000});
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Please fix the validation errors', key: 'error' ,life:5000});
       return;
     }
     this.DialogVisible=false;
@@ -94,7 +119,7 @@ export class ParkinglotRegisteration implements OnInit,OnDestroy {
         next: (response) => {
           console.log(response);
           if (response.success) {
-            this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message, key: 'tl', life: 3000 });
+            this.messageService.add({ severity: 'success', summary: 'Success', detail: response.message, key: 'tl', life:5000 });
             this.parkinglot = {
               name: '',
               location: '',
@@ -107,15 +132,15 @@ export class ParkinglotRegisteration implements OnInit,OnDestroy {
             this.cdr.markForCheck();
           }
           else {
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: response.message, key: 'error', life: 3000 });
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: response.message, key: 'error', life:5000 });
           }
         },
         error: (err) => {
           if (err.status == 0) {
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Server is down. Please try again later.', key: 'error', life: 3000 });
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Server is down. Please try again later.', key: 'error', life:5000 });
             return;
           }
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error.message, key: 'error', life: 3000 });
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error.message, key: 'error', life:5000 });
 
           if (err.error.message === 'Validation Failed') {
             let errors: { [key: string]: string } = err.error.data;
@@ -126,21 +151,44 @@ export class ParkinglotRegisteration implements OnInit,OnDestroy {
             });
 
             console.log(err);
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: message, key: 'error', life: 3000 });
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: message, key: 'error', life:5000 });
           }
           console.error('There was an error!', err);
         },
       }
     );
   }
+
+    ChangingSorting(field: string) {
+    if(this.isSorted==false||(this.isSorted==true&&this.sortField!=field)){
+      this.sortField=field;
+      this.sortDirection='asc';
+      this.isSorted=true;
+      this.loadParkingLots({first: this.first, rows: this.rows});
+    }
+    else if(this.isSorted==true&&this.sortField==field&&this.sortDirection=='asc'){
+      this.sortDirection='desc';
+      this.loadParkingLots({first: this.first, rows: this.rows});
+    }
+    else
+    {
+      this.isSorted=false;
+      this.sortField='name';
+      this.sortDirection='desc';
+      this.loadParkingLots({first: this.first, rows: this.rows});
+    }
+    
+    this.cdr.markForCheck();
+  }
   // Handler for server-side pagination requests and responses
   loadParkingLots(event: {first: number, rows: number}) {
     this.first = event.first;
     this.rows = event.rows;
     this.page = Math.floor(this.first / this.rows);
-    this.authService.getALLParkingLots()
+    this.authService.getALLParkingLots(this.page, this.rows, this.sortField, this.sortDirection)
       .subscribe({
         next: (response: any) => {
+          console.log('Received paginated parking lots response:', response, 'with params - page:', this.page, 'size:', this.rows, 'sortField:', this.sortField, 'sortDirection:', this.sortDirection);
           const data = response?.data ?? response ?? {};
           const list = Array.isArray(data.content) ? data.content : (Array.isArray(data) ? data : []);
           for (let i = 0; i < list.length; i++) {
@@ -159,8 +207,8 @@ export class ParkinglotRegisteration implements OnInit,OnDestroy {
         },
         error: (err) => {
           if(err.status == 0) {
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Server is down. Please try again later.', key: 'error', life: 3000 });
-            setTimeout(() => { window.location.href = "/"; }, 3000);
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Server is down. Please try again later.', key: 'error', life:5000 });
+            // setTimeout(() => { window.location.href = "/"; },5000);
             return;
           }
           
@@ -180,7 +228,11 @@ export class ParkinglotRegisteration implements OnInit,OnDestroy {
       this.loadParkingLots({first: this.first, rows: this.rows});
     }
   }
-
+  // Push input to the debounced stream
+  getPlacesApi() {
+    this.placeInput$.next(this.parkinglot.location);
+  }
+ 
   goToPreviousPage() {
     if (this.first > 0) {
       this.first -= this.rows;
@@ -200,11 +252,11 @@ export class ParkinglotRegisteration implements OnInit,OnDestroy {
     this.webSocketService.SubscribeToHighAlertUpdates(parkingLotId).subscribe({
       next: (data) => {
         console.log('Received high alert update:', data);
-        this.messageService.add({ severity: 'warn', summary: 'High Alert', detail: `High alert for parking lot ${data.parkingLotId}: ${data.message}`, key: 'tl', life: 3000 });
+        this.messageService.add({ severity: 'warn', summary: 'High Alert', detail: `High alert for parking lot ${data.parkingLotId}: ${data.message}`, key: 'tl', life:5000 });
       },
       error: (err) => {
         console.error('Error subscribing to high alert updates:', err);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to subscribe to high alert updates. Please try again later.', key: 'error', life: 3000 });
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to subscribe to high alert updates. Please try again later.', key: 'error', life:5000 });
       }
     });
   }

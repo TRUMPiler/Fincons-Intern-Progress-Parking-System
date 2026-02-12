@@ -28,7 +28,8 @@ public class ParkingSessionDto {
 
     /** The identifier of the parking slot occupied during the session. */
     private Long parkingSlotId;
-
+    /** the slot number of the parking slot according to the parking lot **/
+    private Long parkingSlotNumber;
     /** The name of the parking lot where the session took place. */
     private String parkingLotName;
 

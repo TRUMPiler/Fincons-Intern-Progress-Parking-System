@@ -28,6 +28,7 @@ public class ParkingSessionController {
 
     private final ParkingSessionService parkingSessionService;
 
+
     /**
      * Handles the HTTP GET request to retrieve a paginated list of all currently active parking sessions.
      *

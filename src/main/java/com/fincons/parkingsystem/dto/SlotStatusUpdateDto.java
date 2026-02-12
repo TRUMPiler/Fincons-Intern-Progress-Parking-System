@@ -12,13 +12,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SlotStatusUpdateDto {
-
     /** The identifier of the parking lot to which the slot belongs. */
     private Long parkingLotId;
-
     /** The unique identifier of the parking slot that was updated. */
     private Long slotId;
-
+    /** The identifier of the parking slot number according to the parking lot that was done. */
+    private String parkingSlotNumber;
     /** The new status of the parking slot. */
     private SlotStatus newStatus;
 }

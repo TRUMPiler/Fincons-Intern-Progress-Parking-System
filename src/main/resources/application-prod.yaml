@@ -1,12 +1,29 @@
 server:
-  port: 8083
+  port: 8080
 
 spring:
+  kafka:
+    bootstrap-servers: kafka-1a5518e2-naishal036-ae82.b.aivencloud.com:24551
+
+    properties:
+      security.protocol: SSL
+      ssl.endpoint.identification.algorithm: ""
+
+      ssl.truststore.location: C:\Users\cjesu\OneDrive\Desktop\Fincons\ParkingSystem\src\main\resources\kafka\truststore.jks
+      ssl.truststore.password: jkfincons
+
+      ssl.keystore.location: C:\Users\cjesu\OneDrive\Desktop\Fincons\ParkingSystem\src\main\resources\kafka\keystore.p12
+      ssl.keystore.password: jkfincons
+      ssl.key.password: jkfincons
+      ssl.keystore.type: PKCS12
+
+
+
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://finconsparkingsystem-naishal036-ae82.j.aivencloud.com:24549/ParkingSystem
-    username: avnadmin
-    password: AVNS_dLl0Bt0PBvijAuvJC_S
+    url: jdbc:postgresql://localhost:5432/ParkingSystem
+    username: postgres
+    password: root
   jpa:
     hibernate:
       ddl-auto: update

@@ -139,9 +139,9 @@ public class ParkingServiceImpl implements ParkingService {
         ParkingSession savedSession = parkingSessionRepository.save(newSession);
 
         // Publish events to Kafka to notify other services (e.g., WebSocket dashboard)
-        VehicleEnteredEvent event = new VehicleEnteredEvent(savedSession.getId(), vehicle.getVehicleNumber(), parkingLot.getId(), updatedSlot.getId(),parkingLot.getName(), savedSession.getEntryTime());
+        VehicleEnteredEvent event = new VehicleEnteredEvent(savedSession.getId(), vehicle.getVehicleNumber(), parkingLot.getId(),updatedSlot.getId(), updatedSlot.getSlotNumber(), parkingLot.getName(), savedSession.getEntryTime());
         kafkaProducerService.sendVehicleEntry(event);
-        kafkaProducerService.sendSlotUpdateProduce(new SlotStatusUpdateDto(parkingLot.getId(),updatedSlot.getId(), updatedSlot.getStatus()));
+        kafkaProducerService.sendSlotUpdateProduce(new SlotStatusUpdateDto(parkingLot.getId(),updatedSlot.getId(), updatedSlot.getSlotNumber(), updatedSlot.getStatus()));
 
         // Map the saved session entity to a DTO and return it
         return parkingSessionMapper.toDto(savedSession);
@@ -207,10 +207,10 @@ public class ParkingServiceImpl implements ParkingService {
         ParkingSlot updatedSlot = parkingSlotRepository.save(parkingSlot); // Persist slot updates
 
         // Publish events to Kafka to notify other services
-        kafkaProducerService.sendSlotUpdateProduce(new SlotStatusUpdateDto(parkingSlot.getParkingLotId(),updatedSlot.getId(), updatedSlot.getStatus()));
-        VehicleExitedEvent event = new VehicleExitedEvent(savedSession.getId(), vehicle.getVehicleNumber(), parkingSlot.getParkingLotId(), parkingLot.getName(),activeSession.getParkingSlot().getId(),activeSession.getEntryTime() ,LocalDateTime.now(), savedSession.getTotalAmount());
-        kafkaProducerService.sendVehicleExit(event);
 
+        VehicleExitedEvent event = new VehicleExitedEvent(savedSession.getId(), vehicle.getVehicleNumber(), parkingSlot.getParkingLotId(), parkingLot.getName(),activeSession.getParkingSlot().getId(),activeSession.getParkingSlot().getSlotNumber(),activeSession.getEntryTime() ,LocalDateTime.now(), savedSession.getTotalAmount());
+        kafkaProducerService.sendVehicleExit(event);
+        kafkaProducerService.sendSlotUpdateProduce(new SlotStatusUpdateDto(parkingSlot.getParkingLotId(),updatedSlot.getId(), updatedSlot.getSlotNumber(),updatedSlot.getStatus()));
         // Build the final DTO, including all calculated charge details for the client
         ParkingSessionDto resultDto = parkingSessionMapper.toDto(savedSession);
         resultDto.setBasePricePerHour(chargeResult.basePricePerHour());
