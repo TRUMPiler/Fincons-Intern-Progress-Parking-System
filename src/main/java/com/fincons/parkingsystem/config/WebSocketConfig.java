@@ -41,6 +41,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         // Registers the "/ws" endpoint, enabling WebSocket connections.
         // setAllowedOrigins is configured to allow connections from the specified origin.
         registry.addEndpoint("/ws")
-                .setAllowedOrigins("http://localhost:4200");
+                .setAllowedOrigins("http://localhost:4200","https://www.finconsparkingsystem.live");
     }
 }
