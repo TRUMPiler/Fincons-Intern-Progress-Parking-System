@@ -63,7 +63,7 @@ export class ParkinglotRegisteration implements OnInit,OnDestroy {
     };
   
     if (!checkString('name', this.parkinglot.name, 3, 50, /^[a-zA-Z0-9\s]+$/)) isValid = false;
-    if (!checkString('location', this.parkinglot.location, 3, 100, /^[a-zA-Z0-9\s,.-]+$/)) isValid = false;
+    // if (!checkString('location', this.parkinglot.location, 3, 100, /^[a-zA-Z0-9\s,.-]+$/)) isValid = false;
    
     // Numeric validations
     const slots = Number(this.parkinglot.totalSlots);

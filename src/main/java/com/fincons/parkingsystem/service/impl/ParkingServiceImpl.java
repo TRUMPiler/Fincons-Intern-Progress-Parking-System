@@ -209,8 +209,10 @@ public class ParkingServiceImpl implements ParkingService {
         // Publish events to Kafka to notify other services
 
         VehicleExitedEvent event = new VehicleExitedEvent(savedSession.getId(), vehicle.getVehicleNumber(), parkingSlot.getParkingLotId(), parkingLot.getName(),activeSession.getParkingSlot().getId(),activeSession.getParkingSlot().getSlotNumber(),activeSession.getEntryTime() ,LocalDateTime.now(), savedSession.getTotalAmount());
-        kafkaProducerService.sendVehicleExit(event);
+
         kafkaProducerService.sendSlotUpdateProduce(new SlotStatusUpdateDto(parkingSlot.getParkingLotId(),updatedSlot.getId(), updatedSlot.getSlotNumber(),updatedSlot.getStatus()));
+        kafkaProducerService.sendVehicleExit(event);
+        log.info("updated status is:"+updatedSlot.getStatus());
         // Build the final DTO, including all calculated charge details for the client
         ParkingSessionDto resultDto = parkingSessionMapper.toDto(savedSession);
         resultDto.setBasePricePerHour(chargeResult.basePricePerHour());
