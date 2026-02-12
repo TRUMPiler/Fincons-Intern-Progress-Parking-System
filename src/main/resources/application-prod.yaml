@@ -9,10 +9,10 @@ spring:
       security.protocol: SSL
       ssl.endpoint.identification.algorithm: ""
 
-      ssl.truststore.location: C:\Users\cjesu\OneDrive\Desktop\Fincons\ParkingSystem\src\main\resources\kafka\truststore.jks
+      ssl.truststore.location: classpath:kafka/truststore.jks
       ssl.truststore.password: jkfincons
 
-      ssl.keystore.location: C:\Users\cjesu\OneDrive\Desktop\Fincons\ParkingSystem\src\main\resources\kafka\keystore.p12
+      ssl.keystore.location: classpath:kafka/keystore.p12
       ssl.keystore.password: jkfincons
       ssl.key.password: jkfincons
       ssl.keystore.type: PKCS12

@@ -3,6 +3,7 @@ package com.fincons.parkingsystem.config;
 import com.fincons.parkingsystem.dto.SlotStatusUpdateDto;
 import com.fincons.parkingsystem.dto.VehicleEnteredEvent;
 import com.fincons.parkingsystem.dto.VehicleExitedEvent;
+import com.fincons.parkingsystem.utils.ResourceFileUtil;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -33,14 +34,16 @@ public class KafkaConfig {
     @Value("${spring.kafka.properties.security.protocol}")
     private String securityProtocol;
 
-    @Value("${spring.kafka.properties.ssl.truststore.location}")
-    private String truststoreLocation;
+
 
     @Value("${spring.kafka.properties.ssl.truststore.password}")
     private String truststorePassword;
 
-    @Value("${spring.kafka.properties.ssl.keystore.location}")
-    private String keystoreLocation;
+    String truststorePath =
+            ResourceFileUtil.copyToTempFile("kafka/truststore.jks", ".jks");
+
+    String keystorePath =
+            ResourceFileUtil.copyToTempFile("kafka/keystore.p12", ".p12");
 
     @Value("${spring.kafka.properties.ssl.keystore.password}")
     private String keystorePassword;
@@ -50,6 +53,8 @@ public class KafkaConfig {
 
     @Value("${spring.kafka.properties.ssl.keystore.type}")
     private String keystoreType;
+
+
 
     /**
      * Creates a KafkaTemplate bean for producing messages.
@@ -76,9 +81,9 @@ public class KafkaConfig {
 
         // SSL Configuration
         props.put("security.protocol", securityProtocol);
-        props.put("ssl.truststore.location", truststoreLocation);
+        props.put("ssl.truststore.location", truststorePath);
         props.put("ssl.truststore.password", truststorePassword);
-        props.put("ssl.keystore.location", keystoreLocation);
+        props.put("ssl.keystore.location", keystorePath);
         props.put("ssl.keystore.password", keystorePassword);
         props.put("ssl.key.password", keyPassword);
         props.put("ssl.keystore.type", keystoreType);
@@ -181,9 +186,9 @@ public class KafkaConfig {
 
         // SSL Configuration
         props.put("security.protocol", securityProtocol);
-        props.put("ssl.truststore.location", truststoreLocation);
+        props.put("ssl.truststore.location", truststorePath);
         props.put("ssl.truststore.password", truststorePassword);
-        props.put("ssl.keystore.location", keystoreLocation);
+        props.put("ssl.keystore.location", keystorePath);
         props.put("ssl.keystore.password", keystorePassword);
         props.put("ssl.key.password", keyPassword);
         props.put("ssl.keystore.type", keystoreType);
