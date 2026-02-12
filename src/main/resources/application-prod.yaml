@@ -19,15 +19,15 @@ spring:
 
 
 
-  spring:
-    datasource:
-      driver-class-name: org.postgresql.Driver
-      url: jdbc:postgresql://finconsparkingsystem-naishal036-ae82.j.aivencloud.com:24549/ParkingSystem
-      username: avnadmin
-      password: AVNS_dLl0Bt0PBvijAuvJC_S
-    jpa:
-      hibernate:
-        ddl-auto: update
-      show-sql: true
-      database: postgresql
-      database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://finconsparkingsystem-naishal036-ae82.j.aivencloud.com:24549/ParkingSystem
+    username: avnadmin
+    password: AVNS_dLl0Bt0PBvijAuvJC_S
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
