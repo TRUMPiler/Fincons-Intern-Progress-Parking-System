@@ -7,10 +7,12 @@
     <p-toast position="top-right" key="error"/> -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
         <!-- Parking Lot Button -->
+         <!-- Title: Parking Lots
+Subtitle: Create or View parking lots and monitor live slot occupancy -->
         <button [routerLink]="['/register']"
             class="flex flex-col items-center justify-center p-6 bg-white rounded-lg border-l-4 border-purple-500 shadow-md hover:shadow-lg hover:scale-105 cursor-pointer transition-all duration-200">
-            <span class="text-xl  font-semibold text-purple-700">Parking Lot Setup</span>
-            <span class="mt-2 text-gray-600 text-center text-sm">Create and manage parking lots</span>
+            <span class="text-xl  font-semibold text-purple-700">Parking Lots</span>
+            <span class="mt-2 text-gray-600 text-center text-sm">Create or View parking lots and monitor live slot occupancy</span>
         </button>
 
         <!-- Reservation Button -->
@@ -23,8 +25,8 @@
         <!-- Session History Button -->
         <button [routerLink]="['/session-history']"
             class="flex flex-col items-center justify-center p-6 bg-white rounded-lg border-l-4 border-green-600 shadow-md hover:shadow-lg hover:scale-105 cursor-pointer transition-all duration-200">
-            <span class="text-xl font-semibold text-green-800">Parking Records</span>
-            <span class="mt-2 text-green-700 text-center text-sm">View Live Parking Records for all Parking Lots</span>
+            <span class="text-xl font-semibold text-green-800">Parking Activity History</span>
+            <span class="mt-2 text-green-700 text-center text-sm">View vehicle entry, exit, duration, and payment records</span>
         </button>
 
         <!-- Vehicle Exit Button -->

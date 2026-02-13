@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.postgresql.util.PSQLException;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.dao.DeadlockLoserDataAccessException;
 import org.springframework.retry.annotation.Backoff;
@@ -191,36 +192,37 @@ public class ParkingServiceImpl implements ParkingService {
                 .orElseThrow(() -> new ResourceNotFoundException("Parking lot not found with id: " + parkingSlot.getParkingLotId()));
 
         LocalDateTime exitTime = LocalDateTime.now();
+
         // Validate that the exit time is not before the entry time
         if (exitTime.isBefore(activeSession.getEntryTime())) {
             throw new BadRequestException("Exit time cannot be before entry time.");
         }
 
         // Calculate the parking charges based on session duration and lot occupancy
+
         ChargeCalculationResult chargeResult = calculateCharges(activeSession, parkingLot);
         activeSession.setTotalAmount(chargeResult.totalAmount());
         activeSession.setStatus(ParkingSessionStatus.COMPLETED); // Mark session as completed
         ParkingSession savedSession = parkingSessionRepository.save(activeSession); // Persist session updates
 
-        // Update the parking slot status back to AVAILABLE
         parkingSlot.setStatus(SlotStatus.AVAILABLE);
         ParkingSlot updatedSlot = parkingSlotRepository.save(parkingSlot); // Persist slot updates
-
         // Publish events to Kafka to notify other services
-
         VehicleExitedEvent event = new VehicleExitedEvent(savedSession.getId(), vehicle.getVehicleNumber(), parkingSlot.getParkingLotId(), parkingLot.getName(),activeSession.getParkingSlot().getId(),activeSession.getParkingSlot().getSlotNumber(),activeSession.getEntryTime() ,LocalDateTime.now(), savedSession.getTotalAmount());
 
-        kafkaProducerService.sendSlotUpdateProduce(new SlotStatusUpdateDto(parkingSlot.getParkingLotId(),updatedSlot.getId(), updatedSlot.getSlotNumber(),updatedSlot.getStatus()));
-        kafkaProducerService.sendVehicleExit(event);
+
         log.info("updated status is:"+updatedSlot.getStatus());
         // Build the final DTO, including all calculated charge details for the client
         ParkingSessionDto resultDto = parkingSessionMapper.toDto(savedSession);
-        resultDto.setBasePricePerHour(chargeResult.basePricePerHour());
+        resultDto.setBasePricePerHour(parkingLot.getBasePricePerHour());
         resultDto.setHoursCharged(chargeResult.hoursCharged());
         resultDto.setOccupancyPercentage(chargeResult.occupancyPercentage());
         resultDto.setMultiplier(chargeResult.multiplier());
         resultDto.setExitTime(exitTime);
+        kafkaProducerService.sendSlotUpdateProduce(new SlotStatusUpdateDto(parkingSlot.getParkingLotId(),updatedSlot.getId(), updatedSlot.getSlotNumber(),updatedSlot.getStatus()));
+        kafkaProducerService.sendVehicleExit(event);
         return resultDto;
+
     }
 
     /**
@@ -236,9 +238,15 @@ public class ParkingServiceImpl implements ParkingService {
         long durationMinutes = Duration.between(session.getEntryTime(), LocalDateTime.now()).toMinutes();
         log.info("Parking Lot Price: {}", parkingLot.getBasePricePerHour());
 
+        if(parkingLot==null)
+        {
+            log.info("parkinglot is null");
+            throw new ResourceNotFoundException("Parking lot not found during vehicle exit");
+        }
+        double occupancy = calculateOccupancy(parkingLot); // Get current occupancy percentage
         // Apply a 30-minute grace period; if duration is within this, no charge
         if (durationMinutes <= 30) {
-            return new ChargeCalculationResult(0.0, 0.0, 0L, 0.0, 1.0);
+            return new ChargeCalculationResult(0.0, 0.0, 0L, occupancy, 1.0);
         }
 
         // Calculate billable minutes after the grace period
@@ -246,10 +254,10 @@ public class ParkingServiceImpl implements ParkingService {
         double basePrice = parkingLot.getBasePricePerHour();
         // Calculate hours charged, rounding up to the nearest hour for any fraction of an hour
         long hoursParked = (billableMinutes + 59) / 60;
-        double occupancy = calculateOccupancy(parkingLot); // Get current occupancy percentage
+
         double multiplier = getOccupancyMultiplier(occupancy); // Determine pricing multiplier based on occupancy
         double totalAmount = hoursParked * basePrice * multiplier; // Calculate final total amount
-
+        log.info("Total Amount: " + totalAmount+" Multiplier: "+multiplier+" Base Price: "+basePrice+" Hours Parked: "+hoursParked+" Occupancy: "+occupancy);
         return new ChargeCalculationResult(totalAmount, basePrice, hoursParked, occupancy, multiplier);
     }
 
@@ -261,11 +269,17 @@ public class ParkingServiceImpl implements ParkingService {
      */
     private double calculateOccupancy(ParkingLot parkingLot) {
         if (parkingLot.getTotalSlots() == null || parkingLot.getTotalSlots() == 0) {
-            return 0.0; // Avoid division by zero if no slots are defined
+            throw new BadRequestException("Parking Lot not found during vehicle exit");
+//            return 0.0; // Avoid division by zero if no slots are defined
         }
-        // Count currently occupied slots for the given parking lot
+        // Count currently occupied and reserved slots for the given parking lot
         long occupiedSlots = parkingSlotRepository.countByParkingLotAndStatus(parkingLot, SlotStatus.OCCUPIED);
-        return (double) occupiedSlots / parkingLot.getTotalSlots() * 100; // Calculate percentage
+        long reservedSlots = parkingSlotRepository.countByParkingLotAndStatus(parkingLot, SlotStatus.RESERVED);
+        long totalTakenSlots = occupiedSlots + reservedSlots;
+
+        log.info(reservedSlots+" "+occupiedSlots+" "+totalTakenSlots);
+        // Calculate percentage based on total slots, performing floating-point division
+        return ((double) totalTakenSlots / parkingLot.getTotalSlots()) * 100.0;
     }
 
     /**
