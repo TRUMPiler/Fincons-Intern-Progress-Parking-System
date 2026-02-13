@@ -14,6 +14,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
 
@@ -62,7 +64,7 @@ class ParkingServiceImplTest {
         vehicle = new Vehicle(1L, "TEST1234", VehicleType.CAR, false);
         parkingLot = new ParkingLot(1L, "Test Lot", "Location", 10, 10.0, Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant(), null, false, 0);
         parkingSlot = new ParkingSlot(101L, "A1", SlotStatus.AVAILABLE, parkingLot, 1L, false, 0);
-        parkingSession = new ParkingSession(1L, vehicle, parkingSlot, 101L, Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant().minusHours(1), null, 0.0, ParkingSessionStatus.ACTIVE, false, 0);
+        parkingSession = new ParkingSession(1L, vehicle, parkingSlot, 101L, Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant().minus(Duration.ofHours(1)), null, 0.0, ParkingSessionStatus.ACTIVE, false, 0);
         entryRequest = new VehicleEntryRequestDto("TEST1234", VehicleType.CAR, 1L);
     }
 
@@ -130,7 +132,7 @@ class ParkingServiceImplTest {
     @Test
     void exitVehicle_success() {
         // Arrange
-        parkingSession.setEntryTime(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant().minusHours(2)); // Ensure duration > 30 mins for charges
+        parkingSession.setEntryTime(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant().minus(Duration.ofHours(2))); // Ensure duration > 30 mins for charges
         when(vehicleRepository.findByVehicleNumber("TEST1234")).thenReturn(Optional.of(vehicle));
         when(parkingSessionRepository.findByVehicleAndStatus(vehicle, ParkingSessionStatus.ACTIVE)).thenReturn(Optional.of(parkingSession));
         when(parkingSlotRepository.findByIdWithInactive(parkingSession.getParkingSlotId())).thenReturn(Optional.of(parkingSlot));
@@ -169,7 +171,7 @@ class ParkingServiceImplTest {
     @Test
     void exitVehicle_throwsBadRequestException_whenExitTimeIsBeforeEntryTime() {
         // Arrange
-        parkingSession.setEntryTime(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant().plusHours(1)); // Set entry time in the future
+        parkingSession.setEntryTime(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant().plus(Duration.ofHours(1))); // Set entry time in the future
         when(vehicleRepository.findByVehicleNumber("TEST1234")).thenReturn(Optional.of(vehicle));
         when(parkingSessionRepository.findByVehicleAndStatus(vehicle, ParkingSessionStatus.ACTIVE)).thenReturn(Optional.of(parkingSession));
         when(parkingSlotRepository.findByIdWithInactive(parkingSession.getParkingSlotId())).thenReturn(Optional.of(parkingSlot));

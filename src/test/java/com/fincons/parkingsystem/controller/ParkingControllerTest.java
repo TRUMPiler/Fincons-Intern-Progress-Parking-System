@@ -13,6 +13,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.time.Duration;
 import java.time.Instant;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -93,7 +95,7 @@ public class ParkingControllerTest {
                 .id(1L)
                 .vehicleNumber("TEST1234")
                 .parkingSlotId(10L)
-                .entryTime(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant().minusHours(2))
+                .entryTime(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant().minus(Duration.ofHours(2)))
                 .exitTime(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant())
                 .status(ParkingSessionStatus.COMPLETED)
                 .totalAmount(10.0)
@@ -120,7 +122,7 @@ public class ParkingControllerTest {
                 .id(1L)
                 .vehicleNumber("TEST1234")
                 .parkingSlotId(10L)
-                .entryTime(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant().minusHours(2))
+                .entryTime(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant().minus(Duration.ofHours(2)))
                 .exitTime(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant())
                 .status(ParkingSessionStatus.COMPLETED)
                 .totalAmount(10.0)
