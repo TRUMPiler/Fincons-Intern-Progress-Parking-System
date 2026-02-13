@@ -177,8 +177,10 @@
           <td class="py-3 px-4 text-left">{{ lot.location }}</td>
           <td class="py-3 px-4 text-left">{{ lot.totalSlots }}</td>
           <td class="py-3 px-4 text-left">₹{{ lot.basePricePerHour }}</td>
-          <td class="py-3 px-4 text-left">
-            <button class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors shadow-md" type="button" (click)="event(lot.id)">View Details</button>
+          <td class="text-left">
+            <div class="flex items-center gap-2">
+                      <button class="bg-green-600 hover:bg-green-700 text-white text-sm py-1 px-3 rounded transition-colors" type="button" (click)="event(lot.id)">View Details</button>
+            </div>
           </td>
         </tr>
       </ng-template>
