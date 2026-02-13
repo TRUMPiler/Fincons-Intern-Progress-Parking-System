@@ -13,8 +13,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -49,7 +48,7 @@ public class ParkingControllerTest {
                 .id(1L)
                 .vehicleNumber("TEST1234")
                 .parkingSlotId(10L)
-                .entryTime(LocalDateTime.now())
+                .entryTime(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant())
                 .status(ParkingSessionStatus.ACTIVE)
                 .build();
         when(parkingService.enterVehicle(any(VehicleEntryRequestDto.class))).thenReturn(sessionDto);
@@ -94,8 +93,8 @@ public class ParkingControllerTest {
                 .id(1L)
                 .vehicleNumber("TEST1234")
                 .parkingSlotId(10L)
-                .entryTime(LocalDateTime.now().minusHours(2))
-                .exitTime(LocalDateTime.now())
+                .entryTime(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant().minusHours(2))
+                .exitTime(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant())
                 .status(ParkingSessionStatus.COMPLETED)
                 .totalAmount(10.0)
                 .build();
@@ -121,8 +120,8 @@ public class ParkingControllerTest {
                 .id(1L)
                 .vehicleNumber("TEST1234")
                 .parkingSlotId(10L)
-                .entryTime(LocalDateTime.now().minusHours(2))
-                .exitTime(LocalDateTime.now())
+                .entryTime(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant().minusHours(2))
+                .exitTime(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant())
                 .status(ParkingSessionStatus.COMPLETED)
                 .totalAmount(10.0)
                 .build();

@@ -17,7 +17,7 @@
 //import org.junit.jupiter.api.Test;
 //import org.springframework.beans.factory.annotation.Autowired;
 //
-//import java.time.LocalDateTime;
+//import java.time.Instant
 //import java.util.stream.IntStream;
 //
 //import static org.assertj.core.api.Assertions.assertThat;
@@ -85,7 +85,7 @@
 //    @Test
 //    void testGetActiveSessions_WithResults() throws Exception {
 //        // Arrange
-//        createAndSaveParkingSession("ABC-123", VehicleType.CAR, ParkingSessionStatus.ACTIVE, LocalDateTime.now().minusHours(1), null, null, "Lot A", 1);
+//        createAndSaveParkingSession("ABC-123", VehicleType.CAR, ParkingSessionStatus.ACTIVE, Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant().minusHours(1), null, null, "Lot A", 1);
 //
 //        // Act
 //        Response<RestPage<ParkingSessionDto>> response = performGetRequest(BASE_URL + "/active", Response.class, status().isOk());
@@ -112,7 +112,7 @@
 //    @Test
 //    void testGetSessionHistory_WithResults() throws Exception {
 //        // Arrange
-//        createAndSaveParkingSession("DEF-456", VehicleType.CAR, ParkingSessionStatus.COMPLETED, LocalDateTime.now().minusHours(2), LocalDateTime.now().minusHours(1), 20.0, "Lot B", 2);
+//        createAndSaveParkingSession("DEF-456", VehicleType.CAR, ParkingSessionStatus.COMPLETED, Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant().minusHours(2), Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant().minusHours(1), 20.0, "Lot B", 2);
 //
 //        // Act
 //        Response<RestPage<ParkingSessionDto>> response = performGetRequest(BASE_URL + "/history", Response.class, status().isOk());
@@ -139,7 +139,7 @@
 //    void testGetActiveSessions_PaginationAndSorting() throws Exception {
 //        // Arrange
 //        IntStream.range(0, 5).forEach(i ->
-//                createAndSaveParkingSession("VEH-" + (5 - i), VehicleType.CAR, ParkingSessionStatus.ACTIVE, LocalDateTime.now().minusMinutes(i), null, null, "Lot C", i + 1)
+//                createAndSaveParkingSession("VEH-" + (5 - i), VehicleType.CAR, ParkingSessionStatus.ACTIVE, Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant().minusMinutes(i), null, null, "Lot C", i + 1)
 //        );
 //
 //        // Act: Request page 0, size 2, sorted by vehicleNumber ascending
@@ -171,7 +171,7 @@
 //    void testGetSessionHistory_PaginationAndSorting() throws Exception {
 //        // Arrange
 //        IntStream.range(0, 5).forEach(i ->
-//                createAndSaveParkingSession("HIST-" + (5 - i), VehicleType.BIKE, ParkingSessionStatus.COMPLETED, LocalDateTime.now().minusHours(5 - i), LocalDateTime.now().minusHours(4 - i), 10.0 + i, "Lot D", i + 1)
+//                createAndSaveParkingSession("HIST-" + (5 - i), VehicleType.BIKE, ParkingSessionStatus.COMPLETED, Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant().minusHours(5 - i), Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant().minusHours(4 - i), 10.0 + i, "Lot D", i + 1)
 //        );
 //
 //        // Act: Request page 0, size 3, sorted by totalAmount descending
@@ -192,7 +192,7 @@
 //    @Test
 //    void testGetActiveSessions_PageBeyondBounds() throws Exception {
 //        // Arrange
-//        createAndSaveParkingSession("BOUND-1", VehicleType.CAR, ParkingSessionStatus.ACTIVE, LocalDateTime.now().minusMinutes(10), null, null, "Lot E", 1);
+//        createAndSaveParkingSession("BOUND-1", VehicleType.CAR, ParkingSessionStatus.ACTIVE, Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant().minusMinutes(10), null, null, "Lot E", 1);
 //
 //        // Act: Request page 10 (beyond the single page of results)
 //        String url = BASE_URL + "/active?page=10&size=5";
@@ -210,7 +210,7 @@
 //    @Test
 //    void testGetSessionHistory_PageBeyondBounds() throws Exception {
 //        // Arrange
-//        createAndSaveParkingSession("BOUND-2", VehicleType.CAR, ParkingSessionStatus.COMPLETED, LocalDateTime.now().minusHours(3), LocalDateTime.now().minusHours(2), 30.0, "Lot F", 1);
+//        createAndSaveParkingSession("BOUND-2", VehicleType.CAR, ParkingSessionStatus.COMPLETED, Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant().minusHours(3), Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant().minusHours(2), 30.0, "Lot F", 1);
 //
 //        // Act: Request page 5 (beyond the single page of results)
 //        String url = BASE_URL + "/history?page=5&size=2";

@@ -4,8 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
-
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * Represents a single parking session for a vehicle from entry to exit.
@@ -56,13 +55,13 @@ public class ParkingSession {
      * The timestamp recorded when the vehicle entered the parking lot.
      */
     @Column(nullable = false)
-    private LocalDateTime entryTime;
+    private Instant entryTime;
 
     /**
      * The timestamp recorded when the vehicle exited the parking lot.
      * This is null for active sessions.
      */
-    private LocalDateTime exitTime;
+    private Instant exitTime;
 
     /**
      * The total amount charged for the parking session, calculated upon exit.
@@ -93,7 +92,7 @@ public class ParkingSession {
      */
     @PreUpdate
     public void onPreUpdate() {
-        this.exitTime = LocalDateTime.now();
+        this.exitTime = Instant.now();
     }
 
 }

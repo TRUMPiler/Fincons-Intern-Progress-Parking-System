@@ -25,8 +25,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.Duration;import java.time.Instant;
 
 /**
  * This is the core service for handling the main parking workflow. It manages the business logic
@@ -134,7 +133,7 @@ public class ParkingServiceImpl implements ParkingService {
         ParkingSession newSession = ParkingSession.builder()
                 .vehicle(vehicle)
                 .parkingSlot(updatedSlot)
-                .entryTime(LocalDateTime.now())
+                .entryTime(Instant.now())
                 .status(ParkingSessionStatus.ACTIVE)
                 .build();
         ParkingSession savedSession = parkingSessionRepository.save(newSession);
@@ -191,7 +190,7 @@ public class ParkingServiceImpl implements ParkingService {
         ParkingLot parkingLot = parkingLotRepository.findByIdWithInactive(parkingSlot.getParkingLotId())
                 .orElseThrow(() -> new ResourceNotFoundException("Parking lot not found with id: " + parkingSlot.getParkingLotId()));
 
-        LocalDateTime exitTime = LocalDateTime.now();
+        Instant exitTime = Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant();
 
         // Validate that the exit time is not before the entry time
         if (exitTime.isBefore(activeSession.getEntryTime())) {
@@ -208,7 +207,7 @@ public class ParkingServiceImpl implements ParkingService {
         parkingSlot.setStatus(SlotStatus.AVAILABLE);
         ParkingSlot updatedSlot = parkingSlotRepository.save(parkingSlot); // Persist slot updates
         // Publish events to Kafka to notify other services
-        VehicleExitedEvent event = new VehicleExitedEvent(savedSession.getId(), vehicle.getVehicleNumber(), parkingSlot.getParkingLotId(), parkingLot.getName(),activeSession.getParkingSlot().getId(),activeSession.getParkingSlot().getSlotNumber(),activeSession.getEntryTime() ,LocalDateTime.now(), savedSession.getTotalAmount());
+        VehicleExitedEvent event = new VehicleExitedEvent(savedSession.getId(), vehicle.getVehicleNumber(), parkingSlot.getParkingLotId(), parkingLot.getName(),activeSession.getParkingSlot().getId(),activeSession.getParkingSlot().getSlotNumber(),activeSession.getEntryTime() ,Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant(), savedSession.getTotalAmount());
 
 
         log.info("updated status is:"+updatedSlot.getStatus());
@@ -235,7 +234,7 @@ public class ParkingServiceImpl implements ParkingService {
      */
     private ChargeCalculationResult calculateCharges(ParkingSession session, ParkingLot parkingLot) {
         // Calculate duration in minutes from entry time to current time
-        long durationMinutes = Duration.between(session.getEntryTime(), LocalDateTime.now()).toMinutes();
+        long durationMinutes = Duration.between(session.getEntryTime(), Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant()).toMinutes();
         log.info("Parking Lot Price: {}", parkingLot.getBasePricePerHour());
 
         if(parkingLot==null)

@@ -21,7 +21,7 @@
 //import org.junit.jupiter.api.Test;
 //import org.springframework.beans.factory.annotation.Autowired;
 //
-//import java.time.LocalDateTime;
+//import java.time.Instant
 //import java.util.List;
 //
 //import static org.assertj.core.api.Assertions.assertThat;
@@ -167,7 +167,7 @@
 //        ParkingLot lot = createAndSaveLot("Reserved Lot", 1, false);
 //        ParkingSlot slot = parkingSlotRepository.save(ParkingSlot.builder().parkingLot(lot).slotNumber("1").status(SlotStatus.RESERVED).build());
 //        Vehicle vehicle = vehicleRepository.save(Vehicle.builder().vehicleNumber("V1").vehicleType(VehicleType.CAR).build());
-//        reservationRepository.save(Reservation.builder().parkingSlot(slot).vehicle(vehicle).status(ReservationStatus.ACTIVE).reservationTime(LocalDateTime.now()).expirationTime(LocalDateTime.now().plusHours(1)).build());
+//        reservationRepository.save(Reservation.builder().parkingSlot(slot).vehicle(vehicle).status(ReservationStatus.ACTIVE).reservationTime(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant()).expirationTime(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant().plusHours(1)).build());
 //
 //        Response<String> response = performDeleteRequest(BASE_URL + "/" + lot.getId(), Response.class, status().isBadRequest());
 //        assertThat(response.getMessage()).contains("Parking Can't be deleted due to active reservation");

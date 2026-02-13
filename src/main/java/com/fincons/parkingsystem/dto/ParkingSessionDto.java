@@ -6,8 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * Data Transfer Object for representing parking session data.
@@ -34,10 +33,10 @@ public class ParkingSessionDto {
     private String parkingLotName;
 
     /** The timestamp when the vehicle entered the parking lot. */
-    private LocalDateTime entryTime;
+    private Instant entryTime;
 
     /** The timestamp when the vehicle exited the parking lot. Null for active sessions. */
-    private LocalDateTime exitTime;
+    private Instant exitTime;
 
     /** The total amount charged for the parking session, calculated upon exit. */
     private Double totalAmount;

@@ -24,7 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.Duration;import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -100,8 +100,10 @@ public class ReservationServiceImpl implements ReservationService {
         Reservation reservation = Reservation.builder()
                 .vehicle(vehicle)
                 .parkingSlot(availableSlot)
-                .reservationTime(LocalDateTime.now())
-                .expirationTime(LocalDateTime.now().plusMinutes(RESERVATION_EXPIRATION_MINUTES))
+                .reservationTime(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant())
+                .expirationTime(
+                Instant.now().plus(Duration.ofMinutes(RESERVATION_EXPIRATION_MINUTES))
+        )
                 .status(ReservationStatus.ACTIVE)
                 .build();
 
@@ -223,7 +225,7 @@ public class ReservationServiceImpl implements ReservationService {
         ParkingSession newSession = ParkingSession.builder()
                 .vehicle(reservation.getVehicle())
                 .parkingSlot(reservedSlot)
-                .entryTime(LocalDateTime.now())
+                .entryTime(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant())
                 .status(ParkingSessionStatus.ACTIVE)
                 .build();
         parkingSessionRepository.save(newSession);
@@ -254,7 +256,7 @@ public class ReservationServiceImpl implements ReservationService {
     public void expireReservations() {
         List<Reservation> expiredReservations = reservationRepository.findAll()
                 .stream()
-                .filter(r -> r.getStatus() == ReservationStatus.ACTIVE && r.getExpirationTime().isBefore(LocalDateTime.now()))
+                .filter(r -> r.getStatus() == ReservationStatus.ACTIVE && r.getExpirationTime().isBefore(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant()))
                 .toList();
 
         for (Reservation reservation : expiredReservations) {

@@ -2,8 +2,7 @@ package com.fincons.parkingsystem.utils;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
-
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * A generic wrapper class for API responses.
@@ -22,7 +21,7 @@ public class Response<T> {
     /**
      * The timestamp when the response was generated.
      */
-    LocalDateTime time;
+    Instant time;
     /**
      * The main data payload of the response.
      * The type of this field is generic, allowing it to hold any kind of data.

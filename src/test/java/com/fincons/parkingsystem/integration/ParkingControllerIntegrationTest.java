@@ -23,7 +23,7 @@
 //import org.junit.jupiter.api.Test;
 //import org.springframework.beans.factory.annotation.Autowired;
 //
-//import java.time.LocalDateTime;
+//import java.time.Instant
 //import java.util.List;
 //
 //import static org.assertj.core.api.Assertions.assertThat;
@@ -140,8 +140,8 @@
 //                .vehicle(vehicle)
 //                .parkingSlot(slots.get(0))
 //                .status(ReservationStatus.ACTIVE)
-//                .reservationTime(LocalDateTime.now())
-//                .expirationTime(LocalDateTime.now().plusMinutes(15))
+//                .reservationTime(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant())
+//                .expirationTime(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant().plusMinutes(15))
 //                .build();
 //        reservationRepository.save(reservation);
 //
@@ -177,8 +177,8 @@
 //        ParkingSession completedSession = ParkingSession.builder()
 //                .vehicle(vehicle)
 //                .parkingSlot(slots.get(0))
-//                .entryTime(LocalDateTime.now().minusHours(2))
-//                .exitTime(LocalDateTime.now().minusHours(1))
+//                .entryTime(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant().minusHours(2))
+//                .exitTime(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant().minusHours(1))
 //                .status(ParkingSessionStatus.COMPLETED)
 //                .build();
 //        parkingSessionRepository.save(completedSession);

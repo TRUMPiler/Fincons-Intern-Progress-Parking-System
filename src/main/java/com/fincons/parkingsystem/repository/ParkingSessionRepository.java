@@ -11,8 +11,7 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Optional;
 
 /**
@@ -72,7 +71,7 @@ public interface ParkingSessionRepository extends JpaRepository<ParkingSession, 
      */
     @Query(value = "SELECT SUM(total_amount) FROM parking_sessions WHERE status = 'COMPLETED' AND parking_slot_id IN (SELECT id FROM parking_slots WHERE parking_lot_id = :parkingLotId) " +
             "AND exit_time BETWEEN :startDateNow AND :endDateNow", nativeQuery = true)
-    Double sumOfTotalAmountByParkingLotAndExitTime(@Param("parkingLotId") Long parkingLotId, LocalDateTime startDateNow, LocalDateTime endDateNow);
+    Double sumOfTotalAmountByParkingLotAndExitTime(@Param("parkingLotId") Long parkingLotId, Instant startDateNow, Instant endDateNow);
 
     Page<ParkingSession> findAll(Pageable pageable);
 }

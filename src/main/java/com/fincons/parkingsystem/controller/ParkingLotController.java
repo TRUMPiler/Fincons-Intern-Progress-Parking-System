@@ -11,8 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -40,7 +39,7 @@ public class ParkingLotController {
     public ResponseEntity<Response<ParkingLotDto>> createParkingLot(@Valid @RequestBody ParkingLotDto parkingLotDto) {
         log.info("Received request to create a new parking lot with name: {}", parkingLotDto.getName());
         ParkingLotDto createdParkingLot = parkingLotService.createParkingLot(parkingLotDto);
-        Response<ParkingLotDto> response = new Response<>(LocalDateTime.now(), createdParkingLot, "Parking Lot created successfully.", true, HttpStatus.CREATED.value());
+        Response<ParkingLotDto> response = new Response<>(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant(), createdParkingLot, "Parking Lot created successfully.", true, HttpStatus.CREATED.value());
         log.info("Successfully created parking lot with ID: {}", createdParkingLot.getId());
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -56,7 +55,7 @@ public class ParkingLotController {
     public ResponseEntity<Response<Page<ParkingLotDto>>> getAllParkingLotsWithInactiveStatus(Pageable pageable) {
         log.info("Received request to retrieve all parking lots, including inactive ones.");
         Page<ParkingLotDto> parkingLotDtos = parkingLotService.getAllParkingLotsDeleted(pageable);
-        Response<Page<ParkingLotDto>> response = new Response<>(LocalDateTime.now(), parkingLotDtos, "All parking lots, including inactive, fetched successfully.", true, HttpStatus.OK.value());
+        Response<Page<ParkingLotDto>> response = new Response<>(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant(), parkingLotDtos, "All parking lots, including inactive, fetched successfully.", true, HttpStatus.OK.value());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -70,7 +69,7 @@ public class ParkingLotController {
     public ResponseEntity<Response<List<ParkingLotDto>>> getAllParkingLots() {
         log.info("Received request to retrieve all active parking lots (non-paginated).");
         List<ParkingLotDto> parkingLots = parkingLotService.findAllParkingLotsNonDeleted();
-        Response<List<ParkingLotDto>> response = new Response<>(LocalDateTime.now(), parkingLots, "All active parking lots fetched successfully.", true, HttpStatus.OK.value());
+        Response<List<ParkingLotDto>> response = new Response<>(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant(), parkingLots, "All active parking lots fetched successfully.", true, HttpStatus.OK.value());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -85,7 +84,7 @@ public class ParkingLotController {
     public ResponseEntity<Response<Page<ParkingLotDto>>> getAllActiveParkingLots(Pageable pageable) {
         log.info("Received request to retrieve active parking lots with pagination.");
         Page<ParkingLotDto> parkingLots = parkingLotService.getAllParkingLots(pageable);
-        Response<Page<ParkingLotDto>> response = new Response<>(LocalDateTime.now(), parkingLots, "Successfully retrieved active parking lots.", true, HttpStatus.OK.value());
+        Response<Page<ParkingLotDto>> response = new Response<>(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant(), parkingLots, "Successfully retrieved active parking lots.", true, HttpStatus.OK.value());
         return ResponseEntity.ok(response);
     }
 
@@ -99,7 +98,7 @@ public class ParkingLotController {
     public ResponseEntity<Response<Void>> deleteParkingLot(@PathVariable Long id) {
         log.info("Received request to deactivate parking lot with ID: {}", id);
         parkingLotService.deleteParkingLot(id);
-        Response<Void> response = new Response<>(LocalDateTime.now(), null, "Parking Lot deactivated successfully.", true, HttpStatus.OK.value());
+        Response<Void> response = new Response<>(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant(), null, "Parking Lot deactivated successfully.", true, HttpStatus.OK.value());
         log.info("Successfully deactivated parking lot with ID: {}", id);
         return ResponseEntity.ok(response);
     }
@@ -114,7 +113,7 @@ public class ParkingLotController {
     public ResponseEntity<Response<String>> reactivateParkingLot(@PathVariable Long id) {
         log.info("Received request to reactivate parking lot with ID: {}", id);
         parkingLotService.reactivateParkingLot(id);
-        Response<String> response = new Response<>(LocalDateTime.now(), null, "Parking Lot reactivated successfully.", true, HttpStatus.OK.value());
+        Response<String> response = new Response<>(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant(), null, "Parking Lot reactivated successfully.", true, HttpStatus.OK.value());
         log.info("Successfully reactivated parking lot with ID: {}", id);
         return ResponseEntity.ok(response);
     }

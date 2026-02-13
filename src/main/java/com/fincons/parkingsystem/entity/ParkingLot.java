@@ -3,7 +3,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -57,7 +57,7 @@ public class ParkingLot
     /**
      * The timestamp recorded when the parking lot was first created.
      */
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     /**
      * A list of all parking slots associated with this lot.
@@ -83,6 +83,6 @@ public class ParkingLot
      */
     @PrePersist
     public void onCreate() {
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant();
     }
 }

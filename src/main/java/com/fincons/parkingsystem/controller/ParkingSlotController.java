@@ -10,8 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * REST controller for retrieving and managing parking slots.
@@ -37,7 +36,7 @@ public class    ParkingSlotController {
     public ResponseEntity<Response<Page<ParkingSlotDto>>> getSlotsByParkingLot(@PathVariable Long parkingLotId, Pageable pageable) {
         log.info("Received request to get slots for parking lot ID: {}", parkingLotId);
         Page<ParkingSlotDto> slots = parkingSlotService.getParkingSlotAvailability(parkingLotId, pageable);
-        Response<Page<ParkingSlotDto>> response = new Response<>(LocalDateTime.now(), slots, "Slots fetched successfully", true, HttpStatus.OK.value());
+        Response<Page<ParkingSlotDto>> response = new Response<>(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant(), slots, "Slots fetched successfully", true, HttpStatus.OK.value());
         return ResponseEntity.ok(response);
     }
 
@@ -54,7 +53,7 @@ public class    ParkingSlotController {
     {
         log.info("Received request to update parking slot with ID: {}", parkingSlotDto.getId());
         ParkingSlotDto updatedSlot = parkingSlotService.updateParkingSlotInformation(parkingSlotDto);
-        Response<ParkingSlotDto> response = new Response<>(LocalDateTime.now(), updatedSlot, "Parking Slot updated successfully", true, HttpStatus.OK.value());
+        Response<ParkingSlotDto> response = new Response<>(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant(), updatedSlot, "Parking Slot updated successfully", true, HttpStatus.OK.value());
         log.info("Successfully updated parking slot with ID: {}", updatedSlot.getId());
         return ResponseEntity.ok(response);
     }

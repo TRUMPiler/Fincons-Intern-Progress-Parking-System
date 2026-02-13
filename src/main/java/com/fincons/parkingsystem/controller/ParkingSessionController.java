@@ -12,8 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * REST controller for retrieving information about parking sessions.
@@ -39,7 +38,7 @@ public class ParkingSessionController {
     public ResponseEntity<Response<Page<ParkingSessionDto>>> getActiveSessions(Pageable pageable) {
         log.info("Received request to retrieve active parking sessions.");
         Page<ParkingSessionDto> activeSessions = parkingSessionService.getActiveSessions(pageable);
-        Response<Page<ParkingSessionDto>> response = new Response<>(LocalDateTime.now(), activeSessions, "Successfully retrieved all active sessions.", true, HttpStatus.OK.value());
+        Response<Page<ParkingSessionDto>> response = new Response<>(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant(), activeSessions, "Successfully retrieved all active sessions.", true, HttpStatus.OK.value());
         return ResponseEntity.ok(response);
     }
 
@@ -53,7 +52,7 @@ public class ParkingSessionController {
     public ResponseEntity<Response<Page<ParkingSessionDto>>> getSessionHistory(Pageable pageable) {
         log.info("Received request to retrieve parking session history.");
         Page<ParkingSessionDto> sessionHistory = parkingSessionService.getSessionHistory(pageable);
-        Response<Page<ParkingSessionDto>> response = new Response<>(LocalDateTime.now(), sessionHistory, "Successfully retrieved session history.", true, HttpStatus.OK.value());
+        Response<Page<ParkingSessionDto>> response = new Response<>(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant(), sessionHistory, "Successfully retrieved session history.", true, HttpStatus.OK.value());
         return ResponseEntity.ok(response);
     }
 }

@@ -23,7 +23,7 @@
 //import org.junit.jupiter.api.Test;
 //import org.springframework.beans.factory.annotation.Autowired;
 //
-//import java.time.LocalDateTime;
+//import java.time.Instant
 //import java.util.List;
 //import java.util.stream.IntStream;
 //
@@ -72,8 +72,8 @@
 //                .vehicle(vehicle)
 //                .parkingSlot(slot)
 //                .status(status)
-//                .reservationTime(LocalDateTime.now())
-//                .expirationTime(LocalDateTime.now().plusMinutes(15))
+//                .reservationTime(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant())
+//                .expirationTime(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant().plusMinutes(15))
 //                .build());
 //    }
 //

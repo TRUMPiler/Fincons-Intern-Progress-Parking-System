@@ -11,8 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * REST controller for retrieving statistical data related to parking lots.
@@ -39,7 +38,7 @@ public class ParkingLotStatsController
     {
         log.info("Received request for statistics of parking lot with ID: {}", id);
         ParkingLotStatsDto parkingLotStatsDto = parkingLotStatsService.getParkingLotStats(id);
-        Response<ParkingLotStatsDto> response = new Response<>(LocalDateTime.now(), parkingLotStatsDto, "Parking Lot Details Fetched", true, HttpStatus.OK.value());
+        Response<ParkingLotStatsDto> response = new Response<>(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant(), parkingLotStatsDto, "Parking Lot Details Fetched", true, HttpStatus.OK.value());
         log.info("Successfully retrieved statistics for parking lot with ID: {}", id);
         return ResponseEntity.ok(response);
     }

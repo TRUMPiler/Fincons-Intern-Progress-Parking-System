@@ -3,8 +3,7 @@ package com.fincons.parkingsystem.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * Data Transfer Object representing an event for when a vehicle enters a parking lot.
@@ -32,5 +31,5 @@ public class VehicleEnteredEvent {
     private String parkingLotName;
 
     /** The timestamp of the vehicle's entry. */
-    private LocalDateTime entryTime;
+    private Instant entryTime;
 }

@@ -18,8 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -66,9 +65,9 @@ class ReservationServiceImplTest {
     @BeforeEach
     void setUp() {
         vehicle = new Vehicle(1L, "TEST1234", VehicleType.CAR, false);
-        parkingLot = new ParkingLot(1L, "Test Lot", "Location", 10, 10.0, LocalDateTime.now(), null, false, 0);
+        parkingLot = new ParkingLot(1L, "Test Lot", "Location", 10, 10.0, Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant(), null, false, 0);
         parkingSlot = new ParkingSlot(101L, "A1", SlotStatus.AVAILABLE, parkingLot, 1L, false, 0);
-        reservation = new Reservation(1L, vehicle, parkingSlot, 101L, LocalDateTime.now(), LocalDateTime.now().plusMinutes(15), ReservationStatus.ACTIVE, false, 0);
+        reservation = new Reservation(1L, vehicle, parkingSlot, 101L, Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant(), Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant().plusMinutes(15), ReservationStatus.ACTIVE, false, 0);
         reservationRequestDto = new ReservationRequestDto("TEST1234", VehicleType.CAR, 1L);
     }
 
@@ -151,7 +150,7 @@ class ReservationServiceImplTest {
     @Test
     void expireReservations_correctlyExpiresAndFreesSlot() {
         // Arrange
-        reservation.setExpirationTime(LocalDateTime.now().minusMinutes(1));
+        reservation.setExpirationTime(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant().minusMinutes(1));
         List<Reservation> expiredList = Collections.singletonList(reservation);
 
         when(reservationRepository.findAll()).thenReturn(expiredList);

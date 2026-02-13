@@ -6,8 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * Data Transfer Object for representing parking reservation data.
@@ -35,10 +34,10 @@ public class ReservationDto {
     private String parkingLotName;
 
     /** The timestamp when the reservation was created. */
-    private LocalDateTime reservationTime;
+    private Instant reservationTime;
 
     /** The timestamp when the reservation will expire if not claimed. */
-    private LocalDateTime expirationTime;
+    private Instant expirationTime;
 
     /** The current status of the reservation (e.g., ACTIVE, COMPLETED, CANCELLED). */
     private ReservationStatus status;

@@ -3,8 +3,7 @@ package com.fincons.parkingsystem.utils;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * A standardized class for representing error responses in the API.
@@ -19,7 +18,7 @@ public class ErrorResponse {
     /**
      * The timestamp when the error occurred.
      */
-    private LocalDateTime timestamp;
+    private Instant timestamp;
     /**
      * The HTTP status code associated with the error (e.g., 400, 404, 500).
      */

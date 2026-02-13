@@ -9,8 +9,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
-
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,7 +36,7 @@ public class GlobalExceptionHandler {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(error ->
                 errors.put(error.getField(), error.getDefaultMessage()));
-        Response<Map<String, String>> response = new Response<>(LocalDateTime.now(), errors, "Validation Failed", false, HttpStatus.BAD_REQUEST.value());
+        Response<Map<String, String>> response = new Response<>(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant(), errors, "Validation Failed", false, HttpStatus.BAD_REQUEST.value());
         log.info(response.toString());
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
@@ -52,7 +51,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<Response<String>> handleResourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
         log.error("Resource not found for request {}: {}", request.getDescription(false), ex.getMessage());
-        Response<String> response = new Response<>(LocalDateTime.now(), null, ex.getMessage(), false, HttpStatus.NOT_FOUND.value());
+        Response<String> response = new Response<>(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant(), null, ex.getMessage(), false, HttpStatus.NOT_FOUND.value());
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
@@ -67,7 +66,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ConflictException.class)
     public ResponseEntity<Response<String>> handleConflictException(ConflictException ex, WebRequest request) {
         log.error("Conflict error for request {}: {}", request.getDescription(false), ex.getMessage());
-        Response<String> response = new Response<>(LocalDateTime.now(), null, ex.getMessage(), false, HttpStatus.CONFLICT.value());
+        Response<String> response = new Response<>(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant(), null, ex.getMessage(), false, HttpStatus.CONFLICT.value());
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 
@@ -82,7 +81,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(OptimisticLockException.class)
     public ResponseEntity<Response<String>> handleOptimisticLockException(OptimisticLockException ex, WebRequest request) {
         log.warn("Optimistic locking conflict for request {}: {}", request.getDescription(false), ex.getMessage());
-        Response<String> response = new Response<>(LocalDateTime.now(), null, "The data has been modified by another process. Please try your request again.", false, HttpStatus.CONFLICT.value());
+        Response<String> response = new Response<>(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant(), null, "The data has been modified by another process. Please try your request again.", false, HttpStatus.CONFLICT.value());
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 
@@ -96,7 +95,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<Response<String>> handleBadRequestException(BadRequestException ex, WebRequest request) {
         log.error("Bad request for request {}: {}", request.getDescription(false), ex.getMessage());
-        Response<String> response = new Response<>(LocalDateTime.now(), null, ex.getMessage(), false, HttpStatus.BAD_REQUEST.value());
+        Response<String> response = new Response<>(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant(), null, ex.getMessage(), false, HttpStatus.BAD_REQUEST.value());
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
@@ -111,7 +110,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Response<String>> handleAllExceptions(Exception ex, WebRequest request) {
         log.error("An unexpected error occurred for request {}: {}", request.getDescription(false), ex.getMessage(), ex);
-        Response<String> response = new Response<>(LocalDateTime.now(), null, "An unexpected error occurred. Please contact support.", false, HttpStatus.INTERNAL_SERVER_ERROR.value());
+        Response<String> response = new Response<>(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant(), null, "An unexpected error occurred. Please contact support.", false, HttpStatus.INTERNAL_SERVER_ERROR.value());
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

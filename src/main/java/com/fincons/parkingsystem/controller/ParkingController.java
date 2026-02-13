@@ -11,8 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * REST controller for handling core parking operations, such as vehicle entry and exit.
@@ -41,7 +40,7 @@ public class ParkingController {
     public ResponseEntity<Response<ParkingSessionDto>> vehicleEntry(@Valid @RequestBody VehicleEntryRequestDto entryRequestDto) {
         log.info("Received vehicle entry request for vehicle number: {}", entryRequestDto.getVehicleNumber());
         ParkingSessionDto parkingSessionDto = parkingService.enterVehicle(entryRequestDto);
-        Response<ParkingSessionDto> response = new Response<>(LocalDateTime.now(), parkingSessionDto, "Parking session initiated for this vehicle.", true, HttpStatus.OK.value());
+        Response<ParkingSessionDto> response = new Response<>(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant(), parkingSessionDto, "Parking session initiated for this vehicle.", true, HttpStatus.OK.value());
         log.info("Successfully created parking session with ID: {}", parkingSessionDto.getId());
         return ResponseEntity.ok(response);
     }
@@ -60,7 +59,7 @@ public class ParkingController {
     public ResponseEntity<Response<ParkingSessionDto>> vehicleExit(@Valid @RequestBody VehicleDto vehicleDto) {
         log.info("Received vehicle exit request for vehicle number: {}", vehicleDto.getVehicleNumber());
         ParkingSessionDto parkingSessionDto = parkingService.exitVehicle(vehicleDto.getVehicleNumber());
-        Response<ParkingSessionDto> response = new Response<>(LocalDateTime.now(), parkingSessionDto, "Parking session completed.", true, HttpStatus.OK.value());
+        Response<ParkingSessionDto> response = new Response<>(Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant(), parkingSessionDto, "Parking session completed.", true, HttpStatus.OK.value());
         log.info("Successfully completed parking session for vehicle number: {}", vehicleDto.getVehicleNumber());
         return ResponseEntity.ok(response);
     }

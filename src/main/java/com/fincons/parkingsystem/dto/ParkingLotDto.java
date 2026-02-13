@@ -6,8 +6,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -44,7 +43,7 @@ public class ParkingLotDto {
     private Double basePricePerHour;
 
     /** The timestamp when the parking lot was created. */
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     /** A list of DTOs for the parking slots within this lot. */
     private List<ParkingSlotDto> parkingSlots;

@@ -4,8 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
-
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * Represents a reservation for a parking spot, holding it for a limited time.
@@ -57,13 +56,13 @@ public class Reservation {
      * The timestamp recorded when the reservation was created.
      */
     @Column(nullable = false)
-    private LocalDateTime reservationTime;
+    private Instant reservationTime;
 
     /**
      * The timestamp indicating when the reservation will automatically expire if not claimed.
      */
     @Column(nullable = false)
-    private LocalDateTime expirationTime;
+    private Instant expirationTime;
 
     /**
      * The current status of the reservation (e.g., ACTIVE, COMPLETED, CANCELLED).

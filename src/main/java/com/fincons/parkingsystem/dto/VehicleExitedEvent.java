@@ -3,8 +3,7 @@ package com.fincons.parkingsystem.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * Data Transfer Object representing an event for when a vehicle exits a parking lot.
@@ -32,10 +31,10 @@ public class VehicleExitedEvent {
     /** The identifier of the parking slot that was vacated. */
     private String parkingSlotNumber;
     /** The timestamp of the vehicle's entry. */
-    private LocalDateTime entryTime;
+    private Instant entryTime;
 
     /** The timestamp of the vehicle's exit. */
-    private LocalDateTime exitTime;
+    private Instant exitTime;
 
     /** The total amount charged for the parking session. */
     private Double totalAmount;
