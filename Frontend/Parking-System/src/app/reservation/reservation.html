@@ -307,7 +307,7 @@
                 <td class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">{{ lot.parkingLotName }}</td>
                 <td class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">{{ lot.reservationTime | date:'short' }}
                 </td>
-                <td class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">{{ lot.expirationTime | date:'short' }}
+                <td class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">{{ lot.expirationTime | date:'short':'+0530' }}
                 </td>
                 <td class="px-4 py-3 text-sm whitespace-nowrap">
                     <span [ngClass]="getStatusClass(lot.status)" class="font-semibold shadow-sm p-2 rounded">{{

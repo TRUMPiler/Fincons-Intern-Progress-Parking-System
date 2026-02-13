@@ -14,7 +14,7 @@ import { Observable, throwError } from 'rxjs';
 })
 export class AuthService {
   // Base API URL used for backend HTTP requests
-  private apiUrl = 'https://api.finconsparkingsystem.live/api';
+  private apiUrl = 'https://fincons-intern-progress-parking-system-production.up.railway.app/api';
 
   constructor(private http: HttpClient) {}
 

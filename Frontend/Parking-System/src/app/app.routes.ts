@@ -11,6 +11,7 @@ import { ActiveSessionsComponent } from './active-sessions/active-sessions';
 import { SessionHistoryComponent } from './session-history/session-history';
 import { ShowInfo } from './show-info/show-info';
 import { Reservation } from './reservation/reservation';
+import { SiteMap } from './site-map/site-map';
 
 // Array of application route definitions
 export const routes: Routes = [
@@ -37,6 +38,11 @@ export const routes: Routes = [
         path: 'active-sessions',
         component: ActiveSessionsComponent,
         title: 'Active Sessions'
+    },
+    {
+        path:'documentation',
+        component:SiteMap,
+        title:'Documentation'
     },
     // Route: session history
     {

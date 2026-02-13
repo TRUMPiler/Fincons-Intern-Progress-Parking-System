@@ -270,6 +270,11 @@ export class Reservation implements OnInit, OnDestroy{
 
     return isValid;
   }
+  convertToIST(sgTime: string): Date {
+  const date = new Date(sgTime);
+  date.setMinutes(date.getMinutes() - 150); // 2 hours 30 mins
+  return date;
+}
 
   onPageSizeChange(newSize: number) {
     this.pageSize=newSize;
