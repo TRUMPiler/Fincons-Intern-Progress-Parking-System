@@ -30,10 +30,11 @@ export class Reservation implements OnInit, OnDestroy{
   private webSocket1Service: WebSocket1Service;
   private destroy$ = new Subject<void>();
   visible: boolean = false;
+   private messageService: MessageService = inject(MessageService);
   indianPlateRegex = /^[A-Z]{2}[ -]?[0-9]{2}[ -]?[A-Z]{1,2}[ -]?[0-9]{4}$/;
   validationErrors: { [key: string]: string } = {};
-  constructor(private authService: AuthService, private cdr: ChangeDetectorRef, private messageService: MessageService, ) {
-    this.messageService = inject(MessageService);
+  constructor(private authService: AuthService, private cdr: ChangeDetectorRef ) {
+   
     this.webSocket1Service = inject(WebSocket1Service);
   }
   pageNumber: number = 0;
@@ -88,7 +89,7 @@ export class Reservation implements OnInit, OnDestroy{
         if (err.status == 0) {
           this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Server is down. Please try again later.', key: 'error', life: 5000 });
 
-          setTimeout(() => { window.location.href = '/'; }, 5000);
+          // setTimeout(() => { window.location.href = '/'; }, 5000);
           return;
         }
         console.error(err);
@@ -174,7 +175,7 @@ export class Reservation implements OnInit, OnDestroy{
         if (err.status == 0) {
           this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Server is down. Please try again later.', key: 'error', life:5000 });
          setTimeout(() => {
-          window.location.href = '/';
+          // window.location.href = '/';
          }, 5000);
           
           return;
@@ -186,6 +187,8 @@ export class Reservation implements OnInit, OnDestroy{
   ngOnInit(): void {
     this.refreshParkingLots();
     this.refreshReservation();
+    this.messageService.add({ severity: 'info', summary: 'Info', detail: 'Welcome to the Parking Reservation System!', key: 'tl', life:3000 });
+    console.log('Reservation component initialized. Parking lots and reservations loaded.');
   }
   showDialog() {
     this.visible = true;
@@ -343,7 +346,7 @@ export class Reservation implements OnInit, OnDestroy{
           if (err.status == 0) {
             this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Server is down. Please try again later.', key: 'error', life:5000 });
             setTimeout(() => {
-              window.location.href = "/";
+              // window.location.href = "/";
             }, 5000);
             return;
           }

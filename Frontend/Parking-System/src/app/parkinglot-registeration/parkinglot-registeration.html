@@ -1,7 +1,62 @@
 <!-- Parking Lot Registration and List -->
 <div class="min-h-screen p-8" [style]="{'background-image': 'linear-gradient(to bottom right, #eff6ff, #dbeafe)'}">
+  <style>
+    /* Page-scoped dark-mode styles: enable dark look for this page while keeping PrimeNG components light */
+    @media (prefers-color-scheme: dark) {
+      .min-h-screen {
+        background-image: linear-gradient(to bottom right, #000000, #071022) !important;
+        color: #e6f0ff;
+       
+      }
+
+      .min-h-screen .bg-white {
+        /* convert white cards to dark card background */
+        background-color: #071022 !important;
+        color: #e6f0ff !important;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.6) !important;
+      }
+
+      /* Make gray-50 section (paginator/footer) pure black in dark mode */
+      .min-h-screen .bg-gray-50 {
+        background-color: #000000 !important;
+        color: #e6f0ff !important;
+        border-top-color: #111827 !important;
+      }
+
+      .min-h-screen h2, .min-h-screen p, .min-h-screen label, .min-h-screen span {
+        color: #e6f0ff !important;
+      }
+
+      .min-h-screen .text-gray-600 { color: #9aa9bb !important; }
+      .min-h-screen .text-gray-500 { color: #8f9fb0 !important; }
+
+      /* Keep accent border colors visible on dark bg */
+      .min-h-screen .border-l-4 { box-shadow: none !important; }
+      .min-h-screen .border-purple-500 { border-left-color: #8b5cf6 !important; }
+      .min-h-screen .border-green-600 { border-left-color: #22c55e !important; }
+      .min-h-screen .border-red-500 { border-left-color: #fb7185 !important; }
+      .min-h-screen .border-indigo-500 { border-left-color: #6366f1 !important; }
+
+      /* Muted text inside inputs/labels */
+      .min-h-screen input, .min-h-screen select, .min-h-screen textarea {
+        background-color: #0b1220 !important;
+        color: #e6f0ff !important;
+        border-color: #203040 !important;
+      }
+      
+
+      /* Keep PrimeNG components light (override within this page) */
+     
+
+      /* Ensure PrimeNG header row remains high-contrast */
+      /* .min-h-screen .p-table thead th, .min-h-screen .p-datatable-thead th {
+        background: black !important;
+        color: white !important;
+      } */
+    }
+  </style>
   <div class="max-w-7xl mx-auto">
-    <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden dark:border-2 dark:border-white">
       <div class="mb-6 px-8 pt-8">
         <h2 class="text-4xl font-bold text-gray-800 text-center">Registered Parking Lots</h2>
         <p class="text-gray-600 text-center mt-2">Manage and view all parking lot registrations</p>
@@ -10,9 +65,9 @@
       <p-toast position="top-right" key="error"/>
       
       <div class="flex justify-end items-center mb-6 px-8">
-        <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all" (click)="showDialog()">+ Open Registration Form</button>
+        <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all dark:border-1 dark:border-white" (click)="showDialog()" >+ Open Registration Form</button>
       <p-dialog header="Register a Parking Lot" [modal]="true" [(visible)]="DialogVisible" [style]="{ width: '75rem' }">
-        <div class="p-6 max-h-[70vh] overflow-y-auto">
+        <div class="p-6 max-h-[70vh] overflow-y-auto dark:border-2 dark:border-white dark:rounded-md">
           <form #ngForm="ngForm" (ngSubmit)="onSubmit(ngForm)">
             <div class="mb-4">
               <label class="block text-gray-700 text-sm font-bold mb-2">Parking Lot Name</label>
@@ -27,7 +82,19 @@
             </div> -->
             <div class="mb-4">
               <label class="block text-gray-700 text-sm font-bold mb-2">Parking Lot Location</label>
-            <p-autocomplete class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" [class.border-red-500]="validationErrors['location']" placeholder="Enter full address or nearby landmark" name="location" [(ngModel)]="parkinglot.location" required [suggestions]="items" (completeMethod)="getPlacesApi()" [showClear]="true" [inputStyle]="{width: '100%'}" />
+          <p-autocomplete
+  class="px-3 py-2 rounded focus:outline-none"
+  [class.border-red-500]="validationErrors['location']"
+  [class.dark:border-red-400]="validationErrors['location']"
+  placeholder="Enter full address or nearby landmark"
+  name="location"
+  [(ngModel)]="parkinglot.location"
+  required
+  [suggestions]="items"
+  (completeMethod)="getPlacesApi()"
+  [showClear]="true"
+  fluid
+/>
           </div>
             <div class="mb-4">
               <label class="block text-gray-700 text-sm font-bold mb-2">Total Parking Slots</label>
@@ -141,7 +208,7 @@
                 </div></th>
           <th class="py-2 px-3 text-left font-semibold"><div class="flex items-center gap-2">
                         <span>Base Price (₹)/Hour</span>
-                    @if(isSorted==false || sortField!=='basepriceperhour') {
+                    @if(isSorted==false || sortField!=='base_price_per_hour') {
                     <svg (click)="ChangingSorting('base_price_per_hour')" xmlns="http://www.w3.org/2000/svg" width="20"
                         height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round" class="cursor-pointer">
@@ -149,7 +216,7 @@
                         <path d="M21 15l-4 4l-4 -4m4 4v-14" />
                     </svg>
                     }
-                    @else if(isSorted==true && sortField==='basepriceperhour' && sortDirection=='asc') {
+                    @else if(isSorted==true && sortField==='base_price_per_hour' && sortDirection=='asc') {
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                         (click)="ChangingSorting('base_price_per_hour')">

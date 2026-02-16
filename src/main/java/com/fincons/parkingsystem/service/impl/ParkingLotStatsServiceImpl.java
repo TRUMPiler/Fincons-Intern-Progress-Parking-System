@@ -2,6 +2,7 @@ package com.fincons.parkingsystem.service.impl;
 
 import com.fincons.parkingsystem.dto.ParkingLotStatsDto;
 import com.fincons.parkingsystem.entity.ParkingLot;
+import com.fincons.parkingsystem.entity.ParkingSession;
 import com.fincons.parkingsystem.entity.SlotStatus;
 import com.fincons.parkingsystem.exception.ResourceNotFoundException;
 import com.fincons.parkingsystem.repository.ParkingLotRepository;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.Optional;
 
 /**
@@ -46,7 +48,8 @@ public class ParkingLotStatsServiceImpl implements ParkingLotStatsService {
         long occupiedSlots = parkingSlotRepository.countByParkingLotAndStatus(parkingLot, SlotStatus.OCCUPIED);
         double occupancyPercentage = (parkingLot.getTotalSlots() > 0) ? ((double) occupiedSlots / parkingLot.getTotalSlots() * 100) : 0.0;
         long availableSlots = parkingSlotRepository.countByParkingLotAndStatus(parkingLot, SlotStatus.AVAILABLE);
-        Double revenueToday = Optional.ofNullable(parkingSessionRepository.sumOfTotalAmountByParkingLotAndExitTime(parkingLot.getId(), Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant(), Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant())).orElse(0.0);
+        LocalDate today = LocalDate.now();
+        Double revenueToday = Optional.ofNullable(parkingSessionRepository.sumOfTotalAmountByParkingLotAndExitTime(parkingLot.getId(), today.atStartOfDay(ZoneOffset.UTC).toInstant(),  Instant.now().atZone(java.time.ZoneId.systemDefault()).toInstant())).orElse(0.0);
 
         return ParkingLotStatsDto.builder()
                 .parkingLotId(parkingLot.getId())

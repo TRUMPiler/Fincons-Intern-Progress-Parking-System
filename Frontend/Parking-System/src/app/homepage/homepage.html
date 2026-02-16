@@ -1,4 +1,49 @@
 <div class="min-h-screen bg-linear-to-r from-blue-100 to-blue-200 flex flex-col items-center justify-center p-4">
+    <style>
+        /* Dark-mode friendly overrides for this page only (uses prefers-color-scheme) */
+        @media (prefers-color-scheme: dark) {
+            .min-h-screen {
+                background-image: linear-gradient(to right, #000000, #071022) !important;
+                color: #e6f0ff;
+            }
+
+            .min-h-screen h1 {
+                color: #e6f0ff !important;
+            }
+
+            .min-h-screen p {
+                color: #9fb7d6 !important;
+            }
+
+            /* Card buttons that used white backgrounds */
+            .min-h-screen .bg-white {
+                background-color: #000000 !important;
+                color: #e6f0ff !important;
+                border: white solid 1px !important;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.6) !important;
+            }
+            /* Muted text inside cards */
+            .min-h-screen .text-gray-600 { color: #9aa9bb !important; }
+            .min-h-screen .text-gray-500 { color: #8f9fb0 !important; }
+            /* Color accents (keep visible on dark) */
+            .min-h-screen .text-purple-700 { color: #c7b2ff !important; }
+            .min-h-screen .text-blue-800 { color: #bfe0ff !important; }
+            .min-h-screen .text-green-800 { color: #b7f1c6 !important; }
+            .min-h-screen .text-green-700 { color: #9ee6a7 !important; }
+            .min-h-screen .text-red-700 { color: #ffb4b4 !important; }
+            .min-h-screen .text-indigo-700 { color: #c6d2ff !important; }
+            .min-h-screen .text-indigo-700, .min-h-screen .text-indigo-700 + span { color: #c6d2ff !important; }
+            /* Borders (left accent) remain saturated but slightly brighter */
+            .min-h-screen .border-purple-500 { border-left-color: #7c3aed !important; }
+            .min-h-screen .border-green-600 { border-left-color: #16a34a !important; }
+            .min-h-screen .border-red-500 { border-left-color: #ef4444 !important; }
+            .min-h-screen .border-indigo-500 { border-left-color: #6366f1 !important; }
+
+            /* Hover/active effects for cards */
+            .min-h-screen .hover\:shadow-lg:hover { box-shadow: 0 10px 20px rgba(0,0,0,0.6) !important; }
+            .min-h-screen .hover\:scale-105:hover { transform: scale(1.03) !important; }
+        }
+    </style>
     <h1 class="text-4xl font-bold text-shadow-black text-shadow- text-blue-900 text-o mb-2">Parking System Dashboard
     </h1>
     <p class="text-blue-600  [-webkit-text-stroke:0.2px_blue] text-lg mb-8">Fincons India Parking Management Solution

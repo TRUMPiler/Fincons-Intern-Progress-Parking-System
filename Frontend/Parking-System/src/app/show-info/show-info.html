@@ -1,4 +1,67 @@
 <div class="pt-24 min-h-screen bg-gray-50 flex flex-col items-center justify-start p-6">
+  <style>
+    /* Scoped dark-mode styles for show-info page. PrimeNG components are kept light. */
+    @media (prefers-color-scheme: dark) {
+      .min-h-screen {
+        background-image: linear-gradient(to bottom right, #000000, #071022) !important;
+        color: #e6f0ff !important;
+      }
+/*  
+      .min-h-screen .bg-grey-50{
+        background-color: #071022 !important;
+        color: #e6f0ff !important;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.6) !important;
+      } */
+       min-h-screen .border-purple-500 { border-left-color: #7c3aed !important; }
+            .min-h-screen .border-green-600 { border-left-color: #16a34a !important; }
+            .min-h-screen .border-red-500 { border-left-color: #ef4444 !important; }
+            .min-h-screen .border-indigo-500 { border-left-color: #6366f1 !important; }
+
+      .min-h-screen .bg-white {
+        background-color: #071022 !important;
+        color: #e6f0ff !important;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.6) !important;
+        border: 1px solid #ffffff !important;
+      }
+
+      .min-h-screen h2, .min-h-screen h3, .min-h-screen p, .min-h-screen label, .min-h-screen span {
+        color: #e6f0ff !important;
+      }
+
+      .min-h-screen .text-gray-700 { color: #9aa9bb !important; }
+      .min-h-screen .text-gray-800 { color: #e6f0ff !important; }
+      .min-h-screen .text-gray-500 { color: #94a3b8 !important; }
+
+      /* Accent colors (blue/green/red) tuned for visibility on dark bg */
+      .min-h-screen .text-blue-700 { color: #9fc5ff !important; }
+      .min-h-screen .text-green-600, .min-h-screen .text-green-600.font-semibold { color: #9ee6a7 !important; }
+      .min-h-screen .border-blue-500 { border-left-color: #3b82f6 !important }
+
+      /* Table row hover and text adjustments */
+      .min-h-screen .hover\:bg-blue-50:hover { background-color: rgba(255,255,255,0.02) !important; }
+
+      /* Controls (select/input/button) dark styles */
+      .min-h-screen select, .min-h-screen input, .min-h-screen textarea {
+        background-color: #0b1220 !important;
+        color: #e6f0ff !important;
+        border-color: #203040 !important;
+      }
+
+      
+
+      /* Ensure PrimeNG table headers are high contrast */
+    
+
+      /* Footer / paginator area black background */
+      .min-h-screen .flex.items-center.justify-between.p-6.bg-gray-50.border-t,
+      .min-h-screen .flex.items-center.justify-between.mt-4 {
+        background-color: #000000 !important;
+        color: #e6f0ff !important;
+        border-top-color: #111827 !important;
+      }
+    }
+  </style>
+
   <div class="bg-white rounded-lg shadow-lg w-full max-w-6xl p-8">
     <p-toast position="top-left" key="tl"/>
     <p-toast position="top-left" key="error"/>
@@ -7,36 +70,36 @@
     </h2>
     @defer(on timer(1s))
     {
-    <div class="space-y-6 text-gray-700">
+    <div class="space-y-6 text-gray-700 dark:">
       <!-- Parking Lot Info Section -->
       @for (lot of parkingLotInfo; track lot.parkingLotId) {
-      <div class="border-l-4 border-blue-500 bg-linear-to-r from-blue-50 to-white p-6 rounded-lg shadow-md">
+      <div class="border-l-4 border-blue-500 bg-linear-to-r from-blue-50 to-white p-6 rounded-lg shadow-md dark:from-neutral-900 dark:to-[#071022] dark:shadow-none">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <p><strong class="text-blue-700">Parking Lot Name:</strong> <span class="text-gray-800">{{
-                lot.parkingLotName }}</span></p>
-            <p class="mt-2"><strong class="text-blue-700">Available Lots:</strong> <span class="text-gray-800">{{
-                lot.availableSlots }}</span></p>
-            <p class="mt-2"><strong class="text-blue-700">Occupied Slots:</strong> <span class="text-gray-800">{{
-                lot.occupiedSlots }}</span></p>
-            <p class="mt-2"><strong class="text-blue-700">Total Slots:</strong> <span class="text-gray-800">{{
-                lot.totalSlots }}</span></p>
+            <p><strong class="text-blue-700 dark:text-blue-300">Parking Lot Name:</strong> <span class="text-gray-800 dark:text-gray-100">{{
+              lot.parkingLotName }}</span></p>
+            <p class="mt-2"><strong class="text-blue-700 dark:text-blue-300">Available Lots:</strong> <span class="text-gray-800 dark:text-gray-100">{{
+              lot.availableSlots }}</span></p>
+            <p class="mt-2"><strong class="text-blue-700 dark:text-blue-300">Occupied Slots:</strong> <span class="text-gray-800 dark:text-gray-100">{{
+              lot.occupiedSlots }}</span></p>
+            <p class="mt-2"><strong class="text-blue-700 dark:text-blue-300">Total Slots:</strong> <span class="text-gray-800 dark:text-gray-100">{{
+              lot.totalSlots }}</span></p>
           </div>
           <div>
-            <p><strong class="text-blue-700">Base Price/Hour:</strong> <span class="text-green-600 font-semibold">₹{{
-                lot.basePricePerHour }}</span></p>
-            <p class="mt-2"><strong class="text-blue-700">Occupancy:</strong> <span class="text-gray-800">{{
-                lot.occupancyPercentage }}%</span></p>
+            <p><strong class="text-blue-700 dark:text-blue-300">Base Price/Hour:</strong> <span class="text-green-600 dark:text-green-300 font-semibold">₹{{
+              lot.basePricePerHour }}</span></p>
+            <p class="mt-2"><strong class="text-blue-700 dark:text-blue-300">Occupancy:</strong> <span class="text-gray-800 dark:text-gray-100">{{
+              lot.occupancyPercentage }}%</span></p>
             <p class="mt-2 text-lg"><strong class="text-blue-700">Total Revenue:</strong>
-              @if(lot.totalRevenue<=0) { <span class="text-gray-500">No collections yet</span>
+              @if(lot.totalRevenue<=0) { <span class="text-gray-500 dark:text-gray-400">No collections yet</span>
                 } @else {
-                <span class="text-green-600 font-bold">₹{{ lot.totalRevenue }}</span>
+                <span class="text-green-600 dark:text-green-300 font-bold">₹{{ lot.totalRevenue }}</span>
                 }
             </p>
             <p class="mt-2 text-lg"><strong class="text-blue-700">Today's Revenue:</strong>
-              @if(lot.revenueToday<=0) { <span class="text-gray-500">No collections yet</span>
+              @if(lot.revenueToday<=0) { <span class="text-gray-500 dark:text-gray-400">No collections yet</span>
                 } @else {
-                <span class="text-green-600 font-bold">₹{{ lot.revenueToday }}</span>
+                <span class="text-green-600 dark:text-green-300 font-bold">₹{{ lot.revenueToday }}</span>
                 }
             </p>
           </div>
@@ -77,9 +140,9 @@
               </div>
             </div>
 
-            <p-table [value]="parkingSlots" [tableStyle]="{'min-width':'100%'}">
+            <p-table [value]="parkingSlots" class="w-full dark:border dark:border-white">
               <ng-template pTemplate="header">
-                <tr>
+                <tr class="dark:bg-gray-800 dark:text-white">
 
                   <th class="py-3 px-4 text-left">Slot Number</th>
                   <th class="py-3 px-4 text-left">Status</th>
@@ -116,7 +179,7 @@
               </ng-template>
             </p-table>
             <div class="flex items-center justify-between mt-4">
-              <div class="text-sm text-gray-600">Total: {{ totalSlotRecords }}</div>
+              <div class="text-sm text-gray-600 dark:text-white">Total: {{ totalSlotRecords }}</div>
               <div class="flex items-center gap-3">
                 <button class="px-3 py-1 border rounded" (click)="goToPreviousPage()"
                   [disabled]="pageNumber === 0">Previous</button>
@@ -126,7 +189,7 @@
               </div>
             </div>
             <div class="flex justify-end gap-4 mt-6 border-t pt-4">
-              <button class="bg-black hover:bg-gray-800 hover:scale-105 text-white px-4 py-2 rounded shadow-md transition-colors"
+              <button class="bg-black hover:bg-gray-800 hover:scale-105 text-white px-4 py-2 rounded shadow-md transition-colors dark:border-white dark:border"
                 (click)="onBack()">
                 Back to Dashboard
               </button>
