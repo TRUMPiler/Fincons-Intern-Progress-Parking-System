@@ -70,4 +70,11 @@ public class WebSocketServiceImpl implements WebSocketService {
         log.info("Sending slot status update to WebSocket topic {}: {}", topic, statusUpdateDto);
         messagingTemplate.convertAndSend(topic, new WebSocketMessage<>("SLOT_STATUS_UPDATE", statusUpdateDto));
     }
+
+    @Override
+    public void reservationUpdate(ReservationUpdate reservationUpdate) {
+        String topic="/topic/reservation";
+        log.info("Sending reservation update to WebSocket topic {}: {}", topic, reservationUpdate);
+        messagingTemplate.convertAndSend("/topic/reservation", new WebSocketMessage<>("RESERVATION_UPDATE", reservationUpdate));
+    }
 }

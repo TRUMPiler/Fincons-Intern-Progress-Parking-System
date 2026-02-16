@@ -1,5 +1,6 @@
 package com.fincons.parkingsystem.service.impl;
 
+import com.fincons.parkingsystem.dto.ReservationUpdate;
 import com.fincons.parkingsystem.dto.SlotStatusUpdateDto;
 import com.fincons.parkingsystem.dto.VehicleEnteredEvent;
 import com.fincons.parkingsystem.dto.VehicleExitedEvent;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.ObjectError;
 
 /**
  * Service implementation for producing and sending messages to Kafka topics.
@@ -21,12 +23,12 @@ public class KafkaProducerServiceImpl implements KafkaProducerService {
     private final KafkaTemplate<String, Object> kafkaEntryMessageTemplate;
     private final KafkaTemplate<String, Object> kafkaExitMessageTemplate;
     private final KafkaTemplate<String, Object> kafkaSlotUpdateMessageTemplate;
-
+    private final KafkaTemplate<String, Object> kafkaReservationUpdateMessageTemplate;
     private static final String DEFAULT_TOPIC_NAME = "parking-system";
     private static final String VEHICLE_ENTRY_TOPIC_NAME = "vehicle-entry";
     private static final String VEHICLE_EXIT_TOPIC_NAME = "vehicle-exit";
     private static final String SLOT_UPDATE_TOPIC_NAME = "slot-update";
-
+    private static final String RESERVATION_UPDATE_TOPIC_NAME = "reservation";
     /**
      * Sends a generic string message to the default Kafka topic.
      *
@@ -70,5 +72,11 @@ public class KafkaProducerServiceImpl implements KafkaProducerService {
         log.info("Producing slot update event to topic {}: {}", SLOT_UPDATE_TOPIC_NAME, slotUpdateDto);
         kafkaSlotUpdateMessageTemplate.send(SLOT_UPDATE_TOPIC_NAME, slotUpdateDto);
 
+    }
+
+    @Override
+    public void SendReservationProduce(ReservationUpdate reservationUpdate) {
+        log.info("Sending Reservation Update");
+        kafkaReservationUpdateMessageTemplate.send(RESERVATION_UPDATE_TOPIC_NAME, reservationUpdate);
     }
 }

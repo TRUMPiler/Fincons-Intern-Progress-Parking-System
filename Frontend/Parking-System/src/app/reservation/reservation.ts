@@ -97,7 +97,26 @@ export class Reservation implements OnInit, OnDestroy{
       }
     });
   }
-  
+  loadDyanimicReservations(): void {
+    console.log('Subscribing to reservation updates via WebSocket');
+    this.webSocket1Service.subscribeReservationUpdates()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((message) => {
+        const payload = message.payload || {};
+      
+        this.reservation = this.reservation.map((r: any) => r.id === payload.id ? { 
+          ...r,
+          id: payload.id || r.id,
+          vehicleNumber: payload.vehicleNumber || r.vehicleNumber,
+          vehicleType: payload.vehicleType || r.vehicleType,
+          parkingLotId: payload.parkingLotId || r.parkingLotId,
+          parkingLotName: payload.parkingLotName || r.parkingLotName,
+          status: payload.status || r.status,
+        }:r);
+        this.cdr.markForCheck();
+      },
+      );
+  }
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -187,7 +206,8 @@ export class Reservation implements OnInit, OnDestroy{
   ngOnInit(): void {
     this.refreshParkingLots();
     this.refreshReservation();
-    this.messageService.add({ severity: 'info', summary: 'Info', detail: 'Welcome to the Parking Reservation System!', key: 'tl', life:3000 });
+    this.loadDyanimicReservations();
+    
     console.log('Reservation component initialized. Parking lots and reservations loaded.');
   }
   showDialog() {
@@ -335,7 +355,7 @@ export class Reservation implements OnInit, OnDestroy{
             this.messageService.add({ severity: 'success', summary: 'Success', detail: "Parking Slot Reserved Successfully", key: 'tl', life:5000 });
             this.visible=false;
             form.resetForm();
-            this.refreshReservation();
+            // this.refreshReservation();
           }
           else {
             this.messageService.add({ severity: 'error', summary: 'Error', detail: response.message, key: 'error', life:5000 });
@@ -370,7 +390,7 @@ export class Reservation implements OnInit, OnDestroy{
       next: (response) => {
         if (response.success) {
           this.messageService.add({ severity: 'success', summary: 'Success', detail: "Reservation Cancelled Successfully", key: 'tl', life:5000 });
-          this.refreshReservation();
+          // this.refreshReservation();
         } else {
           this.messageService.add({ severity: 'error', summary: 'Error', detail: response.message, key: 'error', life:5000 });
         }
@@ -393,7 +413,7 @@ export class Reservation implements OnInit, OnDestroy{
       next: (response) => {
         if (response.success) {
           this.messageService.add({ severity: 'success', summary: 'Success', detail: "Marked as Arrived Successfully", key: 'tl', life:5000 });
-          this.refreshReservation();
+          // this.refreshReservation();
         } else {
           this.messageService.add({ severity: 'error', summary: 'Error', detail: response.message, key: 'error', life:5000 });
         }

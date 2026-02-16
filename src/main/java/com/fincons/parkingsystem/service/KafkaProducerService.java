@@ -1,5 +1,6 @@
 package com.fincons.parkingsystem.service;
 
+import com.fincons.parkingsystem.dto.ReservationUpdate;
 import com.fincons.parkingsystem.dto.SlotStatusUpdateDto;
 import com.fincons.parkingsystem.dto.VehicleEnteredEvent;
 import com.fincons.parkingsystem.dto.VehicleExitedEvent;
@@ -37,4 +38,5 @@ public interface KafkaProducerService {
      * @param slotUpdateDto The DTO containing the slot status update information.
      */
     void sendSlotUpdateProduce(SlotStatusUpdateDto slotUpdateDto);
+    void SendReservationProduce(ReservationUpdate reservationUpdate);
 }

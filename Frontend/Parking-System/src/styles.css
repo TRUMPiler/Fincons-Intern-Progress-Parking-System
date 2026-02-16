@@ -50,3 +50,10 @@ body {
 	background: black;
 	color: white;
 }
+@media (prefers-color-scheme: dark){
+	.p-table thead th, .p-datatable-thead th, table thead th {
+	background: rgb(255, 255, 255) !important;
+	color: rgb(0, 0, 0) !important;
+}
+
+}

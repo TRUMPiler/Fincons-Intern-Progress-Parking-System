@@ -1,5 +1,6 @@
 package com.fincons.parkingsystem.service.impl;
 
+import com.fincons.parkingsystem.dto.ReservationUpdate;
 import com.fincons.parkingsystem.dto.SlotStatusUpdateDto;
 import com.fincons.parkingsystem.dto.VehicleEnteredEvent;
 import com.fincons.parkingsystem.dto.VehicleExitedEvent;
@@ -87,4 +88,16 @@ public class KafkaConsumerServiceImpl implements KafkaConsumerService {
         parkingLotDashboardService.updateOccupancy(slotUpdateDto);
         webSocketService.SendSlotStatusUpdate(slotUpdateDto.getParkingLotId(), slotUpdateDto);
     }
+
+    @KafkaListener(
+            topics = "reservation",
+            groupId = "group_id",
+            containerFactory = "reservationUpdateKafkaListenerFactory"
+    )
+    @Override
+    public void reservationUpdateConsume(ReservationUpdate reservationUpdate) {
+        log.info("Reservation Update Notified: {}", reservationUpdate);
+        webSocketService.reservationUpdate(reservationUpdate);
+    }
+
 }

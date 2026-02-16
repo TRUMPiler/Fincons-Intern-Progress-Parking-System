@@ -1,5 +1,6 @@
 package com.fincons.parkingsystem.config;
 
+import com.fincons.parkingsystem.dto.ReservationUpdate;
 import com.fincons.parkingsystem.dto.SlotStatusUpdateDto;
 import com.fincons.parkingsystem.dto.VehicleEnteredEvent;
 import com.fincons.parkingsystem.dto.VehicleExitedEvent;
@@ -172,7 +173,27 @@ public class KafkaConfig {
         factory.setConsumerFactory(slotUpdateConsumerFactory());
         return factory;
     }
+    @Bean
+    public ConsumerFactory<String, ReservationUpdate> reservationUpdateConsumerFactory() {
+        JsonDeserializer<ReservationUpdate> deserializer = new JsonDeserializer<>(ReservationUpdate.class);
+        deserializer.addTrustedPackages("com.fincons.parkingsystem.dto");
+        deserializer.setUseTypeHeaders(false);
 
+        Map<String, Object> props = getConsumerProps();
+        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new ErrorHandlingDeserializer<>(deserializer));
+    }
+
+    /**
+     * Creates a listener container factory for SlotStatusUpdateDto consumers.
+     *
+     * @return A configured ConcurrentKafkaListenerContainerFactory.
+     */
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, ReservationUpdate> reservationUpdateKafkaListenerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, ReservationUpdate> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(reservationUpdateConsumerFactory());
+        return factory;
+    }
     /**
      * Helper method to create a map of common consumer properties.
      *

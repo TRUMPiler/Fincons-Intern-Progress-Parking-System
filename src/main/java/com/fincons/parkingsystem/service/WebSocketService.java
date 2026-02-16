@@ -1,9 +1,6 @@
 package com.fincons.parkingsystem.service;
 
-import com.fincons.parkingsystem.dto.HighOccupancyAlertDto;
-import com.fincons.parkingsystem.dto.SlotStatusUpdateDto;
-import com.fincons.parkingsystem.dto.VehicleEnteredEvent;
-import com.fincons.parkingsystem.dto.VehicleExitedEvent;
+import com.fincons.parkingsystem.dto.*;
 
 /**
  * Service interface for broadcasting messages over WebSocket.
@@ -41,4 +38,5 @@ public interface WebSocketService {
     void sendHighOccupancyAlert(HighOccupancyAlertDto alert);
 
     void SendSlotStatusUpdate(Long parkingLotId, SlotStatusUpdateDto statusUpdateDto);
+    void reservationUpdate(ReservationUpdate reservationUpdate);
 }
